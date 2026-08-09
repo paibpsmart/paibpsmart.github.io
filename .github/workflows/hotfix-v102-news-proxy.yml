@@ -1,0 +1,32 @@
+name: Hotfix V102 news proxy
+on:
+  push:
+    paths:
+      - '.github/workflows/hotfix-v102-news-proxy.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Route news reads through Worker proxy
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          gas='https://script.google.com/macros/s/AKfycbyRxOw6oWDZUuQxwuqOMRO92KOwqOGF_9J6rPzSfxr9Dqy9kAQGJ9qZA6Tm_deUOgtjKg/exec'
+          proxy='https://paibp-smart-api.sunarso29.workers.dev'
+          for name in ['home-news-v102.js','news-editor-chunked-v102.js']:
+              p=Path(name)
+              s=p.read_text(encoding='utf-8')
+              s=s.replace(f'const GAS="{gas}";', f'const GAS="{proxy}";', 1)
+              p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit hotfix
+        run: |
+          git config user.name 'paibp-smart-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add home-news-v102.js news-editor-chunked-v102.js
+          git diff --cached --quiet && exit 0
+          git commit -m 'Route V102 news read and verify through Worker proxy'
+          git push
