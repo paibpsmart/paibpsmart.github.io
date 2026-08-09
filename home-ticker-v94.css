@@ -1,13 +1,22 @@
-/* V94 — ticker robust: tetap terlihat jika animasi dimatikan, tetap berjalan di HP. */
+/* V95 — continuous one-line Spensus ticker, no long blank pause. */
 .smart-ticker{display:block!important;visibility:visible!important;opacity:1!important;overflow:hidden!important;min-height:38px}
-.smart-ticker-inner{display:flex!important;align-items:center!important;overflow:hidden!important;min-width:0}
+.smart-ticker-inner{display:flex!important;align-items:center!important;flex-wrap:nowrap!important;overflow:hidden!important;min-width:0}
+.ticker-label,.smart-ticker a{flex:0 0 auto!important;white-space:nowrap!important}
 .ticker-window{display:block!important;position:relative!important;overflow:hidden!important;white-space:nowrap!important;min-width:0!important;flex:1 1 auto!important}
-#smart-ticker-text.ticker-run-v93{display:inline-block!important;width:max-content!important;max-width:none!important;margin:0!important;padding-left:0!important;white-space:nowrap!important;visibility:visible!important;opacity:1!important;color:inherit!important;-webkit-text-fill-color:currentColor!important;text-shadow:none!important;will-change:transform;animation:v94TickerRun 30s linear infinite!important}
-@keyframes v94TickerRun{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+#smart-ticker-text.ticker-run-v95{display:flex!important;align-items:center!important;width:max-content!important;max-width:none!important;margin:0!important;padding:0!important;white-space:nowrap!important;visibility:visible!important;opacity:1!important;color:inherit!important;-webkit-text-fill-color:currentColor!important;text-shadow:none!important;will-change:transform;animation:v95TickerLoop 20s linear infinite!important}
+#smart-ticker-text.ticker-run-v95 .ticker-copy-v95{display:block!important;flex:0 0 auto!important;white-space:nowrap!important;padding-right:4rem!important}
+@keyframes v95TickerLoop{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media(max-width:760px){
   .smart-ticker *{animation-play-state:running!important}
-  #smart-ticker-text.ticker-run-v93{animation:v94TickerRun 24s linear infinite!important;font-size:.82rem!important;padding-left:0!important}
+  #smart-ticker-text.ticker-run-v95{animation:v95TickerLoop 16s linear infinite!important;font-size:.8rem!important;line-height:1!important}
+  #smart-ticker-text.ticker-run-v95 .ticker-copy-v95{padding-right:2.5rem!important}
+  .smart-ticker-inner{gap:8px!important}
+}
+@media(max-width:480px){
+  .ticker-label{font-size:.72rem!important}
+  #smart-ticker-text.ticker-run-v95{animation-duration:14s!important;font-size:.76rem!important}
 }
 @media(prefers-reduced-motion:reduce){
-  #smart-ticker-text.ticker-run-v93{animation:none!important;transform:none!important;padding-left:0!important;white-space:normal!important;width:auto!important}
+  #smart-ticker-text.ticker-run-v95{animation:none!important;transform:none!important;width:auto!important}
+  #smart-ticker-text.ticker-run-v95 .ticker-copy-v95:nth-child(2){display:none!important}
 }
