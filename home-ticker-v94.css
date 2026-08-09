@@ -1,0 +1,13 @@
+/* V94 — ticker robust: tetap terlihat jika animasi dimatikan, tetap berjalan di HP. */
+.smart-ticker{display:block!important;visibility:visible!important;opacity:1!important;overflow:hidden!important;min-height:38px}
+.smart-ticker-inner{display:flex!important;align-items:center!important;overflow:hidden!important;min-width:0}
+.ticker-window{display:block!important;position:relative!important;overflow:hidden!important;white-space:nowrap!important;min-width:0!important;flex:1 1 auto!important}
+#smart-ticker-text.ticker-run-v93{display:inline-block!important;width:max-content!important;max-width:none!important;margin:0!important;padding-left:0!important;white-space:nowrap!important;visibility:visible!important;opacity:1!important;color:inherit!important;-webkit-text-fill-color:currentColor!important;text-shadow:none!important;will-change:transform;animation:v94TickerRun 30s linear infinite!important}
+@keyframes v94TickerRun{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+@media(max-width:760px){
+  .smart-ticker *{animation-play-state:running!important}
+  #smart-ticker-text.ticker-run-v93{animation:v94TickerRun 24s linear infinite!important;font-size:.82rem!important;padding-left:0!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #smart-ticker-text.ticker-run-v93{animation:none!important;transform:none!important;padding-left:0!important;white-space:normal!important;width:auto!important}
+}
