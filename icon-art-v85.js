@@ -19,19 +19,23 @@
     document.head.append(l);
   };
 
-  addScript("icon-art-v86.js","89");
-  addStyle("visual-fix-v87.css","89");
-  addStyle("visual-v89.css","89");
+  addScript("icon-art-v86.js","90");
+  addStyle("visual-fix-v87.css","90");
+  addStyle("visual-v89.css","90");
 
-  if(page==="index.html") addScript("home-v89.js","89");
-  if(page==="akses-guru.html") addScript("teacher-preview-fix-v87.js","89");
+  if(page==="index.html"){
+    addScript("home-v89.js","90");
+    addStyle("spensus-ai-v90.css","90");
+    addScript("spensus-ai-shell-v90.js","90");
+  }
+  if(page==="akses-guru.html") addScript("teacher-preview-fix-v87.js","90");
   if(page==="mapel-lain.html"){
-    addStyle("multimapel-admin-v89.css","89");
-    addScript("multimapel-admin-v89.js","89");
+    addStyle("multimapel-admin-v89.css","90");
+    addScript("multimapel-admin-v89.js","90");
   }
 
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    const register=()=>navigator.serviceWorker.register("service-worker.js?v=89").then(r=>r.update()).catch(()=>null);
+    const register=()=>navigator.serviceWorker.register("service-worker.js?v=90").then(r=>r.update()).catch(()=>null);
     if(document.readyState==="complete")register();
     else window.addEventListener("load",register,{once:true});
   }
