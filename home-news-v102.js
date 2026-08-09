@@ -1,61 +1,27 @@
 (() => {
   "use strict";
   const GAS="https://script.google.com/macros/s/AKfycbyRxOw6oWDZUuQxwuqOMRO92KOwqOGF_9J6rPzSfxr9Dqy9kAQGJ9qZA6Tm_deUOgtjKg/exec";
+  const $=(s,r=document)=>r.querySelector(s);
   const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
   let items=[],activeYear="",loading=false;
 
-  function shell(){
-    let root=document.querySelector("#spensus-news-v102");
-    if(root)return root;
-    root=document.createElement("section");root.id="spensus-news-v102";root.className="spensus-news-v101";
-    root.innerHTML=`<div class="sn101-wrap"><header class="sn101-head"><div><span class="sn101-kicker">KABAR SPENSUS</span><h2>Berita terbaru SMP Negeri 1 Susukan</h2><p>Informasi kegiatan, prestasi, akademik, kesiswaan, keagamaan, dan agenda sekolah.</p></div><button class="sn101-refresh" type="button" data-sn-refresh>↻ Muat terbaru</button></header><div class="sn101-grid" data-sn-grid><div class="sn101-empty">Memuat berita terbaru…</div></div><div class="sn101-archive" data-sn-archive></div></div><div class="sn101-modal" data-sn-modal hidden><section class="sn101-dialog" role="dialog" aria-modal="true" aria-label="Baca berita Spensus"><header class="sn101-dialog-head"><strong>SPENSUS TERKINI</strong><button class="sn101-close" type="button" data-sn-close aria-label="Tutup">×</button></header><div data-sn-article></div></section></div>`;
-    const main=document.querySelector("main#main")||document.querySelector("main");
-    (main||document.body).insertAdjacentElement(main?"afterend":"beforeend",root);
-    root.querySelector("[data-sn-refresh]")?.addEventListener("click",load);
-    root.querySelector("[data-sn-close]")?.addEventListener("click",closeArticle);
-    root.querySelector("[data-sn-modal]")?.addEventListener("click",e=>{if(e.target===e.currentTarget)closeArticle()});
-    return root;
-  }
+  function shell(){let root=$("#spensus-news-v102");if(root)return root;root=document.createElement("section");root.id="spensus-news-v102";root.className="spensus-news-v101";root.innerHTML=`<div class="sn101-wrap"><header class="sn101-head"><div><span class="sn101-kicker">KABAR SPENSUS</span><h2>Berita terbaru SMP Negeri 1 Susukan</h2><p>Informasi kegiatan, prestasi, akademik, kesiswaan, keagamaan, dan agenda sekolah.</p></div><button class="sn101-refresh" type="button" data-sn-refresh>↻ Muat terbaru</button></header><div class="sn101-grid" data-sn-grid><div class="sn101-empty">Memuat berita terbaru…</div></div><div class="sn101-archive" data-sn-archive></div></div><div class="sn101-modal" data-sn-modal hidden><section class="sn101-dialog" role="dialog" aria-modal="true" aria-label="Baca berita Spensus"><header class="sn101-dialog-head"><strong>SPENSUS TERKINI</strong><button class="sn101-close" type="button" data-sn-close aria-label="Tutup">×</button></header><div data-sn-article></div></section></div>`;const main=$("main#main")||$("main");(main||document.body).insertAdjacentElement(main?"afterend":"beforeend",root);$("[data-sn-refresh]",root)?.addEventListener("click",load);$("[data-sn-close]",root)?.addEventListener("click",closeArticle);$("[data-sn-modal]",root)?.addEventListener("click",e=>{if(e.target===e.currentTarget)closeArticle()});return root}
 
-  function jsonp(){return new Promise((resolve,reject)=>{
-    const cb=`__spensusNews102_${Date.now()}_${Math.random().toString(36).slice(2)}`,s=document.createElement("script");let finished=false;
-    const timer=setTimeout(()=>done(new Error("Server berita belum merespons.")),10000);
-    function done(err,data){if(finished)return;finished=true;clearTimeout(timer);try{delete window[cb]}catch{};s.remove();err?reject(err):resolve(data)}
-    window[cb]=d=>done(null,d);s.onerror=()=>done(new Error("Koneksi berita gagal."));
-    const u=new URL(GAS);u.searchParams.set("action","publicSnapshot");u.searchParams.set("callback",cb);u.searchParams.set("_",Date.now());s.src=u.href;document.head.append(s);
-  })}
+  function jsonp(){return new Promise((resolve,reject)=>{const cb=`__spensus102_${Date.now()}_${Math.random().toString(36).slice(2)}`,s=document.createElement("script");let done=false;const timer=setTimeout(()=>finish(new Error("Server berita belum merespons.")),12000);function finish(err,data){if(done)return;done=true;clearTimeout(timer);try{delete window[cb]}catch{};s.remove();err?reject(err):resolve(data)}window[cb]=d=>finish(null,d);s.onerror=()=>finish(new Error("Koneksi berita gagal."));const u=new URL(GAS);u.searchParams.set("action","publicSnapshot");u.searchParams.set("callback",cb);u.searchParams.set("_",Date.now());s.src=u.href;document.head.append(s)})}
+  const valueData=v=>typeof v==="string"?v:(v?.data||"");
+  const valueText=v=>typeof v==="string"?v:(v?.text||"");
 
-  function normalize(snapshot){
-    const content=snapshot?.content||{};
-    return (Array.isArray(snapshot?.news)?snapshot.news:[]).filter(n=>n?.id&&n?.title&&!/^__MEDIA__/i.test(String(n.title))).map(n=>{
-      const extra=content[`news:${n.id}`]||{};
-      const media=(Array.isArray(extra.media)?extra.media:[]).filter(Boolean).slice(0,10);
-      const cover=String(extra.coverDataUrl||extra.coverUrl||n.imageUrl||n.imageDataUrl||media[0]||"");
-      const date=String(extra.date||n.date||"").slice(0,10);
-      if(!media.length&&cover)media.push(cover);
-      return{id:String(n.id),title:String(extra.title||n.title||"Berita Spensus"),summary:String(extra.summary||n.summary||""),content:String(extra.content||n.summary||""),category:String(extra.category||"Berita Sekolah"),date,year:Number(extra.year||date.slice(0,4))||0,media,cover,updatedAt:String(n.updatedAt||date)};
-    }).sort((a,b)=>String(b.date||b.updatedAt).localeCompare(String(a.date||a.updatedAt)));
-  }
+  function normalize(snapshot){const content=snapshot?.content||{};return (Array.isArray(snapshot?.news)?snapshot.news:[]).filter(n=>n?.id&&n?.title&&!/^__MEDIA__/i.test(String(n.title))).map(n=>{const extra=content[`news:${n.id}`]||{};let media=[],body="",cover="";if(extra?.schema==="chunks-v102"){media=(extra.photoKeys||[]).map(k=>valueData(content[k])).filter(Boolean).slice(0,10);body=(extra.bodyKeys||[]).map(k=>valueText(content[k])).join("");cover=valueData(content[extra.coverKey])||media[0]||n.imageUrl||n.imageDataUrl||""}else{media=(Array.isArray(extra.media)?extra.media:[]).map(x=>typeof x==="string"?x:x?.src).filter(Boolean).slice(0,10);body=String(extra.content||n.summary||"");cover=String(extra.coverDataUrl||extra.coverUrl||n.imageUrl||n.imageDataUrl||media[0]||"");if(!media.length&&cover)media.push(cover)}const date=String(extra.date||n.date||"").slice(0,10);return{id:String(n.id),title:String(extra.title||n.title||"Berita Spensus"),summary:String(extra.summary||n.summary||""),content:body,category:String(extra.category||"Berita Sekolah"),date,year:Number(extra.year||date.slice(0,4))||0,media,cover,updatedAt:String(n.updatedAt||date)}}).sort((a,b)=>String(b.date||b.updatedAt).localeCompare(String(a.date||a.updatedAt)))}
 
   function dateText(v){if(!v)return"";try{return new Intl.DateTimeFormat("id-ID",{day:"numeric",month:"long",year:"numeric"}).format(new Date(`${v}T12:00:00`))}catch{return v}}
   function bodyHtml(v){return String(v||"").split(/\n\s*\n|\n/).map(x=>x.trim()).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join("")}
 
-  function render(){
-    const root=shell(),grid=root.querySelector("[data-sn-grid]"),archive=root.querySelector("[data-sn-archive]");const list=activeYear?items.filter(x=>String(x.year)===String(activeYear)):items;
-    if(!list.length){grid.innerHTML='<div class="sn101-empty">Belum ada berita yang diterbitkan.</div>';}else{
-      const lead=list[0],side=list.slice(1,6);
-      grid.innerHTML=`<article class="sn101-lead"><div class="sn101-media">${lead.cover?`<img src="${esc(lead.cover)}" alt="${esc(lead.title)}" loading="eager" decoding="async">`:""}${lead.media.length>1?`<span class="sn101-count">${lead.media.length} foto</span>`:""}</div><div class="sn101-copy"><div class="sn101-meta"><span>${esc(lead.category)}</span><time>${esc(dateText(lead.date))}</time></div><h3>${esc(lead.title)}</h3><p>${esc(lead.summary)}</p><button class="sn101-read" type="button" data-sn-open="${esc(lead.id)}">Baca selengkapnya</button></div></article><div class="sn101-side">${side.map(x=>`<article class="sn101-card" data-sn-open="${esc(x.id)}">${x.cover?`<img src="${esc(x.cover)}" alt="" loading="lazy" decoding="async">`:"<div></div>"}<div class="sn101-card-copy"><small>${esc(x.category)} • ${esc(dateText(x.date))}</small><h3>${esc(x.title)}</h3><p>${esc(x.summary)}</p></div></article>`).join("")}</div>`;
-      root.querySelectorAll("[data-sn-open]").forEach(el=>el.addEventListener("click",()=>openArticle(el.dataset.snOpen)));
-    }
-    const years=[...new Set(items.map(x=>x.year).filter(Boolean))].sort((a,b)=>b-a);
-    archive.innerHTML=years.length?`<b>Arsip:</b><button class="sn101-year" aria-pressed="${!activeYear}" data-sn-year="">Terbaru</button>${years.map(y=>`<button class="sn101-year" aria-pressed="${String(activeYear)===String(y)}" data-sn-year="${y}">${y}</button>`).join("")}`:"";
-    archive.querySelectorAll("[data-sn-year]").forEach(b=>b.addEventListener("click",()=>{activeYear=b.dataset.snYear;render()}));
-  }
+  function render(){const root=shell(),grid=$("[data-sn-grid]",root),archive=$("[data-sn-archive]",root),list=activeYear?items.filter(x=>String(x.year)===String(activeYear)):items;if(!list.length){grid.innerHTML='<div class="sn101-empty">Belum ada berita yang diterbitkan.</div>'}else{const lead=list[0],side=list.slice(1,6);grid.innerHTML=`<article class="sn101-lead"><div class="sn101-media">${lead.cover?`<img src="${esc(lead.cover)}" alt="${esc(lead.title)}" loading="eager" decoding="async">`:""}${lead.media.length>1?`<span class="sn101-count">${lead.media.length} foto</span>`:""}</div><div class="sn101-copy"><div class="sn101-meta"><span>${esc(lead.category)}</span><time>${esc(dateText(lead.date))}</time></div><h3>${esc(lead.title)}</h3><p>${esc(lead.summary)}</p><button class="sn101-read" type="button" data-sn-open="${esc(lead.id)}">Baca selengkapnya</button></div></article><div class="sn101-side">${side.map(x=>`<article class="sn101-card" data-sn-open="${esc(x.id)}">${x.cover?`<img src="${esc(x.cover)}" alt="" loading="lazy" decoding="async">`:"<div></div>"}<div class="sn101-card-copy"><small>${esc(x.category)} • ${esc(dateText(x.date))}</small><h3>${esc(x.title)}</h3><p>${esc(x.summary)}</p></div></article>`).join("")}</div>`;root.querySelectorAll("[data-sn-open]").forEach(el=>el.addEventListener("click",()=>openArticle(el.dataset.snOpen)))}const years=[...new Set(items.map(x=>x.year).filter(Boolean))].sort((a,b)=>b-a);archive.innerHTML=years.length?`<b>Arsip:</b><button class="sn101-year" aria-pressed="${!activeYear}" data-sn-year="">Terbaru</button>${years.map(y=>`<button class="sn101-year" aria-pressed="${String(activeYear)===String(y)}" data-sn-year="${y}">${y}</button>`).join("")}`:"";archive.querySelectorAll("[data-sn-year]").forEach(b=>b.addEventListener("click",()=>{activeYear=b.dataset.snYear;render()}))}
 
-  function openArticle(id){const root=shell(),x=items.find(i=>i.id===id);if(!x)return;root.querySelector("[data-sn-article]").innerHTML=`<article class="sn101-article"><div class="sn101-article-meta"><span>${esc(x.category)}</span><time>${esc(dateText(x.date))}</time>${x.media.length?`<span>${x.media.length} foto</span>`:""}</div><h1>${esc(x.title)}</h1><p class="sn101-lede">${esc(x.summary)}</p>${x.media.length?`<div class="sn101-gallery">${x.media.map((u,i)=>`<figure><img src="${esc(u)}" alt="${esc(x.title)} — foto ${i+1}" loading="${i<2?'eager':'lazy'}" decoding="async"></figure>`).join("")}</div>`:""}<div class="sn101-body">${bodyHtml(x.content)}</div></article>`;root.querySelector("[data-sn-modal]").hidden=false;document.body.style.overflow="hidden"}
-  function closeArticle(){const m=document.querySelector("[data-sn-modal]");if(m&&!m.hidden){m.hidden=true;document.body.style.overflow=""}}
+  function openArticle(id){const root=shell(),x=items.find(i=>i.id===id);if(!x)return;$("[data-sn-article]",root).innerHTML=`<article class="sn101-article"><div class="sn101-article-meta"><span>${esc(x.category)}</span><time>${esc(dateText(x.date))}</time>${x.media.length?`<span>${x.media.length} foto</span>`:""}</div><h1>${esc(x.title)}</h1><p class="sn101-lede">${esc(x.summary)}</p>${x.media.length?`<div class="sn101-gallery">${x.media.map((u,i)=>`<figure><img src="${esc(u)}" alt="${esc(x.title)} — foto ${i+1}" loading="${i<2?'eager':'lazy'}" decoding="async"></figure>`).join("")}</div>`:""}<div class="sn101-body">${bodyHtml(x.content)}</div></article>`;$("[data-sn-modal]",root).hidden=false;document.body.style.overflow="hidden"}
+  function closeArticle(){const m=$("[data-sn-modal]");if(m&&!m.hidden){m.hidden=true;document.body.style.overflow=""}}
 
-  async function load(){if(loading)return;loading=true;const grid=shell().querySelector("[data-sn-grid]");if(!items.length)grid.innerHTML='<div class="sn101-empty">Memuat berita terbaru…</div>';try{const snapshot=await jsonp();if(snapshot?.ok!==true)throw new Error(snapshot?.error||"Server berita tidak tersedia.");items=normalize(snapshot);render()}catch(e){grid.innerHTML=`<div class="sn101-empty">${esc(e.message||"Berita belum dapat dimuat.")}</div>`}finally{loading=false}}
+  async function load(){if(loading)return;loading=true;const grid=$("[data-sn-grid]",shell());if(!items.length)grid.innerHTML='<div class="sn101-empty">Memuat berita terbaru…</div>';try{const snapshot=await jsonp();if(snapshot?.ok!==true)throw new Error(snapshot?.error||"Server berita tidak tersedia.");items=normalize(snapshot);window.PAIBP_SPENSUS_NEWS_V102=items;render()}catch(e){grid.innerHTML=`<div class="sn101-empty">${esc(e.message||"Berita belum dapat dimuat.")}</div>`}finally{loading=false}}
   try{const bc=new BroadcastChannel("spensus-news");bc.addEventListener("message",e=>{if(e.data?.type==="published")setTimeout(load,250)})}catch{}
   document.addEventListener("visibilitychange",()=>{if(!document.hidden)setTimeout(load,120)});
   const init=()=>{shell();setTimeout(load,60)};if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
