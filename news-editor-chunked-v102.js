@@ -50,15 +50,15 @@
 
   async function publicPhoto(data){
     const blob=await (await fetch(data)).blob(),b=await createImageBitmap(blob);let best=data;
-    for(const w0 of [640,560,480,420,360,320]){
+    for(const w0 of [960,880,800,720,640,560,480,420,360]){
       const s=Math.min(1,w0/b.width),w=Math.max(1,Math.round(b.width*s)),h=Math.max(1,Math.round(b.height*s));
       for(const q of [.62,.54,.46,.38,.32]){
         const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d",{alpha:false}).drawImage(b,0,0,w,h);
         const out=await new Promise(r=>c.toBlob(r,"image/webp",q));const u=await new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=()=>rej(fr.error);fr.readAsDataURL(out)});best=u;
-        if(u.length<=28000){b.close?.();return u}
+        if(u.length<=40000){b.close?.();return u}
       }
     }
-    b.close?.();return best.slice(0,46000);
+    b.close?.();return best;
   }
 
   async function addFiles(files){const room=MAX_PHOTOS-photos.length,arr=[...files].slice(0,room);if(room<=0){photoStatus("Maksimal 10 foto.","error");return}for(let i=0;i<arr.length;i++){photoStatus(`Mengoptimalkan foto ${i+1} dari ${arr.length}…`);try{const full=await compress(arr[i],1280,.72),thumb=await compress(arr[i],480,.64);photos.push({id:uid(),name:arr[i].name,full,thumb});renderPhotos();preview()}catch{photoStatus(`Foto ${arr[i].name} gagal diproses.`,"error")}}photoStatus(`${photos.length} dari 10 foto siap. Foto pertama menjadi sampul.`)}
