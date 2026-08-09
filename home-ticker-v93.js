@@ -3,6 +3,8 @@
   const page=(location.pathname.split('/').pop()||'index.html').toLowerCase();
   if(page!=="index.html") return;
 
+  const escapeHtml=(value)=>String(value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+
   function boot(){
     const bar=document.querySelector('.smart-ticker');
     const windowEl=document.querySelector('.ticker-window');
@@ -11,7 +13,7 @@
 
     bar.hidden=false;
     bar.style.removeProperty('display');
-    bar.dataset.v93Ticker='true';
+    bar.dataset.v95Ticker='true';
 
     const school=window.PAIBP_SCHOOL?.school;
     const fallback=String(school?.tickerFallback||'').trim();
@@ -21,9 +23,11 @@
     const latest=document.querySelector('#news-gallery .news-card h4')?.textContent?.trim();
     const parts=[`VISI SPENSUS • ${vision}`,`MISI SPENSUS • ${mission}`];
     if(latest) parts.push(`SPENSUS TERKINI • ${latest}`);
-    text.textContent=parts.join('     ✦     ');
+    const sentence=parts.join('   ✦   ');
+    const safe=escapeHtml(sentence);
+    text.innerHTML=`<span class="ticker-copy-v95">${safe}</span><span class="ticker-copy-v95" aria-hidden="true">${safe}</span>`;
     text.setAttribute('aria-label',parts.join('. '));
-    text.classList.add('ticker-run-v93');
+    text.classList.add('ticker-run-v93','ticker-run-v95');
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
