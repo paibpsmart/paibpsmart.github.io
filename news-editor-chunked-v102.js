@@ -19,13 +19,11 @@
   function photoStatus(m,t=""){const e=$("#ne-photo-info");if(e){e.textContent=m||"";e.dataset.tone=t}}
   function dateText(v){if(!v)return"—";try{return new Intl.DateTimeFormat("id-ID",{day:"numeric",month:"long",year:"numeric"}).format(new Date(`${v}T12:00:00`))}catch{return v}}
 
-  function jsonpSnapshot(){return new Promise((resolve,reject)=>{
-    const cb=`__news102_${Date.now()}_${Math.random().toString(36).slice(2)}`,s=document.createElement("script");let done=false;
-    const timer=setTimeout(()=>finish(new Error("Server berita belum merespons.")),12000);
-    function finish(err,data){if(done)return;done=true;clearTimeout(timer);try{delete window[cb]}catch{};s.remove();err?reject(err):resolve(data)}
-    window[cb]=d=>finish(null,d);s.onerror=()=>finish(new Error("Koneksi ke server berita gagal."));
-    const u=new URL(GAS);u.searchParams.set("action","publicSnapshot");u.searchParams.set("callback",cb);u.searchParams.set("_",Date.now());s.src=u.href;document.head.append(s);
-  })}
+  async function jsonpSnapshot(){
+    const u=new URL(GAS);u.searchParams.set("action","publicSnapshot");u.searchParams.set("_",Date.now());
+    const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),10000);
+    try{const r=await fetch(u,{cache:"no-store",headers:{"Accept":"application/json"},signal:ctl.signal});const text=await r.text();let j;try{j=JSON.parse(text)}catch{throw new Error("Respons server berita tidak valid.")}if(!r.ok)throw new Error(j?.error||`Server berita HTTP ${r.status}`);return j}finally{clearTimeout(timer)}
+  }
 
   async function post(action,data){
     const body=JSON.stringify({action,readKey:KEY,key:KEY,data:{...data,readKey:KEY},origin:location.origin});
