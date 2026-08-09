@@ -18,6 +18,7 @@ const STATIC=[
   "./spensus-ai-shell-v90.js?v=99",
   "./news-editor-entry-v96.js?v=99",
   "./news-editor-v99.css?v=99",
+  "./news-editor-gallery-v99.css?v=99",
   "./news-editor-v99.js?v=99"
 ];
 self.addEventListener("install",event=>{self.skipWaiting();event.waitUntil(caches.open(CACHE_NAME).then(cache=>Promise.allSettled(STATIC.map(url=>cache.add(url)))));});
