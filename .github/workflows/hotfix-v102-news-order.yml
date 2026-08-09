@@ -1,0 +1,32 @@
+name: Hotfix V102 news publish order
+on:
+  push:
+    paths:
+      - '.github/workflows/hotfix-v102-news-order.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix publish order
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('news-editor-v102.js')
+          s=p.read_text(encoding='utf-8')
+          a='''      await post("contentUpsert",{key:`news:${x.id}`,value:contentValue,authorName:x.author,authorSchool:"SMP Negeri 1 Susukan",updatedAt:new Date().toISOString()});\n      await post("newsUpsert",{id:x.id,title:x.title,date:x.date,summary:x.summary,imageDataUrl:cover,imageUrl:"",authorName:x.author,authorSchool:"SMP Negeri 1 Susukan",isPublished:true,sortOrder:-Date.now()});'''
+          b='''      await post("newsUpsert",{id:x.id,title:x.title,date:x.date,summary:x.summary,imageDataUrl:cover,imageUrl:"",authorName:x.author,authorSchool:"SMP Negeri 1 Susukan",isPublished:true,sortOrder:-Date.now()});\n      await post("contentUpsert",{key:`news:${x.id}`,value:contentValue,authorName:x.author,authorSchool:"SMP Negeri 1 Susukan",updatedAt:new Date().toISOString()});'''
+          if a not in s:
+              raise SystemExit('Target publish block not found')
+          p.write_text(s.replace(a,b,1),encoding='utf-8')
+          PY
+      - name: Commit hotfix
+        run: |
+          git config user.name 'paibp-smart-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add news-editor-v102.js
+          git diff --cached --quiet && exit 0
+          git commit -m 'Fix V102 news publish order and cache invalidation'
+          git push
