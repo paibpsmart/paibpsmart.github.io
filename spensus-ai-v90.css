@@ -1,0 +1,9 @@
+/* V90 Spensus AI shell: visual only, no layout changes outside launcher/drawer. */
+#spensus-ai-launcher-v27{touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;will-change:auto;z-index:2147482000}
+#spensus-ai-launcher-v27.is-dragging{cursor:grabbing;transition:none!important;will-change:left,top;filter:saturate(1.08)}
+#spensus-ai-launcher-v27 span:first-child{background:linear-gradient(145deg,#fff,#dff5ff)!important;color:#143a66!important;-webkit-text-fill-color:#143a66!important;box-shadow:inset 0 0 0 1px rgba(17,63,109,.15),0 4px 10px rgba(18,64,110,.18)}
+#spensus-ai-launcher-v27 strong,#spensus-ai-launcher-v27 small{color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(20,20,55,.28)!important}
+#spensus-ai-drawer-v27[aria-busy="true"] .ai-drawer-panel-v27{cursor:progress}
+#spensus-ai-drawer-v27 .ai-drawer-panel-v27{content-visibility:auto;contain:layout paint style}
+@media(max-width:560px){#spensus-ai-launcher-v27{max-width:min(170px,calc(100vw - 16px))}#spensus-ai-launcher-v27 small{display:none}}
+@media(prefers-reduced-motion:reduce){#spensus-ai-launcher-v27,#spensus-ai-drawer-v27 *{animation:none!important;transition:none!important}}
