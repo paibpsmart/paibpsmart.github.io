@@ -19,25 +19,25 @@
     document.head.append(l);
   };
 
-  addScript("icon-art-v86.js","93");
-  addStyle("visual-fix-v87.css","93");
-  addStyle("visual-v89.css","93");
+  addScript("icon-art-v86.js","94");
+  addStyle("visual-fix-v87.css","94");
+  addStyle("visual-v89.css","94");
 
   if(page==="index.html"){
-    addScript("home-clean-v92.js","93");
-    addStyle("home-ticker-v93.css","93");
-    addScript("home-ticker-v93.js","93");
-    addStyle("spensus-ai-v90.css","93");
-    addScript("spensus-ai-shell-v90.js","93");
+    addScript("home-clean-v92.js","94");
+    addStyle("home-ticker-v94.css","94");
+    addScript("home-ticker-v93.js","94");
+    addStyle("spensus-ai-v90.css","94");
+    addScript("spensus-ai-shell-v90.js","94");
   }
-  if(page==="akses-guru.html") addScript("teacher-preview-fix-v87.js","93");
+  if(page==="akses-guru.html") addScript("teacher-preview-fix-v87.js","94");
   if(page==="mapel-lain.html"){
-    addStyle("multimapel-admin-v89.css","93");
-    addScript("multimapel-admin-v89.js","93");
+    addStyle("multimapel-admin-v89.css","94");
+    addScript("multimapel-admin-v89.js","94");
   }
 
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    const register=()=>navigator.serviceWorker.register("service-worker.js?v=93").then(r=>r.update()).catch(()=>null);
+    const register=()=>navigator.serviceWorker.register("service-worker.js?v=94").then(r=>r.update()).catch(()=>null);
     if(document.readyState==="complete")register();
     else window.addEventListener("load",register,{once:true});
   }
