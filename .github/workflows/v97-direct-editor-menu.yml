@@ -1,0 +1,53 @@
+name: V97 Direct Editor Menu
+on:
+  push:
+    paths:
+      - '.github/workflows/v97-direct-editor-menu.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch kendali editor directly
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('kendali-editor.html')
+          s=p.read_text(encoding='utf-8')
+          old='<nav aria-label="Navigasi Kendali Editor" class="links links-v24 links-v29" id="primary-navigation"><span class="private-gateway-badge-v28">KENDALI EDITOR</span><a href="index.html">Beranda Publik</a></nav>'
+          new='<nav aria-label="Navigasi Kendali Editor" class="links links-v24 links-v29" id="primary-navigation"><span class="private-gateway-badge-v28">KENDALI EDITOR</span><a href="index.html">Beranda Publik</a><a href="editor-berita.html?v=97" style="background:linear-gradient(135deg,#1677ff,#7c3aed);color:#fff!important;font-weight:950;border-radius:13px;padding:10px 14px">📰 Editor Berita & Upload</a></nav>'
+          if old in s:
+              s=s.replace(old,new,1)
+          elif 'editor-berita.html?v=97' not in s:
+              s=s.replace('</nav>','<a href="editor-berita.html?v=97" style="background:linear-gradient(135deg,#1677ff,#7c3aed);color:#fff!important;font-weight:950;border-radius:13px;padding:10px 14px">📰 Editor Berita & Upload</a></nav>',1)
+          banner='''\n<section id="news-editor-direct-v97" style="padding:14px 0;background:linear-gradient(100deg,#071b36,#123b78 48%,#6d28d9);color:#fff;border-bottom:1px solid rgba(255,255,255,.16)"><div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap"><div style="min-width:220px"><span style="font-size:10px;font-weight:950;letter-spacing:.13em;color:#8ee8ff">BERITA SPENSUS • EDITOR</span><h2 style="margin:4px 0 3px;font-size:clamp(18px,3vw,26px);color:#fff">Editor Berita & Upload</h2><p style="margin:0;color:rgba(255,255,255,.78);font-size:12px">Tulis berita, upload foto, preview, draft, terbitkan, edit/hapus, dan arsip per tahun.</p></div><a href="editor-berita.html?v=97" style="display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:11px 18px;border-radius:14px;background:linear-gradient(135deg,#20d4ff,#7c3aed);color:#fff;text-decoration:none;font-weight:950;box-shadow:0 10px 28px rgba(29,78,216,.32)">Buka Editor Berita →</a></div></section>\n'''
+          if 'id="news-editor-direct-v97"' not in s:
+              s=s.replace('<main id="main">','<main id="main">'+banner,1)
+          s=s.replace('app-config.js?v=85','app-config.js?v=97')
+          s=s.replace('icon-art-v85.js?v=85','icon-art-v85.js?v=97')
+          if 'news-editor-entry-v96.js?v=97' not in s:
+              s=s.replace('</body>','<script src="news-editor-entry-v96.js?v=97" defer></script></body>',1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Bump service worker cache
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('service-worker.js')
+          s=p.read_text(encoding='utf-8')
+          import re
+          s=re.sub(r'paibp-smart-v\d+-fast-static','paibp-smart-v97-fast-static',s,count=1)
+          if '"97"' not in s:
+              s=s.replace('"96"]','"96","97"]')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Remove one-time workflow and commit
+        run: |
+          rm -f .github/workflows/v97-direct-editor-menu.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add kendali-editor.html service-worker.js .github/workflows/v97-direct-editor-menu.yml
+          git commit -m "V97 make Editor Berita menu permanent and directly visible" || exit 0
+          git push
