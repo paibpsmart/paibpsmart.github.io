@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  const GAS="https://script.google.com/macros/s/AKfycbyRxOw6oWDZUuQxwuqOMRO92KOwqOGF_9J6rPzSfxr9Dqy9kAQGJ9qZA6Tm_deUOgtjKg/exec";
+  const GAS="https://paibp-smart-api.sunarso29.workers.dev";
   const $=(s,r=document)=>r.querySelector(s);
   const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
   let items=[],activeYear="",loading=false;

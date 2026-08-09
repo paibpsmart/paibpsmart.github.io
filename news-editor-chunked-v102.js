@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  const GAS="https://script.google.com/macros/s/AKfycbyRxOw6oWDZUuQxwuqOMRO92KOwqOGF_9J6rPzSfxr9Dqy9kAQGJ9qZA6Tm_deUOgtjKg/exec";
+  const GAS="https://paibp-smart-api.sunarso29.workers.dev";
   const PROXY="https://paibp-smart-api.sunarso29.workers.dev";
   const KEY="b082937b2165453ba7d9f81ecac063b00310b339ec0643da";
   const DB_NAME="paibp-smart-news-editor-v96", STORE="posts", MAX_PHOTOS=10;
