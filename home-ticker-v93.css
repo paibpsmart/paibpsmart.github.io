@@ -1,0 +1,8 @@
+/* V93 lightweight running ticker: visual only, transform-based. */
+.smart-ticker{display:block!important;visibility:visible!important;opacity:1!important;overflow:hidden}
+.smart-ticker-inner{overflow:hidden}
+.ticker-window{overflow:hidden;white-space:nowrap;min-width:0}
+#smart-ticker-text.ticker-run-v93{display:inline-block;width:max-content;max-width:none;margin:0;padding-left:100%;white-space:nowrap;will-change:transform;animation:v93TickerRun 34s linear infinite;color:inherit!important;-webkit-text-fill-color:currentColor!important;text-shadow:none!important}
+@keyframes v93TickerRun{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+@media(max-width:700px){#smart-ticker-text.ticker-run-v93{animation-duration:26s;font-size:.82rem}}
+@media(prefers-reduced-motion:reduce){#smart-ticker-text.ticker-run-v93{animation:none;padding-left:0;white-space:normal}}
