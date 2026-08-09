@@ -1,10 +1,10 @@
-const CACHE_NAME="paibp-smart-v102-hotfix-news";
+const CACHE_NAME="paibp-smart-v102-chunked-news";
 const STATIC=[
   "./logo-spensus.png","./assets/icons/icon-192.png","./visual-v86.css?v=86","./icon-v86.css?v=86",
   "./icon-art-v86.js?v=102","./visual-fix-v87.css?v=102","./visual-v89.css?v=102","./home-clean-v92.js?v=102",
   "./home-ticker-v94.css?v=102","./home-ticker-v93.js?v=102","./home-news-v101.css?v=102","./home-news-v102.js?v=102",
   "./teacher-preview-fix-v87.js?v=102","./owner-editor-v98.js?v=102","./multimapel-admin-v89.css?v=102","./multimapel-admin-v89.js?v=102",
-  "./spensus-ai-v90.css?v=102","./spensus-ai-shell-v90.js?v=102","./news-editor-entry-v96.js?v=102","./news-editor-v99.css?v=102","./news-editor-v102.js?v=102"
+  "./spensus-ai-v90.css?v=102","./spensus-ai-shell-v90.js?v=102","./news-editor-entry-v96.js?v=102","./news-editor-v99.css?v=102","./news-editor-chunked-v102.js?v=102"
 ];
 self.addEventListener("install",event=>{self.skipWaiting();event.waitUntil(caches.open(CACHE_NAME).then(cache=>Promise.allSettled(STATIC.map(url=>cache.add(url)))))});
 self.addEventListener("activate",event=>{event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(key=>key!==CACHE_NAME&&!key.startsWith("paibp-quran-kemenag-")).map(key=>caches.delete(key)));await self.clients.claim()})())});
