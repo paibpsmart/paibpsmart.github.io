@@ -1,0 +1,31 @@
+name: Improve V102 news photo clarity
+on:
+  push:
+    paths:
+      - '.github/workflows/hotfix-v102-photo-quality.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Improve public news photo quality
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('news-editor-chunked-v102.js')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('for(const w0 of [640,560,480,420,360,320]){','for(const w0 of [960,880,800,720,640,560,480,420,360]){')
+          s=s.replace('if(u.length<=28000){b.close?.();return u}','if(u.length<=40000){b.close?.();return u}')
+          s=s.replace('b.close?.();return best.slice(0,46000);','b.close?.();return best;')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit photo quality hotfix
+        run: |
+          git config user.name 'paibp-smart-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add news-editor-chunked-v102.js
+          git diff --cached --quiet && exit 0
+          git commit -m 'Improve V102 news photo clarity within backend limits'
+          git push
