@@ -12,6 +12,7 @@ const STATIC=[
   "./home-ticker-v93.js?v=101",
   "./home-news-v101.css?v=101",
   "./home-news-v101.js?v=101",
+  "./news-live-sync-v101.js?v=101",
   "./teacher-preview-fix-v87.js?v=101",
   "./owner-editor-v98.js?v=101",
   "./multimapel-admin-v89.css?v=101",
