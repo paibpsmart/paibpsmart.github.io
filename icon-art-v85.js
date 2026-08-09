@@ -19,26 +19,29 @@
     document.head.append(l);
   };
 
-  addScript("icon-art-v86.js","96");
-  addStyle("visual-fix-v87.css","96");
-  addStyle("visual-v89.css","96");
+  addScript("icon-art-v86.js","98");
+  addStyle("visual-fix-v87.css","98");
+  addStyle("visual-v89.css","98");
 
   if(page==="index.html"){
-    addScript("home-clean-v92.js","96");
-    addStyle("home-ticker-v94.css","96");
-    addScript("home-ticker-v93.js","96");
-    addStyle("spensus-ai-v90.css","96");
-    addScript("spensus-ai-shell-v90.js","96");
+    addScript("home-clean-v92.js","98");
+    addStyle("home-ticker-v94.css","98");
+    addScript("home-ticker-v93.js","98");
+    addStyle("spensus-ai-v90.css","98");
+    addScript("spensus-ai-shell-v90.js","98");
   }
-  if(page==="akses-guru.html") addScript("teacher-preview-fix-v87.js","96");
+  if(page==="akses-guru.html"){
+    addScript("teacher-preview-fix-v87.js","98");
+    addScript("owner-editor-v98.js","98");
+  }
   if(page==="mapel-lain.html"){
-    addStyle("multimapel-admin-v89.css","96");
-    addScript("multimapel-admin-v89.js","96");
+    addStyle("multimapel-admin-v89.css","98");
+    addScript("multimapel-admin-v89.js","98");
   }
-  if(page==="kendali-editor.html") addScript("news-editor-entry-v96.js","96");
+  if(page==="kendali-editor.html") addScript("news-editor-entry-v96.js","98");
 
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    const register=()=>navigator.serviceWorker.register("service-worker.js?v=96").then(r=>r.update()).catch(()=>null);
+    const register=()=>navigator.serviceWorker.register("service-worker.js?v=98").then(r=>r.update()).catch(()=>null);
     if(document.readyState==="complete")register();
     else window.addEventListener("load",register,{once:true});
   }
