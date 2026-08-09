@@ -7,53 +7,68 @@
 <meta name="theme-color" content="#062a45">
 <title>Editor Berita Spensus — PAIBP SMART SMP</title>
 <link rel="icon" href="logo-spensus.png" type="image/png">
-<link rel="stylesheet" href="news-editor-v96.css?v=96">
+<link rel="stylesheet" href="news-editor-v99.css?v=99">
 <script>
 (function(){try{var i=JSON.parse(localStorage.getItem('paibp-smart-teacher-identity-v1')||'{}');var n=String(i.name||'').toLowerCase();var u=String(i.workUnit||'').toLowerCase();var owner=n.indexOf('sunarso')!==-1&&u.indexOf('smp negeri 1 susukan')!==-1;var token=sessionStorage.getItem('paibp-smart-owner-gateway-v30')==='yes';if(!owner||!token){location.replace('akses-guru.html?editor=owner-required');}}catch(e){location.replace('akses-guru.html?editor=owner-required');}})();
 </script>
 </head>
 <body>
 <header class="ne-topbar">
-  <a class="ne-brand" href="kendali-editor.html"><img src="logo-spensus.png" alt="Logo SMP Negeri 1 Susukan"><span><strong>Editor Berita Spensus</strong><small>PAIBP SMART SMP • Kendali Editor</small></span></a>
-  <div class="ne-top-actions"><a href="index.html?v=96" target="_blank" rel="noopener">Lihat Beranda</a><a href="kendali-editor.html">Kembali ke Kendali</a></div>
+  <a class="ne-brand" href="kendali-editor.html?v=99"><img src="logo-spensus.png" alt="Logo SMP Negeri 1 Susukan"><span><strong>Editor Berita Spensus</strong><small>PAIBP SMART SMP • Kendali Editor</small></span></a>
+  <div class="ne-top-actions"><a href="index.html?v=99" target="_blank" rel="noopener">Lihat Beranda</a><a href="kendali-editor.html?v=99">Kembali ke Kendali</a></div>
 </header>
 <main class="ne-shell">
   <aside class="ne-side">
-    <div class="ne-side-title"><span>EDITOR</span><h1>Berita Spensus</h1><p>Tulis sekali, pratinjau, lalu terbitkan.</p></div>
+    <div class="ne-side-title"><span>EDITOR</span><h1>Berita Spensus</h1><p>Tulis, atur foto, pratinjau penuh, baru terbitkan.</p></div>
     <nav class="ne-nav" aria-label="Menu editor berita">
       <button class="is-active" data-ne-tab="write" type="button"><b>✦</b><span>Tulis Berita</span></button>
       <button data-ne-tab="posts" type="button"><b>▤</b><span>Posting Saya</span></button>
       <button data-ne-tab="archive" type="button"><b>◫</b><span>Arsip Tahun</span></button>
     </nav>
-    <div class="ne-side-note"><strong>Ringan & mobile-first</strong><p>Foto dikompresi di perangkat sebelum diproses. Arsip tidak dimuat sekaligus.</p></div>
+    <div class="ne-side-note"><strong>Mobile-first & ringan</strong><p>Maksimal 10 foto. Foto dioptimalkan satu per satu agar tetap nyaman pada HP dengan RAM kecil.</p></div>
   </aside>
 
   <section class="ne-work">
     <section class="ne-panel is-active" data-ne-panel="write">
-      <div class="ne-heading"><div><span>POSTING BARU</span><h2>Tulis berita sekolah</h2><p>Susun judul, kategori, ringkasan, isi, dan foto utama.</p></div><span class="ne-status" id="ne-editor-status">Draft baru</span></div>
+      <div class="ne-heading"><div><span>POSTING BARU</span><h2>Tulis berita sekolah</h2><p>Susun berita, atur galeri, lalu periksa preview penuh sebelum diterbitkan.</p></div><span class="ne-status" id="ne-editor-status">Draft baru</span></div>
       <div class="ne-editor-grid">
         <form id="ne-form" class="ne-form" novalidate>
           <input type="hidden" id="ne-id">
-          <label><span>Judul berita</span><input id="ne-title" maxlength="140" required placeholder="Contoh: Spensus Raih Prestasi di Tingkat Kabupaten"></label>
-          <div class="ne-form-row">
-            <label><span>Tanggal kegiatan</span><input id="ne-date" type="date" required></label>
-            <label><span>Kategori</span><select id="ne-category"><option>Berita Sekolah</option><option>Prestasi</option><option>Akademik</option><option>Kesiswaan</option><option>Keagamaan</option><option>Ekstrakurikuler</option><option>Pengumuman</option><option>Agenda</option></select></label>
-          </div>
-          <label><span>Ringkasan</span><textarea id="ne-summary" rows="3" maxlength="320" required placeholder="Ringkasan singkat yang tampil di kartu berita."></textarea></label>
-          <label><span>Isi berita</span><textarea id="ne-content" rows="12" required placeholder="Tulis berita lengkap di sini. Gunakan paragraf pendek agar nyaman dibaca di HP."></textarea></label>
-          <label class="ne-upload"><span>Foto utama</span><input id="ne-photo" type="file" accept="image/jpeg,image/png,image/webp"><div><b>＋ Pilih foto</b><small>JPG/PNG/WebP • dikompresi otomatis • pratinjau langsung</small></div></label>
-          <div id="ne-photo-info" class="ne-photo-info">Belum ada foto dipilih.</div>
-          <div class="ne-actions"><button class="ne-btn ne-secondary" id="ne-save-draft" type="button">Simpan Draft</button><button class="ne-btn ne-light" id="ne-reset" type="button">Bersihkan</button><button class="ne-btn ne-primary" type="submit">Terbitkan</button></div>
+
+          <section class="ne-form-section">
+            <div class="ne-form-section-head"><div><span class="ne-section-kicker">01 • IDENTITAS BERITA</span><strong>Informasi utama</strong><small>Judul dan metadata yang tampil pada kartu serta artikel.</small></div></div>
+            <label><span>Judul berita</span><input id="ne-title" maxlength="140" required placeholder="Contoh: Spensus Raih Prestasi di Tingkat Kabupaten"></label>
+            <div class="ne-form-row">
+              <label><span>Tanggal kegiatan</span><input id="ne-date" type="date" required></label>
+              <label><span>Kategori</span><select id="ne-category"><option>Berita Sekolah</option><option>Prestasi</option><option>Akademik</option><option>Kesiswaan</option><option>Keagamaan</option><option>Ekstrakurikuler</option><option>Pengumuman</option><option>Agenda</option></select></label>
+            </div>
+          </section>
+
+          <section class="ne-form-section">
+            <div class="ne-form-section-head"><div><span class="ne-section-kicker">02 • NASKAH</span><strong>Ringkasan dan isi berita</strong><small>Gunakan paragraf pendek agar nyaman dibaca di layar kecil.</small></div></div>
+            <label><span>Ringkasan</span><textarea id="ne-summary" rows="3" maxlength="320" required placeholder="Ringkasan singkat yang tampil pada kartu berita."></textarea></label>
+            <label><span>Isi berita</span><textarea id="ne-content" rows="13" required placeholder="Tulis berita lengkap di sini. Pisahkan paragraf agar pembaca nyaman mengikuti isi berita."></textarea></label>
+          </section>
+
+          <section class="ne-form-section">
+            <div class="ne-form-section-head"><div><span class="ne-section-kicker">03 • GALERI</span><strong>Foto berita</strong><small>Foto pertama menjadi sampul. Urutan dapat diubah sebelum diterbitkan.</small></div><span class="ne-count-badge" id="ne-photo-count">0/10 foto</span></div>
+            <label class="ne-upload"><span>Upload foto</span><input id="ne-photo" type="file" accept="image/jpeg,image/png,image/webp" multiple><div><b>＋ Pilih hingga 10 foto</b><small>JPG/PNG/WebP • dikompresi otomatis • diproses satu per satu • preview langsung</small></div></label>
+            <div id="ne-photo-info" class="ne-photo-info">Belum ada foto dipilih. Maksimal 10 foto.</div>
+            <div class="ne-media-toolbar"><small>Gunakan ← → untuk mengatur urutan. Tekan “Jadikan sampul” untuk memindahkan foto ke urutan pertama.</small></div>
+            <div id="ne-media-grid" class="ne-media-grid"></div>
+          </section>
+
+          <div class="ne-actions"><button class="ne-btn ne-secondary" id="ne-save-draft" type="button">Simpan Draft</button><button class="ne-btn ne-light" id="ne-reset" type="button">Bersihkan</button><span></span><button class="ne-btn ne-preview-btn" id="ne-open-preview" type="button">Pratinjau Artikel →</button></div>
           <p id="ne-form-status" class="ne-form-status" aria-live="polite"></p>
         </form>
 
         <aside class="ne-preview-wrap">
-          <div class="ne-preview-label"><span>PREVIEW LANGSUNG</span><small>Tampilan kartu berita</small></div>
+          <div class="ne-preview-label"><span>PREVIEW KARTU</span><small>Tampilan ringkas di beranda</small></div>
           <article class="ne-preview" id="ne-preview">
             <div class="ne-preview-media" id="ne-preview-media"><span>SPENSUS</span></div>
-            <div class="ne-preview-body"><span id="ne-preview-category">Berita Sekolah</span><h3 id="ne-preview-title">Judul berita akan tampil di sini</h3><p id="ne-preview-summary">Ringkasan berita akan muncul otomatis ketika Anda mengetik.</p><small id="ne-preview-date">—</small></div>
+            <div class="ne-preview-body"><span id="ne-preview-category">Berita Sekolah</span><h3 id="ne-preview-title">Judul berita akan tampil di sini</h3><p id="ne-preview-summary">Ringkasan berita akan muncul otomatis ketika Anda mengetik.</p><small id="ne-preview-date">—</small><div id="ne-mini-gallery" class="ne-mini-gallery" hidden></div></div>
           </article>
-          <div class="ne-checks"><div><b>✓</b><span>Judul ringkas</span></div><div><b>✓</b><span>Foto teroptimasi</span></div><div><b>✓</b><span>Arsip otomatis per tahun</span></div></div>
+          <div class="ne-checks"><div><b>✓</b><span>Preview penuh wajib sebelum tayang</span></div><div><b>10</b><span>Maksimal foto per berita</span></div><div><b>✓</b><span>Arsip otomatis per tahun</span></div></div>
         </aside>
       </div>
     </section>
@@ -70,6 +85,15 @@
     </section>
   </section>
 </main>
-<script src="news-editor-v96.js?v=96"></script>
+
+<div class="ne-modal" id="ne-preview-modal" hidden>
+  <section class="ne-modal-shell" role="dialog" aria-modal="true" aria-labelledby="ne-preview-dialog-title">
+    <header class="ne-modal-top"><div><strong id="ne-preview-dialog-title">Pratinjau sebelum terbit</strong><small>Periksa judul, foto, ringkasan, isi, dan tata letak artikel.</small></div><button type="button" class="ne-modal-close" data-ne-close-preview aria-label="Tutup preview">×</button></header>
+    <div id="ne-article-preview"></div>
+    <footer class="ne-publish-bar"><p>Berita belum tayang. Publikasi hanya dilakukan setelah Anda menekan “Terbitkan Sekarang”.</p><div class="ne-publish-actions"><button class="ne-btn ne-light" type="button" data-ne-close-preview>Kembali Edit</button><button class="ne-btn ne-publish-confirm" id="ne-publish-confirm" type="button">Terbitkan Sekarang</button></div></footer>
+  </section>
+</div>
+
+<script src="news-editor-v99.js?v=99"></script>
 </body>
 </html>
