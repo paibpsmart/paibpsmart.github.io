@@ -17,6 +17,7 @@
     addScript("home-ticker-v93.js","101");
     addStyle("home-news-v101.css","101");
     addScript("home-news-v101.js","101");
+    addScript("news-live-sync-v101.js","101");
     addStyle("spensus-ai-v90.css","101");
     addScript("spensus-ai-shell-v90.js","101");
   }
