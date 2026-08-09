@@ -59,8 +59,8 @@
       const contentValue={id:x.id,title:x.title,date:x.date,category:x.category,summary:x.summary,content:x.content,media:publicMedia,coverDataUrl:cover,year:x.year,month:x.month,author:x.author};
       if(JSON.stringify(contentValue).length>44000)throw new Error("Naskah dan galeri terlalu besar untuk server saat ini. Kurangi jumlah foto atau panjang naskah sedikit.");
       b.textContent="Menyimpan…";status("Menyimpan naskah dan galeri ke server…");
-      await post("contentUpsert",{key:`news:${x.id}`,value:contentValue,authorName:x.author,authorSchool:"SMP Negeri 1 Susukan",updatedAt:new Date().toISOString()});
       await post("newsUpsert",{id:x.id,title:x.title,date:x.date,summary:x.summary,imageDataUrl:cover,imageUrl:"",authorName:x.author,authorSchool:"SMP Negeri 1 Susukan",isPublished:true,sortOrder:-Date.now()});
+      await post("contentUpsert",{key:`news:${x.id}`,value:contentValue,authorName:x.author,authorSchool:"SMP Negeri 1 Susukan",updatedAt:new Date().toISOString()});
       b.textContent="Verifikasi…";status("Memastikan berita benar-benar sudah muncul pada server publik…");
       const snap=await verify(x.id);if(!snap)throw new Error("Server belum mengonfirmasi posting. Draft tetap aman.");
       x.status="published";x.publishedAt=new Date().toISOString();x.thumbnail=cover;x.publicMedia=publicMedia;await putLocal(x);$("#ne-id").value=x.id;$("#ne-editor-status").textContent="Tayang";status(`Berhasil. Berita sudah tayang dan terverifikasi dengan ${publicMedia.length} foto.`,"ok");try{new BroadcastChannel("spensus-news").postMessage({type:"published",id:x.id})}catch{}refreshLists();
