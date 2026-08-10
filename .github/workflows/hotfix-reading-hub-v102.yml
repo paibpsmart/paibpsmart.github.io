@@ -1,0 +1,45 @@
+name: Hotfix V102 reading hub quality
+on:
+  push:
+    paths:
+      - '.github/workflows/hotfix-reading-hub-v102.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch literacy and article sources
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p=Path('literasi-digital.js')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('const MAX_RENDER = 72;','const MAX_RENDER = Number.MAX_SAFE_INTEGER;')
+          s=s.replace('{ openLibrary: 0, internetArchive: 0, wikisource: 0 }','{ openLibrary: 0, internetArchive: 0 }')
+          s=s.replace('els.connectedSources.textContent = `${connected}/3`;','els.connectedSources.textContent = `${connected}/2`;')
+          s=re.sub(r'\n\s*wikisource:\s*\{ label: "Wikisource", icon: "W", fn: searchWikisource \}\s*', '\n', s)
+          s=s.replace('internetArchive: { label: "Internet Archive", icon: "🏛️", fn: searchInternetArchive },\n  };','internetArchive: { label: "Internet Archive", icon: "🏛️", fn: searchInternetArchive }\n  };')
+          s=s.replace('renderBooks("Koleksi kategori tampil seketika; pencarian global akan mengikuti.");','renderBooks("Pilih kategori atau cari judul.");')
+          s=s.replace('requestAnimationFrame(() => runSearch({ reset: true }));','els.loadMore.hidden = true;')
+          s=s.replace('return [...map.values()].slice(0, MAX_RENDER);','return [...map.values()];')
+          p.write_text(s,encoding='utf-8')
+
+          legacy=['visual-v83.css?v=83','visual-public-v83.css?v=83','visual-v84.css?v=84','visual-v85.css?v=85','icon-depth-v85.css?v=85','icon-guard-v84.css?v=84']
+          for name in ['artikel-islam.html','literasi-digital.html']:
+              p=Path(name); s=p.read_text(encoding='utf-8')
+              for href in legacy:
+                  s=re.sub(r'<link[^>]+href=["\']'+re.escape(href)+r'["\'][^>]*>', '', s, flags=re.I)
+              p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name 'paibp-smart-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add literasi-digital.js artikel-islam.html literasi-digital.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Clean V102 reading hub source, remove legacy visual stack and lift catalog cap'
+          git push
