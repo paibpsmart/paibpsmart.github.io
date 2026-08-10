@@ -1,0 +1,32 @@
+name: Hotfix V102 article internal PDF download
+on:
+  push:
+    paths:
+      - '.github/workflows/hotfix-article-download-v102.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Keep PDF download inside portal
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('artikel-portal-v102.js')
+          s=p.read_text(encoding='utf-8')
+          old='function addLink(label,href,download=false){const a=document.createElement("a");a.textContent=label;a.href=href;if(download)a.download="";a.rel="noopener";els.actions.insertBefore(a,els.actions.firstChild);return a}'
+          new='async function downloadBlob(url,name){const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),20000);try{const r=await fetch(url,{signal:ctl.signal});if(!r.ok)throw new Error();const blob=await r.blob(),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name||"artikel.pdf";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1600)}catch{alert("PDF belum dapat diunduh pada koneksi ini.")}finally{clearTimeout(tm)}}'
+          s=s.replace(old,new)
+          s=s.replace('addLink("Unduh PDF",pdf,true)','addAction("Unduh PDF",()=>downloadBlob(pdf,`${(title||"artikel").replace(/[^a-z0-9]+/gi,"-").slice(0,70)}.pdf`))')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name 'paibp-smart-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add artikel-portal-v102.js
+          git diff --cached --quiet && exit 0
+          git commit -m 'Keep article PDF preview and download inside portal'
+          git push
