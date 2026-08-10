@@ -26,6 +26,9 @@ jobs:
           s=s.replace('renderBooks("Koleksi kategori tampil seketika; pencarian global akan mengikuti.");','renderBooks("Pilih kategori atau cari judul.");')
           s=s.replace('requestAnimationFrame(() => runSearch({ reset: true }));','els.loadMore.hidden = true;')
           s=s.replace('return [...map.values()].slice(0, MAX_RENDER);','return [...map.values()];')
+          old='const fallback = `<div class="lit-cover-fallback-v35"><span>${escapeHtml(book.icon || (book.kind === "collection" ? categoryById[book.category]?.icon : "📕"))}</span><b>${escapeHtml(book.kind === "collection" ? "Koleksi tematik" : compact(book.source, 25))}</b></div>`;'
+          new='const fallback = `<div class="lit-cover-fallback-v35"><span>${escapeHtml(book.icon || (book.kind === "collection" ? categoryById[book.category]?.icon : "📕"))}</span><small>${escapeHtml(book.kind === "collection" ? "SPENSUS COLLECTION" : compact(book.source, 22))}</small><b>${escapeHtml(compact(book.title, 72))}</b></div>`;'
+          s=s.replace(old,new)
           p.write_text(s,encoding='utf-8')
 
           legacy=['visual-v83.css?v=83','visual-public-v83.css?v=83','visual-v84.css?v=84','visual-v85.css?v=85','icon-depth-v85.css?v=85','icon-guard-v84.css?v=84']
@@ -36,26 +39,49 @@ jobs:
               p.write_text(s,encoding='utf-8')
 
           p=Path('artikel-islam.html'); s=p.read_text(encoding='utf-8')
+          s=s.replace('SPENSUS ARTICLE STUDIO','BACA ARTIKEL')
           s=s.replace('Bacaan bermutu untuk iman, akhlak, pendidikan, dan kehidupan.','Baca Artikel Spensus')
           s=s.replace('Artikel orisinal Spensus siap dibaca luring. Untuk pilihan yang lebih luas, gunakan katalog artikel terbuka dan tampilkan hanya sumber yang benar-benar tersedia.','Pilih bacaan, buka preview, lalu baca dengan nyaman di dalam portal.')
           s=s.replace('Spensus Reading Hub<br>Ringkas • Terbaca • Terverifikasi','SPENSUS READING HUB')
           p.write_text(s,encoding='utf-8')
 
           p=Path('literasi-digital.html'); s=p.read_text(encoding='utf-8')
+          s=s.replace('SPENSUS GLOBAL READING HUB','LITERASI DIGITAL')
           s=s.replace('Satu pencarian, banyak perpustakaan dunia.','Literasi Digital Spensus')
           s=s.replace('Katalog muncul seketika dari koleksi luring, kemudian diperkaya secara progresif melalui katalog resmi buku domain publik dan akses terbuka. Website tetap ringan karena berkas buku tidak disimpan di GitHub.','Cari buku, buka preview, dan lanjutkan membaca dari katalog yang tersedia.')
+          s=s.replace('Katalog muncul seketika dari koleksi luring, kemudian diperkaya progresif melalui katalog resmi buku domain publik dan akses terbuka. Berkas besar tetap berada di penyedia asal sehingga portal tetap ringan.','Cari buku, buka preview, dan lanjutkan membaca dari katalog yang tersedia.')
           s=s.replace('Temukan bacaan yang legal dan relevan','Katalog Buku')
+          s=s.replace('KATALOG FEDERATIF','KOLEKSI')
           s=s.replace('Hasil luring tampil tanpa menunggu. Hasil jaringan masuk bertahap tanpa mengunci halaman.','')
+          s=s.replace('Tampil seketika dari katalog ringan.','')
+          s=s.replace('Cari sekarang <span>→</span>','Cari <span>→</span>')
+          s=s.replace('Reset pencarian','Reset')
+          s=s.replace('Muat hasil berikutnya','Tampilkan lebih banyak')
           s=re.sub(r'<section class="lit-source-section-v35".*?</section>','',s,flags=re.S)
           s=re.sub(r'<section class="lit-stat-section-v35".*?</section>','',s,flags=re.S)
           s=re.sub(r'<section class="lit-legal-note-v35".*?</section>','',s,flags=re.S)
           p.write_text(s,encoding='utf-8')
+
+          replacements={
+            'Telusuri artikel yang benar-benar tersedia':'Katalog Artikel',
+            'Hasil jaringan dimuat sesuai pencarian. Tombol PDF hanya aktif jika penyedia memberi akses PDF terbuka.':'',
+            'Perpustakaan yang dihormati hak aksesnya':'',
+            'PAIBP SMART SMP hanya menampilkan metadata dan mengarahkan pembaca ke penyedia asal.':'',
+            'Status baca serta unduh mengikuti lisensi masing-masing koleksi.':''
+          }
+          for p in list(Path('.').rglob('*.html'))+list(Path('.').rglob('*.js')):
+              if '.git' in p.parts: continue
+              try:s=p.read_text(encoding='utf-8')
+              except:continue
+              original=s
+              for a,b in replacements.items():s=s.replace(a,b)
+              if s!=original:p.write_text(s,encoding='utf-8')
           PY
       - name: Commit
         run: |
           git config user.name 'paibp-smart-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add literasi-digital.js artikel-islam.html literasi-digital.html
+          git add -A
           git diff --cached --quiet && exit 0
-          git commit -m 'Refine V102 reading hub copy and remove technical source sections'
+          git commit -m 'Finalize V102 reading covers, concise copy and unlimited progressive catalogue'
           git push
