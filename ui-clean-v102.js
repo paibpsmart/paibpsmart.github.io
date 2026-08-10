@@ -16,5 +16,6 @@ function pass(){
  $all('p,small,li,div').forEach(n=>{const t=clean(n.textContent);if(!t||t.length>420||n.children.length>5)return;if(internal.some(rx=>rx.test(t)))n.remove()});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',pass,{once:true});else pass();
-[80,240,650,1400,2800].forEach(ms=>setTimeout(pass,ms));
+[80,240,650,1400,2800,5000,8000,12000].forEach(ms=>setTimeout(pass,ms));
+document.addEventListener('click',e=>{if(!PRIVATE&&e.target.closest?.('[data-open-panel],a,button'))setTimeout(pass,60)},{passive:true,capture:true});
 })();
