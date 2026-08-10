@@ -22,56 +22,16 @@
     chart:'<path d="M4 20V9M10 20V4M16 20v-7M22 20H2"/><path d="m4 7 5-4 6 6 5-5"/>',
     inbox:'<path d="M4.2 5.2h15.6l1.7 11.2a2 2 0 0 1-2 2.3h-15a2 2 0 0 1-2-2.3L4.2 5.2Z"/><path d="M3 14h5l1.6 2.2h4.8L16 14h5"/>',
     grid:'<rect x="4" y="4" width="6" height="6" rx="1.2"/><rect x="14" y="4" width="6" height="6" rx="1.2"/><rect x="4" y="14" width="6" height="6" rx="1.2"/><rect x="14" y="14" width="6" height="6" rx="1.2"/>',
-    pen:'<path d="m5 19 3.8-.8L19 8a2 2 0 0 0-3-3L5.8 15.2 5 19Z"/><path d="M4 21h16"/>'
+    pen:'<path d="m5 19 3.8-.8L19 8a2 2 0 0 0-3-3L5.8 15.2 5 19Z"/><path d="M4 21h16"/>',
+    game:'<path d="M7 7h10a5 5 0 0 1 4.8 6.4l-1.1 3.7a2.6 2.6 0 0 1-4.4 1l-1.5-1.6H9.2l-1.5 1.6a2.6 2.6 0 0 1-4.4-1l-1.1-3.7A5 5 0 0 1 7 7Z"/><path d="M7 11v5M4.5 13.5h5M16 12.5h.1M19 15.5h.1"/>',
+    spark:'<path d="m12 2 2.3 6.2L20 10.5l-5.7 2.3L12 19l-2.3-6.2L4 10.5l5.7-2.3L12 2Z"/><path d="m19 2 .8 2.2L22 5l-2.2.8L19 8l-.8-2.2L16 5l2.2-.8L19 2Z"/>'
   };
-  const svg=(name)=>`<svg class="v86-svg-art" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${icons[name]||icons.grid}</svg>`;
-  const strip=(text)=>String(text||'').replace(/^\s*[\p{Extended_Pictographic}\uFE0F\u200D\u20E3\u2600-\u27BF]+\s*/u,'').trimStart();
-
-  function teacher(){
-    const map={cp:'book',kktp:'check',atp:'route',prota:'year',promes:'calendar',calendar:'school',effective:'calculator',module:'books',access:'chart',submissions:'inbox'};
-    document.querySelectorAll('.teacher-doc-menu [data-teacher-doc]').forEach(btn=>{
-      let holder=btn.querySelector(':scope > span');
-      if(!holder){ holder=document.createElement('span'); btn.prepend(holder); }
-      if(!holder.querySelector('svg.v86-svg-art')) holder.innerHTML=svg(map[btn.dataset.teacherDoc]||'grid');
-      holder.dataset.v86Art='1';
-      holder.setAttribute('aria-hidden','true');
-    });
-  }
-
-  function islamic(){
-    const map={home:'home',quran:'quran',hisnul:'prayer',morning:'morning',evening:'moon',calendar:'calendar',arabic:'language',khutbah:'mic',tajwid:'headphones',insights:'bulb',worship:'compass'};
-    document.querySelectorAll('.islamic-menu [data-islamic-view]').forEach(btn=>{
-      const existing=btn.querySelector('.v86-icon-disc');
-      if(existing?.querySelector('svg.v86-svg-art')) return;
-      const label=strip(btn.querySelector('.v86-icon-label')?.textContent || btn.textContent);
-      btn.textContent='';
-      const disc=document.createElement('span');disc.className='v86-icon-disc';disc.innerHTML=svg(map[btn.dataset.islamicView]||'grid');
-      const txt=document.createElement('span');txt.className='v86-icon-label';txt.textContent=label;
-      btn.append(disc,txt);btn.dataset.v86Art='1';
-    });
-  }
-
-  function misc(){
-    document.querySelectorAll('.directory-feature-icon').forEach(el=>{
-      if(el.querySelector('svg.v86-svg-art'))return;
-      const href=el.closest('a')?.getAttribute('href')||'';
-      el.innerHTML=svg(href.includes('artikel')?'pen':'grid');el.dataset.v86Art='1';
-    });
-    document.querySelectorAll('.welcome-icon').forEach(el=>{
-      if(el.querySelector('svg.v86-svg-art'))return;
-      el.innerHTML=svg('books');el.dataset.v86Art='1';
-    });
-  }
-
-  let queued=false;
-  function run(){
-    if(queued)return;queued=true;
-    requestAnimationFrame(()=>{queued=false;teacher();islamic();misc();});
-  }
-  function delayed(){run();setTimeout(run,120);setTimeout(run,420);}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',delayed,{once:true});else delayed();
-  document.addEventListener('click',(e)=>{
-    if(e.target.closest('[data-open-panel="islamic"],[data-islamic-view],[data-open-panel="teacher"],[data-teacher-doc],[data-teacher-grade]'))delayed();
-  },{passive:true});
-  window.PAIBP_ICON_ART_V86=Object.freeze({run:delayed});
+  const svg=name=>`<svg class="v86-svg-art" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${icons[name]||icons.grid}</svg>`;
+  const strip=text=>String(text||'').replace(/^\s*[\p{Extended_Pictographic}\uFE0F\u200D\u20E3\u2600-\u27BF]+\s*/u,'').trimStart();
+  function teacher(){const map={cp:'book',kktp:'check',atp:'route',prota:'year',promes:'calendar',calendar:'school',effective:'calculator',module:'books',access:'chart',submissions:'inbox'};document.querySelectorAll('.teacher-doc-menu [data-teacher-doc]').forEach(btn=>{let holder=btn.querySelector(':scope > span');if(!holder){holder=document.createElement('span');btn.prepend(holder)}const key=map[btn.dataset.teacherDoc]||'grid';if(holder.dataset.v86Key!==key||!holder.querySelector('svg.v86-svg-art'))holder.innerHTML=svg(key);holder.dataset.v86Key=key;holder.dataset.v86Art='1';holder.setAttribute('aria-hidden','true')})}
+  function islamic(){const map={home:'home',quran:'quran',hisnul:'prayer',morning:'morning',evening:'moon',calendar:'calendar',arabic:'language',khutbah:'mic',tajwid:'headphones',insights:'bulb',worship:'compass'};document.querySelectorAll('.islamic-menu [data-islamic-view]').forEach(btn=>{const key=map[btn.dataset.islamicView]||'spark',existing=btn.querySelector('.v86-icon-disc');if(existing?.dataset.v86Key===key&&existing.querySelector('svg.v86-svg-art'))return;const label=strip(btn.querySelector('.v86-icon-label')?.textContent||btn.textContent);btn.textContent='';const disc=document.createElement('span');disc.className='v86-icon-disc';disc.dataset.v86Key=key;disc.innerHTML=svg(key);const txt=document.createElement('span');txt.className='v86-icon-label';txt.textContent=label;btn.append(disc,txt);btn.dataset.v86Art='1'})}
+  function featureKey(el){const a=el.closest('a'),href=String(a?.getAttribute('href')||'').toLowerCase(),text=String(a?.textContent||'').toLowerCase();if(href.includes('#student')||text.includes('ruang murid'))return'book';if(href.includes('#islamic')||text.includes('fitur islami'))return'quran';if(href.includes('#games')||text.includes('game'))return'game';if(href.includes('mapel-lain')||text.includes('mapel'))return'books';if(href.includes('about-spensus')||text.includes('profil sekolah'))return'school';if(href.includes('literasi')||text.includes('perpustakaan'))return'books';if(href.includes('artikel')||text.includes('artikel'))return'pen';return'spark'}
+  function misc(){document.querySelectorAll('.directory-feature-icon').forEach(el=>{const key=featureKey(el);if(el.dataset.v86Key!==key||!el.querySelector('svg.v86-svg-art'))el.innerHTML=svg(key);el.dataset.v86Key=key;el.dataset.v86Art='1'});document.querySelectorAll('.welcome-icon').forEach(el=>{if(el.dataset.v86Key!=='books'||!el.querySelector('svg.v86-svg-art'))el.innerHTML=svg('books');el.dataset.v86Key='books';el.dataset.v86Art='1'})}
+  let queued=false;function run(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;teacher();islamic();misc()})}function delayed(){run();setTimeout(run,120);setTimeout(run,420)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',delayed,{once:true});else delayed();document.addEventListener('click',e=>{if(e.target.closest('[data-open-panel="islamic"],[data-islamic-view],[data-open-panel="teacher"],[data-teacher-doc],[data-teacher-grade]'))delayed()},{passive:true});window.PAIBP_ICON_ART_V86=Object.freeze({run:delayed});
 })();
