@@ -1,0 +1,31 @@
+name: Hotfix V102 lazy DOCX hooks
+on:
+  push:
+    paths:
+      - '.github/workflows/hotfix-docx-lazy-v102.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Connect DOCX buttons to lazy loader
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('artikel-portal-v102.js');s=p.read_text(encoding='utf-8')
+          s=s.replace('function downloadLocalDocx(a){if(!window.PAIBP_DOCX){alert("Generator DOCX belum siap.");return}', 'async function downloadLocalDocx(a){if(!window.PAIBP_DOCX){try{await window.PAIBP_ENSURE_DOCX?.()}catch{alert("Generator DOCX belum siap.");return}}')
+          p.write_text(s,encoding='utf-8')
+          p=Path('literasi-portal-v102.js');s=p.read_text(encoding='utf-8')
+          s=s.replace("async function makeDocx(id,file,title){if(!window.PAIBP_DOCX){alert('Generator DOCX belum siap.');return}", "async function makeDocx(id,file,title){if(!window.PAIBP_DOCX){try{await window.PAIBP_ENSURE_DOCX?.()}catch{alert('Generator DOCX belum siap.');return}}")
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name 'paibp-smart-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add artikel-portal-v102.js literasi-portal-v102.js
+          git diff --cached --quiet && exit 0
+          git commit -m 'Lazy-load DOCX generator only when download is requested'
+          git push
