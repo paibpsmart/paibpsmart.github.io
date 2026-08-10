@@ -7,6 +7,7 @@
   const addStyle=(name,version)=>{if(hasStyle(name))return;const l=document.createElement("link");l.rel="stylesheet";l.href=new URL(`${name}?v=${version}`,document.baseURI).href;document.head.append(l)};
   addScript("portal-fastnav-v102.js","102");
   addScript("class-access-v102.js","102");
+  addScript("ui-clean-v102.js","102");
   addScript("icon-art-v86.js","102");addStyle("visual-fix-v87.css","102");addStyle("visual-v89.css","102");
   addStyle("global-visual-v102.css","102");
   if(page==="index.html"){
