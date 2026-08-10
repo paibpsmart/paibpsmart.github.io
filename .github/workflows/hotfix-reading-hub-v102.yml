@@ -34,6 +34,22 @@ jobs:
               for href in legacy:
                   s=re.sub(r'<link[^>]+href=["\']'+re.escape(href)+r'["\'][^>]*>', '', s, flags=re.I)
               p.write_text(s,encoding='utf-8')
+
+          p=Path('artikel-islam.html'); s=p.read_text(encoding='utf-8')
+          s=s.replace('Bacaan bermutu untuk iman, akhlak, pendidikan, dan kehidupan.','Baca Artikel Spensus')
+          s=s.replace('Artikel orisinal Spensus siap dibaca luring. Untuk pilihan yang lebih luas, gunakan katalog artikel terbuka dan tampilkan hanya sumber yang benar-benar tersedia.','Pilih bacaan, buka preview, lalu baca dengan nyaman di dalam portal.')
+          s=s.replace('Spensus Reading Hub<br>Ringkas • Terbaca • Terverifikasi','SPENSUS READING HUB')
+          p.write_text(s,encoding='utf-8')
+
+          p=Path('literasi-digital.html'); s=p.read_text(encoding='utf-8')
+          s=s.replace('Satu pencarian, banyak perpustakaan dunia.','Literasi Digital Spensus')
+          s=s.replace('Katalog muncul seketika dari koleksi luring, kemudian diperkaya secara progresif melalui katalog resmi buku domain publik dan akses terbuka. Website tetap ringan karena berkas buku tidak disimpan di GitHub.','Cari buku, buka preview, dan lanjutkan membaca dari katalog yang tersedia.')
+          s=s.replace('Temukan bacaan yang legal dan relevan','Katalog Buku')
+          s=s.replace('Hasil luring tampil tanpa menunggu. Hasil jaringan masuk bertahap tanpa mengunci halaman.','')
+          s=re.sub(r'<section class="lit-source-section-v35".*?</section>','',s,flags=re.S)
+          s=re.sub(r'<section class="lit-stat-section-v35".*?</section>','',s,flags=re.S)
+          s=re.sub(r'<section class="lit-legal-note-v35".*?</section>','',s,flags=re.S)
+          p.write_text(s,encoding='utf-8')
           PY
       - name: Commit
         run: |
@@ -41,5 +57,5 @@ jobs:
           git config user.email 'actions@users.noreply.github.com'
           git add literasi-digital.js artikel-islam.html literasi-digital.html
           git diff --cached --quiet && exit 0
-          git commit -m 'Clean V102 reading hub source, remove legacy visual stack and lift catalog cap'
+          git commit -m 'Refine V102 reading hub copy and remove technical source sections'
           git push
