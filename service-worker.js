@@ -1,4 +1,4 @@
-const CACHE_NAME="paibp-smart-v102-global-gate-fast-r5";
+const CACHE_NAME="paibp-smart-v102-global-gate-fast-r6";
 const STATIC=[
   "./","./index.html","./fitur.html","./mapel-lain.html","./literasi-digital.html","./artikel-islam.html","./about-spensus.html","./contact.html","./akses-guru.html",
   "./logo-spensus.png","./gerbang.jpg","./assets/icons/icon-192.png",
