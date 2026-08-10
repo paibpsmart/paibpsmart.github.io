@@ -9,7 +9,7 @@
   addScript("icon-art-v86.js","102");addStyle("visual-fix-v87.css","102");addStyle("visual-v89.css","102");
   if(page==="index.html"){
     addScript("home-clean-v92.js","102");addStyle("home-ticker-v94.css","102");addScript("home-ticker-v93.js","102");
-    addStyle("home-news-v101.css","102");addScript("home-news-v102.js","102");addScript("home-news-polish-v102.js","102");addScript("home-gallery-close-v102.js","102");
+    addStyle("home-news-v101.css","102");addScript("home-news-v102.js","102");addScript("home-news-polish-v102.js","102");addScript("home-feed-instagram-v102.js","102");addScript("home-gallery-close-v102.js","102");
     addStyle("spensus-ai-v90.css","102");addScript("spensus-ai-shell-v90.js","102");
   }
   if(page==="akses-guru.html"){addScript("teacher-preview-fix-v87.js","102");addScript("owner-editor-v98.js","102")}
