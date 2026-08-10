@@ -1,0 +1,29 @@
+name: Hotfix V102 reading mobile toolbar
+on:
+  push:
+    paths:
+      - '.github/workflows/hotfix-reading-mobile-toolbar-v102.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Keep reader actions visible on phones
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('reading-portal-v102.css')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('.rp-dialog-top{min-height:54px;padding-left:12px}.rp-dialog-actions a,.rp-dialog-actions button:not(.rp-close){display:none}', '.rp-dialog-top{min-height:54px;padding:7px 8px 7px 12px;flex-wrap:wrap}.rp-dialog-title{flex:1 1 100%;order:1}.rp-dialog-actions{order:2;width:100%;overflow-x:auto;justify-content:flex-end;padding-bottom:2px;scrollbar-width:none}.rp-dialog-actions::-webkit-scrollbar{display:none}.rp-dialog-actions a,.rp-dialog-actions button{flex:0 0 auto;min-height:31px;padding:0 9px}.rp-dialog-actions .rp-close{position:absolute;right:8px;top:8px;z-index:3}')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name 'paibp-smart-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add reading-portal-v102.css
+          git diff --cached --quiet && exit 0
+          git commit -m 'Keep PDF DOCX and close controls visible on mobile readers'
+          git push
