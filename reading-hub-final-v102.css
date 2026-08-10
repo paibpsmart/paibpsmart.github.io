@@ -7,4 +7,5 @@
 .literasi-page-v35 .lit-cover-fallback-v35:after{content:"SPENSUS LIBRARY";position:absolute;left:17px;bottom:7px;color:rgba(255,255,255,.48);font-size:5px;font-weight:900;letter-spacing:.16em}
 .literasi-page-v35 .lit-kicker-v35{font-size:9px!important;letter-spacing:.12em!important}.literasi-page-v35 .lit-catalog-head-v35 .lit-kicker-dark-v35{display:none!important}
 .article-page-v37 .article-hero-grid-v37>div:first-child>span{font-size:9px!important;letter-spacing:.12em!important}.article-page-v37 .rh-live-status{min-height:12px}
+.article-page-v37 .article-card-v37,.article-page-v37 .rh-work,.literasi-page-v35 .lit-book-card-v35{content-visibility:auto;contain-intrinsic-size:190px 310px;contain:layout style paint}
 @media(max-width:620px){.literasi-page-v35 .lit-search-panel-v35{grid-template-columns:1fr!important}.literasi-page-v35 .lit-search-panel-v35 button{width:100%!important}.literasi-page-v35 .lit-cover-fallback-v35 b{font-size:10px!important}}
