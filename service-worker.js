@@ -1,8 +1,8 @@
-const CACHE_NAME="paibp-smart-v102-instagram-instant-r2";
+const CACHE_NAME="paibp-smart-v102-instagram-share-r3";
 const STATIC=[
   "./","./index.html","./logo-spensus.png","./gerbang.jpg","./assets/icons/icon-192.png",
   "./visual-v86.css?v=86","./icon-v86.css?v=86","./icon-art-v86.js?v=102","./visual-fix-v87.css?v=102","./visual-v89.css?v=102",
-  "./home-clean-v92.js?v=102","./home-ticker-v94.css?v=102","./home-ticker-v93.js?v=102","./home-news-v102.js?v=102",
+  "./home-clean-v92.js?v=102","./home-ticker-v94.css?v=102","./home-ticker-v93.js?v=102","./home-news-v102.js?v=102","./home-share-v102.js?v=102",
   "./reading-portal-v102.css?v=102","./reading-mobile-fix-v102.css?v=102","./artikel-portal-v102.js?v=102","./literasi-portal-v102.js?v=102","./literasi-seeds-v102.js?v=102","./artikel-extra-v102.js?v=102","./artikel-enrichment-v102.js?v=102","./artikel-topics-v102.js?v=102","./docx-lazy-v102.js?v=102","./artikel-data.js?v=37",
   "./teacher-preview-fix-v87.js?v=102","./owner-editor-v98.js?v=102","./multimapel-admin-v89.css?v=102","./multimapel-admin-v89.js?v=102",
   "./spensus-ai-v90.css?v=102","./spensus-ai-shell-v90.js?v=102","./news-editor-entry-v96.js?v=102","./news-editor-v99.css?v=102","./news-editor-chunked-v102.js?v=102"
