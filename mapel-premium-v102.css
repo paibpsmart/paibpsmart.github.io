@@ -1,0 +1,43 @@
+/* PAIBP SMART SMP — Multimapel premium visual V102 */
+:root{--mm-ink:#12354d;--mm-soft:#eef6fb}
+.mapel-v33-hero{position:relative;isolation:isolate;overflow:hidden;background-image:linear-gradient(105deg,rgba(4,35,59,.93),rgba(8,83,107,.83) 42%,rgba(72,53,145,.75) 74%,rgba(136,48,129,.64)),url("gerbang.jpg")!important;background-size:cover!important;background-position:center 43%!important;color:#fff!important}
+.mapel-v33-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 78% 28%,rgba(255,214,91,.18),transparent 24%),linear-gradient(180deg,transparent,rgba(2,20,35,.18));pointer-events:none}
+.mapel-v33-hero :is(h1,p,.eyebrow,strong,span){color:#fff!important;text-shadow:0 2px 12px rgba(0,0,0,.25)}
+.mapel-v33-stats article{background:rgba(255,255,255,.13)!important;border:1px solid rgba(255,255,255,.27)!important;backdrop-filter:blur(8px);box-shadow:0 12px 28px rgba(3,24,43,.16)!important}
+.mapel-v33-stats strong{color:#ffe37b!important}
+
+.multi-library-head-v35{overflow:hidden!important;background:linear-gradient(130deg,#073b69 0%,#0a728e 42%,#5b48bd 73%,#ac347f 100%)!important;box-shadow:0 22px 55px rgba(7,43,74,.18)!important;border:1px solid rgba(255,255,255,.16)!important}
+.multi-library-head-v35::after{content:"";position:absolute;inset:auto -8% -45% auto;width:360px;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 64%);pointer-events:none}
+.multi-library-head-v35 h2,.multi-library-head-v35 p,.multi-library-head-v35 span,.multi-library-head-v35 b{color:#fff!important}
+.multi-library-head-v35>strong{background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.08))!important;border-color:rgba(255,255,255,.28)!important;color:#fff!important;box-shadow:inset 0 1px rgba(255,255,255,.28),0 12px 28px rgba(3,27,50,.15)!important}
+.multi-library-head-v35>strong small{color:rgba(255,255,255,.86)!important}
+
+.multi-filter-v35{background:#fff!important;border-color:#d7e4ee!important;box-shadow:0 12px 30px rgba(10,52,82,.07)!important}
+.multi-filter-v35 label span{color:#38566c!important}
+.multi-filter-v35 :is(select,input){background:#f9fcfe!important;border-color:#cfdde8!important;color:#173a53!important}
+.multi-count-v35{color:#5c7284!important;font-weight:700}
+
+.multi-grid-v35{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:18px!important}
+.multi-module-card-v35{--card-tint:color-mix(in srgb,var(--subject) 10%,#fff);position:relative!important;overflow:hidden!important;min-height:272px!important;border:1px solid color-mix(in srgb,var(--subject) 28%,#dbe6ed)!important;border-radius:25px!important;background:linear-gradient(180deg,#fff 0 68%,var(--card-tint) 100%)!important;box-shadow:0 14px 34px rgba(13,49,73,.09)!important;transition:transform .16s ease,box-shadow .16s ease!important}
+.multi-module-card-v35::before{content:""!important;position:absolute!important;inset:0 0 auto 0!important;height:6px!important;background:linear-gradient(90deg,var(--subject),color-mix(in srgb,var(--subject) 52%,#fff))!important}
+.multi-module-card-v35::after{content:"";position:absolute;right:-62px;top:-62px;width:150px;height:150px;border-radius:50%;background:color-mix(in srgb,var(--subject) 9%,transparent);pointer-events:none}
+.multi-module-card-v35:hover{transform:translateY(-3px)!important;box-shadow:0 20px 44px rgba(13,49,73,.13)!important}
+.multi-card-visual-v35{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important;padding:21px 20px 4px!important;position:relative;z-index:1}
+.multi-card-icon-v35{display:grid!important;place-items:center!important;width:54px!important;height:54px!important;border-radius:16px!important;background:linear-gradient(145deg,color-mix(in srgb,var(--subject) 95%,#fff),color-mix(in srgb,var(--subject) 72%,#0b2c44))!important;color:#fff!important;font-size:22px!important;font-weight:950!important;box-shadow:0 10px 22px color-mix(in srgb,var(--subject) 28%,transparent)!important;border:2px solid rgba(255,255,255,.92)!important;text-shadow:0 1px 3px rgba(0,0,0,.18)!important}
+.multi-card-number-v35{color:color-mix(in srgb,var(--subject) 38%,#dbe5eb)!important;font-size:42px!important;font-weight:950!important;letter-spacing:-.06em!important;line-height:1!important}
+.multi-card-copy-v35{padding:10px 20px 6px!important;position:relative;z-index:1}
+.multi-card-copy-v35>span{display:inline-flex!important;align-items:center!important;min-height:24px!important;padding:4px 8px!important;border-radius:999px!important;background:color-mix(in srgb,var(--subject) 10%,#fff)!important;color:color-mix(in srgb,var(--subject) 76%,#17344c)!important;font-size:10px!important;font-weight:900!important;letter-spacing:.04em!important}
+.multi-card-copy-v35 h3{margin:12px 0 8px!important;color:#12364e!important;font-size:19px!important;line-height:1.28!important;letter-spacing:-.015em!important}
+.multi-card-copy-v35 p{margin:0!important;color:#617789!important;font-size:12px!important;line-height:1.55!important}
+.multi-card-actions-v35{display:flex!important;gap:8px!important;align-items:center!important;flex-wrap:wrap!important;margin-top:auto!important;padding:14px 20px 20px!important;position:relative;z-index:1}
+.multi-card-actions-v35 button,.multi-card-actions-v35 a{min-height:40px!important;border-radius:12px!important;padding:10px 13px!important;font-weight:900!important;text-decoration:none!important}
+.multi-card-actions-v35 button{background:linear-gradient(135deg,color-mix(in srgb,var(--subject) 92%,#0c3550),var(--subject))!important;color:#fff!important;box-shadow:0 7px 18px color-mix(in srgb,var(--subject) 22%,transparent)!important}
+.multi-card-actions-v35 a{background:color-mix(in srgb,var(--subject) 9%,#fff)!important;color:color-mix(in srgb,var(--subject) 78%,#17354d)!important;border:1px solid color-mix(in srgb,var(--subject) 18%,#dbe6ed)!important}
+
+.multi-document-v35,.mm-admin-paper{background:#fff!important;color:#18354d!important;text-shadow:none!important}
+.multi-document-v35 :is(h1,h2,h3,h4,strong),.mm-admin-paper :is(h1,h2,h3,h4,strong){color:#15344d!important;text-shadow:none!important}
+.multi-document-v35 :is(p,li,td,th,small,span),.mm-admin-paper :is(p,li,td,th,small,span){text-shadow:none!important}
+
+@media(max-width:980px){.multi-grid-v35{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:640px){.mapel-v33-hero{background-position:center 38%!important}.mapel-v33-hero h1{font-size:clamp(36px,12vw,54px)!important}.multi-library-head-v35{padding:24px!important;border-radius:24px!important}.multi-library-head-v35>strong{min-height:100px!important;font-size:38px!important}.multi-grid-v35{grid-template-columns:1fr!important;gap:13px!important}.multi-module-card-v35{min-height:238px!important;border-radius:20px!important}.multi-card-visual-v35{padding:18px 17px 3px!important}.multi-card-copy-v35{padding:9px 17px 4px!important}.multi-card-actions-v35{padding:13px 17px 17px!important}.multi-card-icon-v35{width:50px!important;height:50px!important}.multi-card-number-v35{font-size:36px!important}}
+@media(prefers-reduced-motion:reduce){.multi-module-card-v35{transition:none!important}}
