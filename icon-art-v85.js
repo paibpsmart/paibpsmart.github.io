@@ -13,7 +13,7 @@
     addStyle("spensus-ai-v90.css","102");addScript("spensus-ai-shell-v90.js","102");
   }
   if(page==="artikel-islam.html"||page==="literasi-digital.html"){
-    addStyle("reading-hub-quality-v102.css","102");addScript("reading-hub-quality-v102.js","102");
+    addStyle("reading-hub-quality-v102.css","102");addStyle("reading-hub-final-v102.css","102");addScript("reading-hub-quality-v102.js","102");
   }
   if(page==="akses-guru.html"){addScript("teacher-preview-fix-v87.js","102");addScript("owner-editor-v98.js","102")}
   if(page==="mapel-lain.html"){addStyle("multimapel-admin-v89.css","102");addScript("multimapel-admin-v89.js","102")}
