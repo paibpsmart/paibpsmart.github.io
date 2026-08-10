@@ -1,4 +1,4 @@
-const CACHE_NAME="paibp-smart-v102-gallery-close";
+const CACHE_NAME="paibp-smart-v102-gallery-fullscreen";
 const STATIC=[
   "./logo-spensus.png","./assets/icons/icon-192.png","./visual-v86.css?v=86","./icon-v86.css?v=86",
   "./icon-art-v86.js?v=102","./visual-fix-v87.css?v=102","./visual-v89.css?v=102","./home-clean-v92.js?v=102",
