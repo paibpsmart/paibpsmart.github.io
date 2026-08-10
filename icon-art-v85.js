@@ -3,7 +3,7 @@
   const page=(location.pathname.split("/").pop()||"index.html").toLowerCase();
   const hasScript=(name)=>[...document.scripts].some(s=>String(s.src||"").includes(name));
   const hasStyle=(name)=>[...document.querySelectorAll('link[rel="stylesheet"]')].some(l=>String(l.href||"").includes(name));
-  const addScript=(name,version)=>{if(hasScript(name))return;const s=document.createElement("script");s.src=new URL(`${name}?v=${version}`,document.baseURI).href;s.defer=true;document.head.append(s)};
+  const addScript=(name,version)=>{if(hasScript(name))return;const s=document.createElement("script");s.src=new URL(`${name}?v=${version}`,document.baseURI).href;s.async=false;s.defer=true;document.head.append(s)};
   const addStyle=(name,version)=>{if(hasStyle(name))return;const l=document.createElement("link");l.rel="stylesheet";l.href=new URL(`${name}?v=${version}`,document.baseURI).href;document.head.append(l)};
   addScript("icon-art-v86.js","102");addStyle("visual-fix-v87.css","102");addStyle("visual-v89.css","102");
   if(page==="index.html"){
