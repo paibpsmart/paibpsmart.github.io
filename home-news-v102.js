@@ -74,5 +74,5 @@
   async function load(){if(loading)return;loading=true;const main=$("[data-sg-main]",shell());if(!items.length)main.innerHTML='<div class="sg-loading">Memuat berita terbaru…</div>';try{snapshotData=await fetchSnapshot();items=normalize(snapshotData);window.PAIBP_SPENSUS_NEWS_V102=items;render()}catch(e){main.innerHTML=`<div class="sg-empty">${esc(e.message||"Berita belum dapat dimuat.")}</div>`}finally{loading=false}}
   document.addEventListener("keydown",e=>{const lb=$("[data-sg-lightbox]");if(!lb||lb.hidden)return;if(e.key==="ArrowLeft")moveLightbox(-1);if(e.key==="ArrowRight")moveLightbox(1);if(e.key==="Escape")closeLightbox()});
   try{const bc=new BroadcastChannel("spensus-news");bc.addEventListener("message",e=>{if(e.data?.type==="published")setTimeout(load,250)})}catch{}
-  const init=()=>{shell();[80,400,1200].forEach(ms=>setTimeout(cleanupLegacy,ms));setTimeout(load,80)};if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+  const init=()=>{shell();[80,400,1200,3000].forEach(ms=>setTimeout(cleanupLegacy,ms));setTimeout(load,80)};if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
