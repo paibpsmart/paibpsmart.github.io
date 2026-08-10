@@ -3,52 +3,30 @@
 
 /* Semua section hero/header konten memakai gerbang Spensus secara proporsional. */
 :is(section[class*="hero"],.hero,.hero-v25,.public-page-hero,.feature-page-hero-v25,.page-hero,.rp-hero,.about-hero,.support-hero,.privacy-hero,.terms-hero,.mapel-hero,.mapel-v33-hero,.portal-hero){
-  position:relative;
-  isolation:isolate;
+  position:relative;isolation:isolate;
   background-image:linear-gradient(105deg,rgba(3,35,59,.91) 0%,rgba(4,60,79,.82) 42%,rgba(62,42,128,.72) 74%,rgba(126,45,129,.64) 100%),url("gerbang.jpg")!important;
-  background-size:cover!important;
-  background-repeat:no-repeat!important;
-  background-position:center 44%!important;
-  color:#fff!important;
+  background-size:cover!important;background-repeat:no-repeat!important;background-position:center 44%!important;color:#fff!important;
 }
-:is(section[class*="hero"],.hero,.hero-v25,.public-page-hero,.feature-page-hero-v25,.page-hero,.rp-hero,.about-hero,.support-hero,.privacy-hero,.terms-hero,.mapel-hero,.mapel-v33-hero,.portal-hero)::before{
-  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
-  background:linear-gradient(180deg,rgba(2,22,38,.03),rgba(2,22,38,.21));
-}
+:is(section[class*="hero"],.hero,.hero-v25,.public-page-hero,.feature-page-hero-v25,.page-hero,.rp-hero,.about-hero,.support-hero,.privacy-hero,.terms-hero,.mapel-hero,.mapel-v33-hero,.portal-hero)::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(2,22,38,.03),rgba(2,22,38,.21))}
 :is(section[class*="hero"],.hero,.hero-v25,.public-page-hero,.feature-page-hero-v25,.page-hero,.rp-hero,.about-hero,.support-hero,.privacy-hero,.terms-hero,.mapel-hero,.mapel-v33-hero,.portal-hero) :is(h1,h2,h3,strong,.eyebrow,.badge,.rp-kicker){color:#fff!important;text-shadow:0 2px 12px rgba(0,0,0,.32)}
 :is(section[class*="hero"],.hero,.hero-v25,.public-page-hero,.feature-page-hero-v25,.page-hero,.rp-hero,.about-hero,.support-hero,.privacy-hero,.terms-hero,.mapel-hero,.mapel-v33-hero,.portal-hero) p{color:rgba(247,252,255,.96)!important;text-shadow:0 1px 8px rgba(0,0,0,.28)}
 :is(section[class*="hero"],.hero,.hero-v25,.public-page-hero,.feature-page-hero-v25,.page-hero,.rp-hero) :is(.rp-hero-card,.hero-access-panel,.mapel-v33-stats article){background:rgba(6,36,60,.64)!important;border-color:rgba(255,255,255,.24)!important;box-shadow:0 18px 42px rgba(3,21,36,.24)!important}
 
-/* Ikon harus terbaca jelas: holder terang, glyph berwarna, tanpa white-on-white. */
-:is(.directory-feature-icon,.orbit-item,.access-icon,.hero-action-icon,.nav-svg,.workspace-role-nav .nav-svg,.rp-menu,.multi-card-icon-v35){
-  color:#07538c!important;
-  -webkit-text-fill-color:currentColor!important;
-  background:linear-gradient(145deg,#ffffff 0%,#e8f5ff 100%)!important;
-  border:1px solid rgba(8,83,140,.20)!important;
-  box-shadow:0 8px 18px rgba(4,42,71,.16),inset 0 1px 0 rgba(255,255,255,.95)!important;
-  opacity:1!important;visibility:visible!important;filter:none!important;mix-blend-mode:normal!important;
-}
-/* SVG V86 adalah line-art: jangan diisi solid. */
-svg.v86-svg-art,svg.v86-svg-art :is(path,circle,rect,line,polyline,polygon,ellipse){fill:none!important;stroke:currentColor!important;stroke-width:1.95!important;opacity:1!important;visibility:visible!important}
-/* SVG asli yang bukan V86 tetap dibuat kontras. */
-:is(.directory-feature-icon,.orbit-item,.access-icon,.hero-action-icon,.nav-svg,.workspace-role-nav .nav-svg) svg:not(.v86-svg-art){color:inherit!important;fill:currentColor!important;stroke:currentColor!important;opacity:1!important}
-:is(.directory-feature-icon,.orbit-item,.access-icon,.hero-action-icon,.nav-svg,.workspace-role-nav .nav-svg) svg:not(.v86-svg-art) path{fill:currentColor!important;stroke:currentColor!important;opacity:1!important}
-.directory-feature-icon{display:grid!important;place-items:center!important;min-width:64px!important;min-height:64px!important}
-.directory-feature-icon svg,.access-icon svg,.hero-action-icon svg,.nav-svg svg,.orbit-item svg{width:25px!important;height:25px!important}
-.directory-feature-v25:nth-child(7n+1) .directory-feature-icon{color:#006fcf!important}.directory-feature-v25:nth-child(7n+2) .directory-feature-icon{color:#7031bd!important}.directory-feature-v25:nth-child(7n+3) .directory-feature-icon{color:#087d5a!important}.directory-feature-v25:nth-child(7n+4) .directory-feature-icon{color:#bd5707!important}.directory-feature-v25:nth-child(7n+5) .directory-feature-icon{color:#9a2f69!important}.directory-feature-v25:nth-child(7n+6) .directory-feature-icon{color:#126b84!important}.directory-feature-v25:nth-child(7n+7) .directory-feature-icon{color:#5a46b8!important}
+/* Ikon: holder terang, line-art gelap/berwarna. Tidak ada fill putih yang menenggelamkan glyph. */
+:is(.directory-feature-icon,.orbit-item,.access-icon,.hero-action-icon,.nav-svg,.workspace-role-nav .nav-svg,.rp-menu){color:#07538c!important;-webkit-text-fill-color:#07538c!important;background:linear-gradient(145deg,#fff 0%,#e8f5ff 100%)!important;border:1px solid rgba(8,83,140,.20)!important;box-shadow:0 8px 18px rgba(4,42,71,.16),inset 0 1px 0 rgba(255,255,255,.95)!important;opacity:1!important;visibility:visible!important;filter:none!important;mix-blend-mode:normal!important}
+:is(.directory-feature-icon,.orbit-item,.access-icon,.hero-action-icon,.nav-svg,.workspace-role-nav .nav-svg) svg{display:block!important;width:27px!important;height:27px!important;color:inherit!important;fill:none!important;stroke:currentColor!important;stroke-width:2.2!important;opacity:1!important;visibility:visible!important;overflow:visible!important}
+:is(.directory-feature-icon,.orbit-item,.access-icon,.hero-action-icon,.nav-svg,.workspace-role-nav .nav-svg) svg :is(path,circle,rect,line,polyline,polygon,ellipse){fill:none!important;stroke:currentColor!important;stroke-width:2.2!important;stroke-linecap:round!important;stroke-linejoin:round!important;opacity:1!important;visibility:visible!important}
+.directory-feature-icon{display:grid!important;place-items:center!important;min-width:64px!important;min-height:64px!important;border-radius:15px!important}
+.directory-feature-v25:nth-child(7n+1) .directory-feature-icon{color:#0068b7!important;-webkit-text-fill-color:#0068b7!important}.directory-feature-v25:nth-child(7n+2) .directory-feature-icon{color:#7031bd!important;-webkit-text-fill-color:#7031bd!important}.directory-feature-v25:nth-child(7n+3) .directory-feature-icon{color:#087d5a!important;-webkit-text-fill-color:#087d5a!important}.directory-feature-v25:nth-child(7n+4) .directory-feature-icon{color:#bd5707!important;-webkit-text-fill-color:#bd5707!important}.directory-feature-v25:nth-child(7n+5) .directory-feature-icon{color:#9a2f69!important;-webkit-text-fill-color:#9a2f69!important}.directory-feature-v25:nth-child(7n+6) .directory-feature-icon{color:#126b84!important;-webkit-text-fill-color:#126b84!important}.directory-feature-v25:nth-child(7n+7) .directory-feature-icon{color:#5a46b8!important;-webkit-text-fill-color:#5a46b8!important}
 
-/* Mode baca: isi dokumen/admin harus netral, bukan mewarisi warna hero. */
-:is(.mm-admin-paper,.mm-source-body,.mm-admin-tablewrap,.v84-source-document,#teacher-document,.rp-view){background:#fff!important;color:#17324e!important;text-shadow:none!important}
-:is(.mm-admin-paper,.mm-source-body,.mm-admin-tablewrap,.v84-source-document,#teacher-document,.rp-view) :is(p,li,td){color:#294864!important;text-shadow:none!important}
-:is(.mm-admin-paper,.mm-source-body,.mm-admin-tablewrap,.v84-source-document,#teacher-document,.rp-view) :is(h1,h2,h3,h4,th,strong){color:#133655!important;text-shadow:none!important}
+/* Mode baca tetap netral dan prioritas. */
+:is(.mm-admin-paper,.mm-source-body,.mm-admin-tablewrap,.v84-source-document,#teacher-document,.rp-view,.multi-document-v35){background:#fff!important;color:#17324e!important;text-shadow:none!important}
+:is(.mm-admin-paper,.mm-source-body,.mm-admin-tablewrap,.v84-source-document,#teacher-document,.rp-view,.multi-document-v35) :is(p,li,td,small,span){color:#294864!important;text-shadow:none!important}
+:is(.mm-admin-paper,.mm-source-body,.mm-admin-tablewrap,.v84-source-document,#teacher-document,.rp-view,.multi-document-v35) :is(h1,h2,h3,h4,th,strong){color:#133655!important;text-shadow:none!important}
 
-/* Header navigasi tetap ringan dan kontras. */
 .topbar,.rp-top{background:linear-gradient(90deg,#07376c 0%,#185db6 34%,#7d3bc3 70%,#b72786 100%)!important;border-bottom:2px solid #2fd7d4!important;box-shadow:0 4px 18px rgba(5,30,58,.12)!important}
 .topbar .links a,.rp-nav a{color:#fff!important;text-shadow:0 1px 5px rgba(0,0,0,.18)}
 .topbar .links a.active,.topbar .links a[aria-current="page"],.rp-nav a.active{background:rgba(255,255,255,.16)!important;border-color:rgba(255,255,255,.24)!important}
 
-@media(max-width:720px){
-  :is(section[class*="hero"],.hero,.hero-v25,.public-page-hero,.feature-page-hero-v25,.page-hero,.rp-hero,.about-hero,.support-hero,.privacy-hero,.terms-hero,.mapel-hero,.mapel-v33-hero,.portal-hero){background-position:center 38%!important}
-  .directory-feature-icon{min-width:54px!important;min-height:54px!important}
-}
+@media(max-width:720px){:is(section[class*="hero"],.hero,.hero-v25,.public-page-hero,.feature-page-hero-v25,.page-hero,.rp-hero,.about-hero,.support-hero,.privacy-hero,.terms-hero,.mapel-hero,.mapel-v33-hero,.portal-hero){background-position:center 38%!important}.directory-feature-icon{min-width:54px!important;min-height:54px!important}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
