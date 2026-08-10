@@ -1,8 +1,8 @@
-const CACHE_NAME="paibp-smart-v102-global-gate-fast-r6";
+const CACHE_NAME="paibp-smart-v102-hero-icon-clean-r7";
 const STATIC=[
   "./","./index.html","./fitur.html","./mapel-lain.html","./literasi-digital.html","./artikel-islam.html","./about-spensus.html","./contact.html","./akses-guru.html",
   "./logo-spensus.png","./gerbang.jpg","./assets/icons/icon-192.png",
-  "./global-visual-v102.css?v=102","./portal-fastnav-v102.js?v=102","./class-access-v102.js?v=102","./icon-art-v85.js?v=85","./visual-v85.css?v=85",
+  "./global-visual-v102.css?v=102","./portal-fastnav-v102.js?v=102","./class-access-v102.js?v=102","./ui-clean-v102.js?v=102","./icon-art-v85.js?v=85","./visual-v85.css?v=85",
   "./visual-v86.css?v=86","./icon-v86.css?v=86","./icon-art-v86.js?v=102","./visual-fix-v87.css?v=102","./visual-v89.css?v=102",
   "./home-clean-v92.js?v=102","./home-ticker-v94.css?v=102","./home-ticker-v93.js?v=102","./home-news-v102.js?v=102","./home-share-v102.js?v=102",
   "./reading-portal-v102.css?v=102","./reading-mobile-fix-v102.css?v=102","./artikel-portal-v102.js?v=102","./literasi-portal-v102.js?v=102","./literasi-seeds-v102.js?v=102","./literasi-seed-guard-v102.js?v=102","./artikel-extra-v102.js?v=102","./artikel-enrichment-v102.js?v=102","./artikel-topics-v102.js?v=102","./docx-lazy-v102.js?v=102","./artikel-data.js?v=37",
