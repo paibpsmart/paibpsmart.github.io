@@ -22,12 +22,13 @@
     }
     const live=$('#rh-live-catalog');
     if(live){
-      const h2=$('.rh-live-head h2',live),p=$('.rh-live-head p',live),status=$('.rh-live-status',live),search=$('.rh-live-search input',live),btn=$('.rh-live-search button',live);
+      const h2=$('.rh-live-head h2',live),p=$('.rh-live-head p',live),status=$('.rh-live-status',live),search=$('.rh-live-search input',live),btn=$('.rh-live-search button',live),more=$('.rh-live-more',live);
       if(h2)h2.textContent='Katalog Artikel';
       if(p)p.remove();
       if(status&&!status.dataset.cleaned){status.textContent='';status.dataset.cleaned='1';}
       if(search)search.placeholder='Cari topik, judul, atau kata kunci…';
       if(btn)btn.textContent='Cari';
+      if(more)more.textContent='Tampilkan lebih banyak';
     }
   }
 
@@ -44,6 +45,7 @@
     $('.lit-legal-note-v35')?.remove();
     $('.lit-stat-section-v35')?.remove();
     const result=$('#lit-result-count');if(result&&!result.dataset.cleaned){result.textContent='';result.dataset.cleaned='1';}
+    const more=$('#lit-load-more');if(more)more.textContent='Tampilkan lebih banyak';
   }
 
   function enhanceArticlePreview(){
@@ -86,9 +88,18 @@
 
   function interceptLiteracyExternal(e){
     const a=e.target.closest?.('#literasi-grid [data-book-read],#literasi-grid [data-book-download]');
-    if(!a)return;
+    if(!a)return false;
     e.preventDefault();e.stopImmediatePropagation();
     const card=a.closest('.lit-book-card-v35');const p=card?.querySelector('[data-book-preview]');p?.click();
+    return true;
+  }
+
+  function interceptArticleExternal(e){
+    const a=e.target.closest?.('#rh-live-catalog .rh-work-actions a');
+    if(!a)return false;
+    e.preventDefault();e.stopImmediatePropagation();
+    const card=a.closest('.rh-work');const p=card?.querySelector('[data-rh-preview]');p?.click();
+    return true;
   }
 
   function polish(){
@@ -99,6 +110,7 @@
 
   document.addEventListener('click',e=>{
     if(page==='literasi-digital.html')interceptLiteracyExternal(e);
+    if(page==='artikel-islam.html')interceptArticleExternal(e);
     setTimeout(()=>{enhanceArticlePreview();enhanceLiteracyPreview();polish()},0);
   },true);
 
