@@ -13,7 +13,8 @@ function pass(){
   ['#v56-class-badge','#v56-class-context','#v59-class-context','#v60-class-context','#v61-class-context','#v63-class-context','[data-class-context]','[class*="connected-class"]','[class*="kelas-terhubung"]'].forEach(s=>$all(s).forEach(n=>n.remove()));
   $all('span,small,p,b,strong,em,div,aside,section').forEach(n=>{const t=clean(n.textContent);if(!t||t.length>220||n.children.length>8)return;if(connected.test(t))removeNode(n)});
  }
- $all('p,small,li,div').forEach(n=>{const t=clean(n.textContent);if(!t||t.length>420||n.children.length>5)return;if(internal.some(rx=>rx.test(t)))n.remove()});
+ /* Jangan pernah menghapus container layout hanya karena salah satu anak berisi copy lama. */
+ $all('p,small,li,figcaption').forEach(n=>{const t=clean(n.textContent);if(!t||t.length>520)return;if(internal.some(rx=>rx.test(t)))n.remove()});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',pass,{once:true});else pass();
 [80,240,650,1400,2800,5000,8000,12000].forEach(ms=>setTimeout(pass,ms));
