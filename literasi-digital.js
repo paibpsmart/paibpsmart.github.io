@@ -5,7 +5,7 @@
   const CACHE_PREFIX = "spensus-literasi-cache-v35:";
   const CACHE_TTL = 12 * 60 * 60 * 1000;
   const PAGE_SIZE = 18;
-  const MAX_RENDER = 72;
+  const MAX_RENDER = Number.MAX_SAFE_INTEGER;
 
   const categories = [
     { id: "all", label: "Semua", icon: "✦", query: "education OR literature OR science", color: ["#075d4c", "#0b8b70"], description: "Koleksi terbuka lintas bidang" },
@@ -63,7 +63,7 @@
   let searchToken = 0;
   let currentPage = 1;
   let currentBooks = [];
-  let providerTotals = { openLibrary: 0, internetArchive: 0, wikisource: 0 };
+  let providerTotals = { openLibrary: 0, internetArchive: 0 };
   let providerStates = {};
   let hasMore = false;
 
@@ -223,8 +223,7 @@
   const providerConfig = {
     openLibrary: { label: "Open Library", icon: "📖", fn: searchOpenLibrary },
     internetArchive: { label: "Internet Archive", icon: "🏛️", fn: searchInternetArchive },
-    wikisource: { label: "Wikisource", icon: "W", fn: searchWikisource }
-  };
+};
 
   function renderProviders() {
     els.providerBar.innerHTML = Object.entries(providerConfig).map(([id, provider]) => {
@@ -234,7 +233,7 @@
       return `<div class="lit-provider-v35 ${className}"><span>${provider.icon}</span><div><b>${provider.label}</b><small>${escapeHtml(note || "Siap")}</small></div></div>`;
     }).join("");
     const connected = Object.values(providerStates).filter((state) => state.status === "ok").length;
-    els.connectedSources.textContent = `${connected}/3`;
+    els.connectedSources.textContent = `${connected}/2`;
   }
 
   function setSync(mode, title, detail) {
@@ -247,7 +246,7 @@
   function mergeBooks(existing, incoming) {
     const map = new Map(existing.filter((book) => book.kind !== "collection").map((book) => [normalizedKey(book), book]));
     incoming.forEach((book) => { const key = normalizedKey(book); if (!map.has(key)) map.set(key, book); else { const prior = map.get(key); prior.source = prior.source.includes(book.source) ? prior.source : `${prior.source} + ${book.source}`; } });
-    return [...map.values()].slice(0, MAX_RENDER);
+    return [...map.values()];
   }
 
   function coverColors(book) {
@@ -312,7 +311,7 @@
     if (append) currentPage += 1;
     const token = ++searchToken;
     incrementStat("searches");
-    providerTotals = { openLibrary: 0, internetArchive: 0, wikisource: 0 };
+    providerTotals = { openLibrary: 0, internetArchive: 0 };
     providerStates = {};
     const category = currentCategory();
     els.resultTitle.textContent = category.id === "all" ? "Katalog lintas kategori" : `Koleksi ${category.label}`;
@@ -367,7 +366,7 @@
 
   renderCategoryControls();
   currentBooks = makeCollectionCards("all");
-  renderBooks("Koleksi kategori tampil seketika; pencarian global akan mengikuti.");
+  renderBooks("Pilih kategori atau cari judul.");
   renderProviders();
-  requestAnimationFrame(() => runSearch({ reset: true }));
+  els.loadMore.hidden = true;
 })();
