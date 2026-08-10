@@ -19,29 +19,13 @@
   const svg=body=>`<svg class="v102-critical-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${body}</svg>`;
   function featureType(a){const h=String(a?.getAttribute('href')||'').toLowerCase(),t=String(a?.textContent||'').toLowerCase();if(h.includes('#student')||t.includes('ruang murid'))return['student','#075e9d'];if(h.includes('#islamic')||t.includes('fitur islami'))return['islamic','#7136bb'];if(h.includes('#games')||t.includes('game'))return['game','#08785a'];if(h.includes('mapel-lain')||t.includes('mapel'))return['mapel','#b95308'];if(h.includes('about-spensus')||t.includes('profil sekolah'))return['school','#a52f67'];if(h.includes('literasi')||t.includes('literasi'))return['library','#3e4fb7'];if(h.includes('artikel')||t.includes('artikel'))return['article','#a52f67'];if(h.includes('akses-guru')||t.includes('portal guru'))return['teacher','#8c6500'];return['student','#075e9d']}
   function hardenSvg(holder,color){if(!holder)return;holder.style.setProperty('color',color,'important');holder.style.setProperty('-webkit-text-fill-color',color,'important');holder.style.setProperty('opacity','1','important');holder.style.setProperty('visibility','visible','important');holder.querySelectorAll('svg').forEach(s=>{s.style.setProperty('display','block','important');s.style.setProperty('width','27px','important');s.style.setProperty('height','27px','important');s.style.setProperty('color',color,'important');s.style.setProperty('opacity','1','important');s.querySelectorAll('*').forEach(n=>{n.style.setProperty('fill','none','important');n.style.setProperty('stroke','currentColor','important');n.style.setProperty('stroke-width','2.2','important');n.style.setProperty('stroke-linecap','round','important');n.style.setProperty('stroke-linejoin','round','important');n.style.setProperty('opacity','1','important')})})}
-  function forceCriticalIcons(){
-    document.querySelectorAll('.directory-feature-v25').forEach(a=>{const h=a.querySelector('.directory-feature-icon');if(!h)return;const [key,color]=featureType(a);if(h.dataset.v102Critical!==key){h.innerHTML=svg(criticalIcons[key]);h.dataset.v102Critical=key}hardenSvg(h,color)});
-    document.querySelectorAll('.access-tile').forEach(a=>{const h=a.querySelector('.access-icon');if(!h)return;const [key,color]=featureType(a);if(!h.querySelector('svg'))h.innerHTML=svg(criticalIcons[key]);hardenSvg(h,color)});
-    document.querySelectorAll('.hero-action-icon,.nav-svg,.orbit-item,.teacher-doc-menu button>span,.v86-icon-disc').forEach((h,i)=>hardenSvg(h,h.style.color||getComputedStyle(h).color||'#075e9d'));
-  }
+  function forceCriticalIcons(){document.querySelectorAll('.directory-feature-v25').forEach(a=>{const h=a.querySelector('.directory-feature-icon');if(!h)return;const [key,color]=featureType(a);if(h.dataset.v102Critical!==key){h.innerHTML=svg(criticalIcons[key]);h.dataset.v102Critical=key}hardenSvg(h,color)});document.querySelectorAll('.access-tile').forEach(a=>{const h=a.querySelector('.access-icon');if(!h)return;const [key,color]=featureType(a);if(!h.querySelector('svg'))h.innerHTML=svg(criticalIcons[key]);hardenSvg(h,color)});document.querySelectorAll('.hero-action-icon,.nav-svg,.orbit-item,.teacher-doc-menu button>span,.v86-icon-disc').forEach(h=>hardenSvg(h,getComputedStyle(h).color||'#075e9d'))}
 
-  addScript("portal-fastnav-v102.js","102");
-  addScript("class-access-v102.js","102");
-  addScript("ui-clean-v102.js","102");
-  addScript("icon-art-v86.js","102");addStyle("visual-fix-v87.css","102");addStyle("visual-v89.css","102");
-  addStyle("global-visual-v102.css","102");
-  if(page==="index.html"){
-    addScript("home-clean-v92.js","102");addStyle("home-ticker-v94.css","102");addScript("home-ticker-v93.js","102");
-    addScript("home-news-v102.js","102");addScript("home-share-v102.js","102");
-    addStyle("spensus-ai-v90.css","102");addScript("spensus-ai-shell-v90.js","102");
-  }
+  addScript("portal-fastnav-v102.js","102");addScript("class-access-v102.js","102");addScript("ui-clean-v102.js","102");addScript("icon-art-v86.js","102");addStyle("visual-fix-v87.css","102");addStyle("visual-v89.css","102");addStyle("global-visual-v102.css","102");
+  if(page==="index.html"){addScript("home-clean-v92.js","102");addStyle("home-ticker-v94.css","102");addScript("home-ticker-v93.js","102");addScript("home-news-v102.js","102");addScript("home-share-v102.js","102");addStyle("spensus-ai-v90.css","102");addScript("spensus-ai-shell-v90.js","102")}
   if(page==="akses-guru.html"){addScript("teacher-preview-fix-v87.js","102");addScript("owner-editor-v98.js","102")}
-  if(page==="mapel-lain.html"){addStyle("multimapel-admin-v89.css","102");addStyle("mapel-premium-v102.css","102");addScript("multimapel-admin-v89.js","102")}
+  if(page==="mapel-lain.html"){addStyle("multimapel-admin-v89.css","102");addStyle("mapel-premium-v102.css","102");addScript("mapel-card-icons-v102.js","102");addScript("multimapel-admin-v89.js","102")}
   if(page==="kendali-editor.html")addScript("news-editor-entry-v96.js","102");
-
-  const start=()=>{forceCriticalIcons();[80,240,700,1500,3200].forEach(ms=>setTimeout(forceCriticalIcons,ms))};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-  document.addEventListener('click',e=>{if(e.target.closest?.('[data-open-panel],.directory-feature-v25,.access-tile,.teacher-doc-menu button'))setTimeout(forceCriticalIcons,50)},{passive:true,capture:true});
-
+  const start=()=>{forceCriticalIcons();[80,240,700,1500,3200].forEach(ms=>setTimeout(forceCriticalIcons,ms))};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();document.addEventListener('click',e=>{if(e.target.closest?.('[data-open-panel],.directory-feature-v25,.access-tile,.teacher-doc-menu button'))setTimeout(forceCriticalIcons,50)},{passive:true,capture:true});
   if("serviceWorker" in navigator&&location.protocol!=="file:"){const register=()=>navigator.serviceWorker.register("service-worker.js?v=102").then(r=>r.update()).catch(()=>null);if(document.readyState==="complete")register();else window.addEventListener("load",register,{once:true})}
 })();
