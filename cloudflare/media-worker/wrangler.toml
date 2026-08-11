@@ -1,8 +1,0 @@
-name = "paibp-smart-media"
-main = "src/index.js"
-compatibility_date = "2026-08-11"
-workers_dev = true
-
-[[r2_buckets]]
-binding = "MEDIA_BUCKET"
-bucket_name = "paibp-smart-media"
