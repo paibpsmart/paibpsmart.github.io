@@ -20,14 +20,17 @@ jobs:
         run: |
           import json, urllib.request, re
           post_id = 'news-1786463411888-925mqh8'
+          headers = {'Origin':'https://sunarso29.github.io','Referer':'https://sunarso29.github.io/paibp-smart/','User-Agent':'Mozilla/5.0','Accept':'application/json'}
           api = 'https://paibp-smart-api.sunarso29.workers.dev/?action=publicSnapshot'
-          with urllib.request.urlopen(api, timeout=20) as r:
+          req=urllib.request.Request(api,headers=headers)
+          with urllib.request.urlopen(req, timeout=20) as r:
               data = json.load(r)
           news = data.get('news') or []
           row = next((x for x in news if str(x.get('id','')) == post_id), None)
           print('POST_FOUND', bool(row))
           if row:
               print('TITLE', row.get('title'))
+              print('COVER_HAS_DATA', bool(row.get('imageDataUrl') or row.get('imageUrl')))
           content = data.get('content') or {}
           keys = [k for k in content if post_id in k]
           print('POST_KEYS', keys)
@@ -52,7 +55,9 @@ jobs:
                           if isinstance(m, dict):
                               print('ITEM',i,'type=',m.get('type'),'name=',m.get('name'),'url=',str(m.get('url',''))[:120])
           share='https://paibp-smart-share.sunarso29.workers.dev/?id='+post_id
-          with urllib.request.urlopen(share, timeout=20) as r:
+          req2=urllib.request.Request(share,headers={'User-Agent':'facebookexternalhit/1.1'})
+          opener=urllib.request.build_opener(urllib.request.HTTPHandler())
+          with opener.open(req2, timeout=20) as r:
               html=r.read().decode('utf-8','replace')
           for prop in ['og:title','og:description','og:image']:
               m=re.search(r'<meta[^>]+property="'+re.escape(prop)+r'"[^>]+content="([^"]*)"',html,re.I)
