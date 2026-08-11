@@ -1,4 +1,4 @@
-name: Diagnose V118 live post
+name: Diagnose V119 share preview
 
 on:
   push:
@@ -15,54 +15,35 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Inspect public snapshot and share preview
+      - name: Register and verify real post preview
         shell: python
         run: |
           import json, urllib.request, re
-          post_id = 'news-1786463411888-925mqh8'
-          headers = {'Origin':'https://sunarso29.github.io','Referer':'https://sunarso29.github.io/paibp-smart/','User-Agent':'Mozilla/5.0','Accept':'application/json'}
-          api = 'https://paibp-smart-api.sunarso29.workers.dev/?action=publicSnapshot'
-          req=urllib.request.Request(api,headers=headers)
-          with urllib.request.urlopen(req, timeout=20) as r:
-              data = json.load(r)
-          news = data.get('news') or []
-          row = next((x for x in news if str(x.get('id','')) == post_id), None)
-          print('POST_FOUND', bool(row))
-          if row:
-              print('ROW', json.dumps(row,ensure_ascii=False)[:1200])
-          content = data.get('content') or {}
-          keys = [k for k in content if post_id in k]
-          print('POST_KEYS', keys)
-          def unwrap(x):
-              for _ in range(8):
-                  if isinstance(x, dict) and 'value' in x:
-                      x = x['value']; continue
-                  if isinstance(x, str):
-                      s=x.strip()
-                      if (s.startswith('{') and s.endswith('}')) or (s.startswith('[') and s.endswith(']')):
-                          try: x=json.loads(s); continue
-                          except: pass
-                  break
-              return x
-          rawmain=content.get('news:'+post_id)
-          print('MAIN_RAW_TYPE',type(rawmain).__name__)
-          print('MAIN_RAW',json.dumps(rawmain,ensure_ascii=False,default=str)[:2500])
-          main=unwrap(rawmain)
-          print('MAIN_UNWRAP_TYPE',type(main).__name__)
-          print('MAIN_UNWRAP',json.dumps(main,ensure_ascii=False,default=str)[:2500])
-          for k in keys:
-              x=unwrap(content.get(k))
-              if isinstance(x, dict):
-                  items=unwrap(x.get('items'))
-                  if isinstance(items, list):
-                      print('MEDIA_KEY', k, 'COUNT', len(items))
-                      for i,m in enumerate(items):
-                          if isinstance(m, dict):
-                              print('ITEM',i,'type=',m.get('type'),'name=',m.get('name'),'url=',str(m.get('url',''))[:120])
-          share='https://paibp-smart-share.sunarso29.workers.dev/?id='+post_id
+          post_id='news-1786463411888-925mqh8'
+          origin='https://sunarso29.github.io'
+          headers={'Origin':origin,'Referer':'https://sunarso29.github.io/paibp-smart/','User-Agent':'Mozilla/5.0','Accept':'application/json'}
+          req=urllib.request.Request('https://paibp-smart-api.sunarso29.workers.dev/?action=publicSnapshot',headers=headers)
+          with urllib.request.urlopen(req,timeout=20) as r:data=json.load(r)
+          c=data.get('content') or {}
+          main=c.get('news:'+post_id) or {}
+          title=str(main.get('title') or 'Berita SMP Negeri 1 Susukan')
+          desc=str(main.get('summary') or '')
+          cover_key=main.get('coverKey') or ((main.get('photoKeys') or [''])[0])
+          cover_obj=c.get(cover_key) or {}
+          cover=cover_obj.get('data') if isinstance(cover_obj,dict) else cover_obj
+          print('TITLE',title)
+          print('COVER_LENGTH',len(str(cover or '')))
+          payload=json.dumps({'id':post_id,'title':title,'description':desc,'image':cover},ensure_ascii=False).encode('utf-8')
+          reg=urllib.request.Request('https://paibp-smart-share.sunarso29.workers.dev/register',data=payload,method='POST',headers={'Origin':origin,'Content-Type':'application/json','Accept':'application/json','User-Agent':'Mozilla/5.0'})
+          with urllib.request.urlopen(reg,timeout=20) as r:
+              print('REGISTER',r.status,r.read().decode()[:500])
+          share='https://paibp-smart-share.sunarso29.workers.dev/?id='+post_id+'&_test=119'
           req2=urllib.request.Request(share,headers={'User-Agent':'facebookexternalhit/1.1'})
-          with urllib.request.urlopen(req2, timeout=20) as r:
-              html=r.read().decode('utf-8','replace')
+          with urllib.request.urlopen(req2,timeout=20) as r:html=r.read().decode('utf-8','replace')
+          vals={}
           for prop in ['og:title','og:description','og:image']:
               m=re.search(r'<meta[^>]+property="'+re.escape(prop)+r'"[^>]+content="([^"]*)"',html,re.I)
-              print('SHARE_META',prop, m.group(1) if m else 'MISSING')
+              vals[prop]=m.group(1) if m else ''
+              print('SHARE_META',prop,vals[prop])
+          assert vals['og:title']==title,(vals['og:title'],title)
+          assert vals['og:image'] and 'paibp-smart-share.sunarso29.workers.dev/image?id=' in vals['og:image']
