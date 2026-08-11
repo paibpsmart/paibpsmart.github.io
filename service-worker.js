@@ -1,4 +1,4 @@
-const CACHE_NAME="paibp-smart-v111-integrated-media-r1";
+const CACHE_NAME="paibp-smart-v112-tokenless-media-r1";
 const CORE=[
   "./",
   "./index.html",
@@ -77,10 +77,12 @@ self.addEventListener("fetch",event=>{
     event.respondWith(navigationFast(request));return;
   }
 
-  if(url.pathname.endsWith("/icon-art-v85.js")||url.pathname.endsWith("/news-attachments-v111.js")||url.pathname.endsWith("/news-attachments-v111.css")||url.pathname.endsWith("/home-news-media-v111.js")){
+  /* Editor media V112 selalu ambil versi jaringan agar kode V111/token lama tidak hidup lagi. */
+  if(url.pathname.endsWith("/news-attachments-v112.js")||url.pathname.endsWith("/news-attachments-v112.css")||url.pathname.endsWith("/editor-berita.html")||url.pathname.endsWith("/icon-art-v85.js")||url.pathname.endsWith("/home-news-media-v111.js")){
     event.respondWith(networkFirst(request,1600));return;
   }
 
+  /* V111 sengaja tidak diprioritaskan; editor baru tidak lagi memanggilnya. */
   if(request.destination==="style"||request.destination==="script"){event.respondWith(staleWhileRevalidate(request));return}
   if(request.destination==="image"||request.destination==="font"){event.respondWith(cacheFirst(request));return}
   event.respondWith(staleWhileRevalidate(request));
