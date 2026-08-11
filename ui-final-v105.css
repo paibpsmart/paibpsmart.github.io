@@ -1,25 +1,20 @@
-/* PAIBP SMART V105 — final visual stability + vivid icon finish */
-[hidden],.workspace-panel[hidden],[data-islamic-page][hidden],[data-teacher-page][hidden]{display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;transform:none!important;filter:none!important;animation:none!important;transition:none!important;content-visibility:hidden!important}
+/* PAIBP SMART V106 — clean switching + vivid compact icons */
+[hidden],.workspace-panel[hidden],[data-islamic-page][hidden],[data-teacher-page][hidden]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;transform:none!important;filter:none!important;animation:none!important;transition:none!important;content-visibility:hidden!important}
 [hidden]::before,[hidden]::after,.workspace-panel[hidden]::before,.workspace-panel[hidden]::after,[data-islamic-page][hidden]::before,[data-islamic-page][hidden]::after{display:none!important;content:none!important}
-.workspace-panel:not([hidden]),[data-islamic-page]:not([hidden]){opacity:1!important;visibility:visible!important;pointer-events:auto!important;transform:none!important;filter:none!important;animation:none!important;transition:none!important}
-.workspace-panel,.workspace-panel *:not(.progress-track):not(.ticker-window *),[data-islamic-page],[data-islamic-page] *{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.workspace-panel,[data-islamic-page],[data-teacher-page]{animation:none!important;transition:none!important;backface-visibility:hidden!important;-webkit-backface-visibility:hidden!important}
+.workspace-panel:not([hidden]),[data-islamic-page]:not([hidden]),[data-teacher-page]:not([hidden]){visibility:visible!important;opacity:1!important;pointer-events:auto!important;transform:none!important;filter:none!important}
 
-/* Icon holders: no dominant white tile. */
-:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg){position:relative!important;isolation:isolate!important;overflow:hidden!important;border-radius:15px!important;border:1px solid rgba(255,255,255,.38)!important;box-shadow:0 9px 20px rgba(3,25,52,.28),inset 0 1px 0 rgba(255,255,255,.25),inset 0 -9px 18px rgba(0,18,55,.16)!important;opacity:1!important;visibility:visible!important;filter:saturate(1.14) contrast(1.04)!important}
-:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)::after{content:""!important;position:absolute!important;inset:3px 5px auto 5px!important;height:34%!important;border-radius:999px!important;background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0))!important;pointer-events:none!important;z-index:0!important}
-:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)>svg{position:relative!important;z-index:1!important;width:31px!important;height:31px!important;display:block!important;overflow:visible!important;opacity:1!important;visibility:visible!important;filter:drop-shadow(0 1px 1px rgba(0,0,0,.22))!important}
-:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg) .v105-live-icon [data-tone]{stroke:none!important;opacity:1!important}
-.access-tile .access-icon{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important}
+:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg){position:relative!important;display:grid!important;place-items:center!important;isolation:isolate!important;overflow:hidden!important;border-radius:15px!important;border:1px solid rgba(255,255,255,.34)!important;box-shadow:0 8px 18px rgba(2,20,48,.25),inset 0 1px 0 rgba(255,255,255,.24),inset 0 -8px 14px rgba(0,20,55,.13)!important;opacity:1!important;visibility:visible!important;-webkit-text-fill-color:initial!important}
+:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)::after{content:""!important;position:absolute!important;left:5px!important;right:5px!important;top:3px!important;height:29%!important;border-radius:999px!important;background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0))!important;pointer-events:none!important;z-index:0!important}
+:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)>svg{position:relative!important;z-index:1!important;width:31px!important;height:31px!important;display:block!important;overflow:visible!important;opacity:1!important;visibility:visible!important;filter:drop-shadow(0 2px 2px rgba(0,0,0,.20))!important}
+:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)>svg:not(.v106-live-icon):not(.v105-live-icon){opacity:0!important;visibility:hidden!important;position:absolute!important}
+.access-tile .access-icon{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important}
 .feature-icon-v25,.hero-action-icon{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important}
 .directory-feature-icon{width:58px!important;height:58px!important;min-width:58px!important;min-height:58px!important}
 
-/* Remove legacy washed-out icon paint even if old CSS remains cached. */
-:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg){-webkit-text-fill-color:initial!important}
-:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg) svg:not(.v105-live-icon){opacity:0!important;visibility:hidden!important;position:absolute!important}
+/* Pemisahan antarpanel tegas: panel lama tidak boleh tersisa sebagai layer visual. */
+body.v106-switching .workspace-panel,body.v106-switching [data-islamic-page]{transition:none!important;animation:none!important}
+body.v106-switching .workspace-panel[hidden],body.v106-switching [data-islamic-page][hidden]{display:none!important;opacity:0!important;visibility:hidden!important}
 
-/* Tab/panel changes must be clean, never cross-fade old content. */
-body.v105-switching .workspace-panel,body.v105-switching [data-islamic-page]{transition:none!important;animation:none!important}
-body.v105-switching .workspace-panel[hidden],body.v105-switching [data-islamic-page][hidden]{display:none!important}
-
-@media(max-width:760px){.access-tile .access-icon{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important}.feature-icon-v25,.hero-action-icon{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important}.directory-feature-icon{width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important}}
-@media(prefers-reduced-motion:reduce){.workspace-panel,[data-islamic-page]{transition:none!important;animation:none!important}}
+@media(max-width:760px){.access-tile .access-icon{width:41px!important;height:41px!important;min-width:41px!important;min-height:41px!important}.feature-icon-v25,.hero-action-icon{width:43px!important;height:43px!important;min-width:43px!important;min-height:43px!important}.directory-feature-icon{width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important}}
+@media(prefers-reduced-motion:reduce){.workspace-panel,[data-islamic-page],[data-teacher-page]{transition:none!important;animation:none!important}}
