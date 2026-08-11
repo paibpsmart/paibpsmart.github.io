@@ -1,2 +1,21 @@
-/* V85 icon compatibility shim — lively dimensional icon system. */
-@import url("icon-v86.css?v=103");
+/* PAIBP SMART V106 — critical icon + anti-ghosting rules, loaded in <head>. */
+[hidden],.workspace-panel[hidden],[data-islamic-page][hidden],[data-teacher-page][hidden]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;transform:none!important;filter:none!important;animation:none!important;transition:none!important}
+.workspace-panel,[data-islamic-page],[data-teacher-page]{animation:none!important;transition:none!important;backface-visibility:hidden!important;-webkit-backface-visibility:hidden!important}
+.workspace-panel:not([hidden]),[data-islamic-page]:not([hidden]),[data-teacher-page]:not([hidden]){visibility:visible!important;opacity:1!important;transform:none!important;filter:none!important}
+
+/* Tidak ada lagi kotak putih dominan di belakang ikon. */
+:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg){
+  position:relative!important;display:grid!important;place-items:center!important;isolation:isolate!important;overflow:hidden!important;
+  color:#fff!important;-webkit-text-fill-color:initial!important;
+  background:radial-gradient(circle at 28% 18%,rgba(255,255,255,.24),transparent 34%),linear-gradient(145deg,rgba(4,25,58,.24),rgba(4,20,48,.46))!important;
+  border:1px solid rgba(255,255,255,.28)!important;border-radius:15px!important;
+  box-shadow:0 7px 16px rgba(1,18,42,.24),inset 0 1px 0 rgba(255,255,255,.22)!important;
+  opacity:1!important;visibility:visible!important;mix-blend-mode:normal!important;filter:none!important;
+}
+:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)>svg{width:31px!important;height:31px!important;display:block!important;overflow:visible!important;opacity:1!important;visibility:visible!important;filter:drop-shadow(0 2px 2px rgba(0,0,0,.2))!important}
+/* Sembunyikan glyph warisan sampai ikon final V106 menggantikannya. */
+:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)>svg:not(.v106-live-icon):not(.v105-live-icon){opacity:0!important;visibility:hidden!important;position:absolute!important}
+.access-tile .access-icon{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important}
+.feature-icon-v25,.hero-action-icon{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important}
+.directory-feature-icon{width:58px!important;height:58px!important;min-width:58px!important;min-height:58px!important}
+@media(max-width:760px){.access-tile .access-icon{width:41px!important;height:41px!important;min-width:41px!important;min-height:41px!important}.feature-icon-v25,.hero-action-icon{width:43px!important;height:43px!important;min-width:43px!important;min-height:43px!important}.directory-feature-icon{width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important}}
