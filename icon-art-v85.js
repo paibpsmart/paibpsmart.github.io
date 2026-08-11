@@ -8,8 +8,9 @@
   addScript("portal-fastnav-v102.js","102");
   addScript("class-access-v102.js","102");
   addScript("ui-clean-v102.js","102");
-  addScript("icon-art-v86.js","102");
-  addScript("access-icons-v102.js","102");
+  addScript("icon-art-v86.js","104");
+  addStyle("icon-v86.css","104");
+  addScript("access-icons-v102.js","104");
   addStyle("visual-fix-v87.css","102");
   addStyle("visual-v89.css","102");
   addStyle("global-visual-v102.css","102");
@@ -21,5 +22,8 @@
   if(page==="akses-guru.html"){addScript("teacher-preview-fix-v87.js","102");addScript("owner-editor-v98.js","102")}
   if(page==="mapel-lain.html"){addStyle("multimapel-admin-v89.css","102");addStyle("mapel-premium-v102.css","102");addScript("mapel-card-icons-v102.js","102");addScript("multimapel-admin-v89.js","102")}
   if(page==="kendali-editor.html")addScript("news-editor-entry-v96.js","102");
-  if("serviceWorker" in navigator&&location.protocol!=="file:"){const register=()=>navigator.serviceWorker.register("service-worker.js?v=102").then(r=>r.update()).catch(()=>null);if(document.readyState==="complete")register();else window.addEventListener("load",register,{once:true})}
+  if("serviceWorker" in navigator&&location.protocol!=="file:"){
+    const register=()=>navigator.serviceWorker.register("service-worker.js?v=104").then(r=>r.update()).catch(()=>null);
+    if(document.readyState==="complete")register();else window.addEventListener("load",register,{once:true});
+  }
 })();
