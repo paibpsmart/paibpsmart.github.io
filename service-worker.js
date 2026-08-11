@@ -1,4 +1,4 @@
-const CACHE_NAME="paibp-smart-v112-tokenless-media-r1";
+const CACHE_NAME="paibp-smart-v113-cloudinary-free-r1";
 const CORE=[
   "./",
   "./index.html",
@@ -28,26 +28,16 @@ async function fetchWithTimeout(request,ms){
   const timer=setTimeout(()=>ctl.abort(),ms);
   try{return await fetch(request,{cache:"no-store",signal:ctl.signal})}finally{clearTimeout(timer)}
 }
-
 async function networkFirst(request,ms=1800){
   const cache=await caches.open(CACHE_NAME);
-  try{
-    const response=await fetchWithTimeout(request,ms);
-    if(response&&response.ok)cache.put(request,response.clone());
-    return response;
-  }catch{return await cache.match(request)||await cache.match(request,{ignoreSearch:true})||fetch(request)}
+  try{const response=await fetchWithTimeout(request,ms);if(response&&response.ok)cache.put(request,response.clone());return response}catch{return await cache.match(request)||await cache.match(request,{ignoreSearch:true})||fetch(request)}
 }
-
 async function staleWhileRevalidate(request){
   const cache=await caches.open(CACHE_NAME);
   const hit=await cache.match(request)||await cache.match(request,{ignoreSearch:true});
-  const update=fetch(request,{cache:"no-store"}).then(response=>{
-    if(response&&response.ok)cache.put(request,response.clone());
-    return response;
-  }).catch(()=>null);
+  const update=fetch(request,{cache:"no-store"}).then(response=>{if(response&&response.ok)cache.put(request,response.clone());return response}).catch(()=>null);
   return hit||await update||Response.error();
 }
-
 async function navigationFast(request){
   const cache=await caches.open(CACHE_NAME);
   const hit=await cache.match(request)||await cache.match(request,{ignoreSearch:true});
@@ -55,7 +45,6 @@ async function navigationFast(request){
   try{const fresh=await fetchWithTimeout(request,650);if(fresh&&fresh.ok){cache.put(request,fresh.clone());return fresh}}catch{}
   return hit;
 }
-
 async function cacheFirst(request){
   const cache=await caches.open(CACHE_NAME);
   const hit=await cache.match(request)||await cache.match(request,{ignoreSearch:true});
@@ -69,20 +58,19 @@ self.addEventListener("fetch",event=>{
   const url=new URL(request.url);
   if(url.origin!==self.location.origin)return;
 
-  /* File video/audio tidak pernah masuk cache aplikasi; Range diteruskan langsung. */
-  if(url.pathname.includes("/news-media/")||url.pathname.includes("/media-library/files/")||request.destination==="video"||request.destination==="audio"||request.headers.has("range"))return;
+  /* Video/audio tidak pernah disalin ke cache aplikasi. CDN media menangani byte-range sendiri. */
+  if(request.destination==="video"||request.destination==="audio"||request.headers.has("range"))return;
 
   if(request.mode==="navigate"||request.destination==="document"){
     if(url.pathname.endsWith("/editor-berita.html")||url.pathname.endsWith("/kendali-editor.html")){event.respondWith(networkFirst(request,1800));return}
     event.respondWith(navigationFast(request));return;
   }
 
-  /* Editor media V112 selalu ambil versi jaringan agar kode V111/token lama tidak hidup lagi. */
-  if(url.pathname.endsWith("/news-attachments-v112.js")||url.pathname.endsWith("/news-attachments-v112.css")||url.pathname.endsWith("/editor-berita.html")||url.pathname.endsWith("/icon-art-v85.js")||url.pathname.endsWith("/home-news-media-v111.js")){
+  /* Editor media V113 selalu network-first agar jalur R2/V112 lama tidak hidup lagi. */
+  if(url.pathname.endsWith("/news-attachments-v113.js")||url.pathname.endsWith("/news-attachments-v113.css")||url.pathname.endsWith("/cloudinary-media-config-v113.js")||url.pathname.endsWith("/editor-berita.html")||url.pathname.endsWith("/home-news-media-v111.js")){
     event.respondWith(networkFirst(request,1600));return;
   }
 
-  /* V111 sengaja tidak diprioritaskan; editor baru tidak lagi memanggilnya. */
   if(request.destination==="style"||request.destination==="script"){event.respondWith(staleWhileRevalidate(request));return}
   if(request.destination==="image"||request.destination==="font"){event.respondWith(cacheFirst(request));return}
   event.respondWith(staleWhileRevalidate(request));
