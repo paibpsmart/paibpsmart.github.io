@@ -1,4 +1,4 @@
-const CACHE_NAME="paibp-smart-v113-cloudinary-free-r1";
+const CACHE_NAME="paibp-smart-v114-direct-post-r1";
 const CORE=[
   "./",
   "./index.html",
@@ -58,17 +58,15 @@ self.addEventListener("fetch",event=>{
   const url=new URL(request.url);
   if(url.origin!==self.location.origin)return;
 
-  /* Video/audio tidak pernah disalin ke cache aplikasi. CDN media menangani byte-range sendiri. */
   if(request.destination==="video"||request.destination==="audio"||request.headers.has("range"))return;
 
   if(request.mode==="navigate"||request.destination==="document"){
-    if(url.pathname.endsWith("/editor-berita.html")||url.pathname.endsWith("/kendali-editor.html")){event.respondWith(networkFirst(request,1800));return}
+    if(url.pathname.endsWith("/editor-berita.html")||url.pathname.endsWith("/kendali-editor.html")){event.respondWith(networkFirst(request,1200));return}
     event.respondWith(navigationFast(request));return;
   }
 
-  /* Editor media V113 selalu network-first agar jalur R2/V112 lama tidak hidup lagi. */
-  if(url.pathname.endsWith("/news-attachments-v113.js")||url.pathname.endsWith("/news-attachments-v113.css")||url.pathname.endsWith("/cloudinary-media-config-v113.js")||url.pathname.endsWith("/editor-berita.html")||url.pathname.endsWith("/home-news-media-v111.js")){
-    event.respondWith(networkFirst(request,1600));return;
+  if(url.pathname.endsWith("/news-attachments-v113.js")||url.pathname.endsWith("/news-attachments-v113.css")||url.pathname.endsWith("/cloudinary-media-config-v113.js")||url.pathname.endsWith("/news-publish-direct-v114.js")||url.pathname.endsWith("/news-editor-chunked-v102.js")||url.pathname.endsWith("/editor-berita.html")||url.pathname.endsWith("/home-news-media-v111.js")){
+    event.respondWith(networkFirst(request,1200));return;
   }
 
   if(request.destination==="style"||request.destination==="script"){event.respondWith(staleWhileRevalidate(request));return}
