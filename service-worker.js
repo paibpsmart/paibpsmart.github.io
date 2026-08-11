@@ -1,4 +1,4 @@
-const CACHE_NAME="paibp-smart-v110-fast-shell";
+const CACHE_NAME="paibp-smart-v110-fast-shell-r2";
 const CORE=[
   "./",
   "./index.html",
@@ -23,7 +23,7 @@ self.addEventListener("activate",event=>{
   })());
 });
 
-async function fetchWithTimeout(request,ms=3500){
+async function fetchWithTimeout(request,ms){
   const ctl=new AbortController();
   const timer=setTimeout(()=>ctl.abort(),ms);
   try{return await fetch(request,{cache:"no-store",signal:ctl.signal})}finally{clearTimeout(timer)}
@@ -42,11 +42,16 @@ async function staleWhileRevalidate(request){
 async function navigationFast(request){
   const cache=await caches.open(CACHE_NAME);
   const hit=await cache.match(request)||await cache.match(request,{ignoreSearch:true});
+  if(!hit){
+    const fresh=await fetch(request,{cache:"no-store"});
+    if(fresh&&fresh.ok)cache.put(request,fresh.clone());
+    return fresh;
+  }
   try{
-    const fresh=await fetchWithTimeout(request,2500);
+    const fresh=await fetchWithTimeout(request,650);
     if(fresh&&fresh.ok){cache.put(request,fresh.clone());return fresh}
   }catch{}
-  return hit||fetch(request);
+  return hit;
 }
 
 async function cacheFirst(request){
@@ -65,7 +70,7 @@ self.addEventListener("fetch",event=>{
   if(request.method!=="GET")return;
   const url=new URL(request.url);
 
-  /* API pihak lain dan media besar jangan dimasukkan cache shell. */
+  /* Media besar dan range request langsung ke CDN; tidak memenuhi cache shell. */
   if(url.origin!==self.location.origin)return;
   if(url.pathname.includes("/media-library/files/")||request.destination==="video"||request.destination==="audio")return;
   if(request.headers.has("range"))return;
