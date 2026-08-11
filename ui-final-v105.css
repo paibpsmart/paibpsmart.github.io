@@ -1,5 +1,4 @@
-@import url("icon-depth-v85.css?v=108");
-/* PAIBP SMART V108 — switching bersih; desain ikon hanya dimiliki icon-depth-v85.css */
+/* PAIBP SMART V109 — switching bersih. TIDAK mengatur ikon. */
 [hidden],.workspace-panel[hidden],[data-islamic-page][hidden],[data-teacher-page][hidden]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;transform:none!important;filter:none!important;animation:none!important;transition:none!important;content-visibility:hidden!important}
 [hidden]::before,[hidden]::after,.workspace-panel[hidden]::before,.workspace-panel[hidden]::after,[data-islamic-page][hidden]::before,[data-islamic-page][hidden]::after{display:none!important;content:none!important}
 .workspace-panel,[data-islamic-page],[data-teacher-page]{animation:none!important;transition:none!important;backface-visibility:hidden!important;-webkit-backface-visibility:hidden!important}
