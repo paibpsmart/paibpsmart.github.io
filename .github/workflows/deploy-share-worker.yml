@@ -1,0 +1,27 @@
+name: Deploy PAIBP share Worker
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cloudflare/share-worker/**'
+      - '.github/workflows/deploy-share-worker.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Deploy share Worker
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: cloudflare/share-worker
+          command: deploy
