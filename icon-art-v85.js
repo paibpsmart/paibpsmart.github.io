@@ -11,8 +11,8 @@
   addStyle("visual-fix-v87.css","102");
   addStyle("visual-v89.css","102");
   addStyle("global-visual-v102.css","102");
-  addStyle("ui-final-v105.css","105");
-  addScript("ui-final-v105.js","105");
+  addStyle("ui-final-v105.css","106");
+  addScript("ui-final-v105.js","106");
   if(page==="index.html"){
     addScript("home-clean-v92.js","102");addStyle("home-ticker-v94.css","102");addScript("home-ticker-v93.js","102");
     addScript("home-news-v102.js","102");addScript("home-share-v102.js","102");
@@ -22,7 +22,7 @@
   if(page==="mapel-lain.html"){addStyle("multimapel-admin-v89.css","102");addStyle("mapel-premium-v102.css","102");addScript("mapel-card-icons-v102.js","102");addScript("multimapel-admin-v89.js","102")}
   if(page==="kendali-editor.html")addScript("news-editor-entry-v96.js","102");
   if("serviceWorker" in navigator&&location.protocol!=="file:"){
-    const register=()=>navigator.serviceWorker.register("service-worker.js?v=105").then(r=>r.update()).catch(()=>null);
+    const register=()=>navigator.serviceWorker.register("service-worker.js?v=106").then(r=>r.update()).catch(()=>null);
     if(document.readyState==="complete")register();else window.addEventListener("load",register,{once:true});
   }
 })();
