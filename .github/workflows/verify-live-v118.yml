@@ -1,10 +1,15 @@
-name: Verify live V118 carousel
+name: Verify live V119 media and share
 
 on:
   push:
     branches: [main]
     paths:
       - '.github/workflows/verify-live-v118.yml'
+      - 'home-news-media-v111.js'
+      - 'home-share-v102.js'
+      - 'icon-art-v85.js'
+      - 'service-worker.js'
+      - 'cloudflare/share-worker/**'
   workflow_dispatch:
 
 permissions:
@@ -15,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
+      - name: Wait for Pages and Worker deploy
+        run: sleep 35
       - name: Install Playwright
         run: |
           npm init -y >/dev/null 2>&1
@@ -27,49 +34,43 @@ jobs:
           (async()=>{
             const { chromium } = require('playwright');
             const id='news-1786463411888-925mqh8';
-            const url=`https://sunarso29.github.io/paibp-smart/index.html?news=${id}&ui=118#kabar-spensus`;
+            const expectedTitle='Semarak HUT Ke-81 RI, Guru, Tenaga Kependidikan, dan Murid SMP Negeri 1 Susukan Tampil Kompak di Gerak Jalan Gayeng 2026';
+            const url=`https://sunarso29.github.io/paibp-smart/index.html?news=${id}&ui=119#kabar-spensus`;
             const browser=await chromium.launch({headless:true});
             const page=await browser.newPage({viewport:{width:390,height:844}});
-            page.on('console',m=>{ if(m.type()==='error') console.log('CONSOLE_ERROR',m.text()) });
+            page.on('console',m=>{if(m.type()==='error')console.log('CONSOLE_ERROR',m.text())});
             page.on('pageerror',e=>console.log('PAGE_ERROR',e.message));
             await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
-            await page.waitForTimeout(18000);
+            await page.waitForTimeout(16000);
             const out=await page.evaluate((id)=>{
               const p=document.querySelector(`.ig-post[data-post="${id}"]`)||document.querySelector('.ig-post[data-post]');
               const scripts=[...document.scripts].map(s=>s.src).filter(Boolean);
               if(!p)return {post:false,scripts};
-              return {
-                post:true,
-                postId:p.dataset.post,
-                title:p.querySelector('.ig-title')?.textContent?.trim()||'',
-                mediaCount:p.dataset.mediaCount||'',
-                totalSlides:p.querySelectorAll('.ig-slide').length,
-                videoSlides:p.querySelectorAll('.ig-slide[data-kind="video"]').length,
-                audioSlides:p.querySelectorAll('.ig-slide[data-kind="audio"]').length,
-                attachmentSlides:p.querySelectorAll('[data-media-v118]').length,
-                counter:p.querySelector('.ig-count')?.textContent||'',
-                scripts:scripts.filter(x=>/home-news|icon-art|share/.test(x))
-              };
+              return {post:true,postId:p.dataset.post,title:p.querySelector('.ig-title')?.textContent?.trim()||'',mediaCount:p.dataset.mediaCount||'',totalSlides:p.querySelectorAll('.ig-slide').length,videoSlides:p.querySelectorAll('.ig-slide[data-kind="video"]').length,audioSlides:p.querySelectorAll('.ig-slide[data-kind="audio"]').length,attachmentSlides:p.querySelectorAll('[data-media-v118]').length,counter:p.querySelector('.ig-count')?.textContent||'',scripts:scripts.filter(x=>/home-news|icon-art|share/.test(x))};
             },id);
             console.log('LIVE_RESULT',JSON.stringify(out,null,2));
-            await page.screenshot({path:'live-v118.png',fullPage:true});
-            await browser.close();
+            await page.screenshot({path:'live-v119.png',fullPage:true});
 
             const share=`https://paibp-smart-share.sunarso29.workers.dev/?id=${id}`;
-            const sr=await fetch(share,{headers:{'User-Agent':'facebookexternalhit/1.1'}});
-            const html=await sr.text();
-            const meta=(p)=>html.match(new RegExp(`<meta[^>]+property=["']${p}["'][^>]+content=["']([^"']*)`, 'i'))?.[1]||'';
-            const shareOut={status:sr.status,title:meta('og:title'),description:meta('og:description'),image:meta('og:image')};
+            let shareOut={};
+            for(let attempt=0;attempt<5;attempt++){
+              const sr=await fetch(`${share}&_=${Date.now()}`,{headers:{'User-Agent':'facebookexternalhit/1.1'},cache:'no-store'});
+              const html=await sr.text();
+              const meta=(p)=>html.match(new RegExp(`<meta[^>]+property=["']${p}["'][^>]+content=["']([^"']*)`, 'i'))?.[1]||'';
+              shareOut={status:sr.status,title:meta('og:title'),description:meta('og:description'),image:meta('og:image')};
+              if(shareOut.title===expectedTitle&&shareOut.image)break;
+              await new Promise(r=>setTimeout(r,2500));
+            }
             console.log('SHARE_RESULT',JSON.stringify(shareOut,null,2));
-
-            if(!out.post || out.videoSlides!==4 || out.totalSlides<8) process.exit(2);
-            if(!shareOut.title || /^(Berita SMP Negeri 1 Susukan|PAIBP SMART SMP)/i.test(shareOut.title) || !shareOut.image) process.exit(3);
+            await browser.close();
+            if(!out.post||out.videoSlides!==4||out.totalSlides!==8||out.counter!=='1/8')process.exit(2);
+            if(shareOut.title!==expectedTitle||!shareOut.image)process.exit(3);
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
       - name: Upload screenshot
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: live-v118-proof
-          path: live-v118.png
+          name: live-v119-proof
+          path: live-v119.png
           if-no-files-found: ignore
