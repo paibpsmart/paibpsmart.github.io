@@ -29,13 +29,12 @@ jobs:
           row = next((x for x in news if str(x.get('id','')) == post_id), None)
           print('POST_FOUND', bool(row))
           if row:
-              print('TITLE', row.get('title'))
-              print('COVER_HAS_DATA', bool(row.get('imageDataUrl') or row.get('imageUrl')))
+              print('ROW', json.dumps(row,ensure_ascii=False)[:1200])
           content = data.get('content') or {}
           keys = [k for k in content if post_id in k]
           print('POST_KEYS', keys)
           def unwrap(x):
-              for _ in range(6):
+              for _ in range(8):
                   if isinstance(x, dict) and 'value' in x:
                       x = x['value']; continue
                   if isinstance(x, str):
@@ -45,6 +44,12 @@ jobs:
                           except: pass
                   break
               return x
+          rawmain=content.get('news:'+post_id)
+          print('MAIN_RAW_TYPE',type(rawmain).__name__)
+          print('MAIN_RAW',json.dumps(rawmain,ensure_ascii=False,default=str)[:2500])
+          main=unwrap(rawmain)
+          print('MAIN_UNWRAP_TYPE',type(main).__name__)
+          print('MAIN_UNWRAP',json.dumps(main,ensure_ascii=False,default=str)[:2500])
           for k in keys:
               x=unwrap(content.get(k))
               if isinstance(x, dict):
@@ -56,8 +61,7 @@ jobs:
                               print('ITEM',i,'type=',m.get('type'),'name=',m.get('name'),'url=',str(m.get('url',''))[:120])
           share='https://paibp-smart-share.sunarso29.workers.dev/?id='+post_id
           req2=urllib.request.Request(share,headers={'User-Agent':'facebookexternalhit/1.1'})
-          opener=urllib.request.build_opener(urllib.request.HTTPHandler())
-          with opener.open(req2, timeout=20) as r:
+          with urllib.request.urlopen(req2, timeout=20) as r:
               html=r.read().decode('utf-8','replace')
           for prop in ['og:title','og:description','og:image']:
               m=re.search(r'<meta[^>]+property="'+re.escape(prop)+r'"[^>]+content="([^"]*)"',html,re.I)
