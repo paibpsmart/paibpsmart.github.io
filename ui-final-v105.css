@@ -1,47 +1,8 @@
-/* PAIBP SMART V107 — icon rebuild tanpa kotak putih + switching bersih */
+@import url("icon-depth-v85.css?v=108");
+/* PAIBP SMART V108 — switching bersih; desain ikon hanya dimiliki icon-depth-v85.css */
 [hidden],.workspace-panel[hidden],[data-islamic-page][hidden],[data-teacher-page][hidden]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;transform:none!important;filter:none!important;animation:none!important;transition:none!important;content-visibility:hidden!important}
 [hidden]::before,[hidden]::after,.workspace-panel[hidden]::before,.workspace-panel[hidden]::after,[data-islamic-page][hidden]::before,[data-islamic-page][hidden]::after{display:none!important;content:none!important}
 .workspace-panel,[data-islamic-page],[data-teacher-page]{animation:none!important;transition:none!important;backface-visibility:hidden!important;-webkit-backface-visibility:hidden!important}
 .workspace-panel:not([hidden]),[data-islamic-page]:not([hidden]),[data-teacher-page]:not([hidden]){visibility:visible!important;opacity:1!important;pointer-events:auto!important;transform:none!important;filter:none!important}
-
-/* HOLDER IKON FINAL: transparan. Tidak ada kotak putih, border putih, atau fill susu. */
-:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg){
-  --v107-glow:rgba(69,214,255,.48);--v107-glow2:rgba(255,215,87,.28);
-  position:relative!important;display:grid!important;place-items:center!important;isolation:isolate!important;overflow:visible!important;
-  background:transparent!important;background-color:transparent!important;background-image:none!important;
-  border:0!important;outline:0!important;border-radius:0!important;
-  box-shadow:none!important;filter:none!important;color:inherit!important;-webkit-text-fill-color:initial!important;
-  opacity:1!important;visibility:visible!important;mix-blend-mode:normal!important;
-}
-:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)::before{
-  content:""!important;position:absolute!important;inset:8%!important;border-radius:50%!important;z-index:0!important;pointer-events:none!important;
-  background:radial-gradient(circle,var(--v107-glow) 0%,var(--v107-glow2) 35%,rgba(0,0,0,0) 72%)!important;
-  filter:blur(3px)!important;opacity:.9!important;
-}
-:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)::after{
-  content:""!important;position:absolute!important;inset:14%!important;border-radius:50%!important;z-index:0!important;pointer-events:none!important;
-  border:1px solid rgba(255,255,255,.16)!important;background:rgba(2,16,45,.10)!important;box-shadow:inset 0 0 12px rgba(255,255,255,.04)!important;
-}
-:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)>svg{
-  position:relative!important;z-index:2!important;width:38px!important;height:38px!important;display:block!important;overflow:visible!important;
-  opacity:1!important;visibility:visible!important;filter:drop-shadow(0 3px 3px rgba(0,0,0,.28)) drop-shadow(0 0 7px var(--v107-glow))!important;
-}
-:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)>svg:not(.v107-icon){opacity:0!important;visibility:hidden!important;position:absolute!important;pointer-events:none!important}
-.access-tile .access-icon{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important}
-.feature-icon-v25,.hero-action-icon{width:50px!important;height:50px!important;min-width:50px!important;min-height:50px!important}
-.directory-feature-icon{width:62px!important;height:62px!important;min-width:62px!important;min-height:62px!important}
-
-/* Angka menu tetap kecil dan bukan elemen visual utama. */
 .access-tile>b,.feature-number{opacity:.78!important;text-shadow:none!important;filter:none!important}
-
-/* Perpindahan panel tegas, tidak cross-fade dan tidak meninggalkan bayangan konten lama. */
-body.v107-switching .workspace-panel,body.v107-switching [data-islamic-page]{transition:none!important;animation:none!important}
-body.v107-switching .workspace-panel[hidden],body.v107-switching [data-islamic-page][hidden]{display:none!important;opacity:0!important;visibility:hidden!important}
-
-@media(max-width:760px){
-  .access-tile .access-icon{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important}
-  .feature-icon-v25,.hero-action-icon{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important}
-  .directory-feature-icon{width:54px!important;height:54px!important;min-width:54px!important;min-height:54px!important}
-  :where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)>svg{width:35px!important;height:35px!important}
-}
 @media(prefers-reduced-motion:reduce){.workspace-panel,[data-islamic-page],[data-teacher-page]{transition:none!important;animation:none!important}}
