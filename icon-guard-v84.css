@@ -1,12 +1,4 @@
-/* V84 compatibility guard retained for visibility only.
-   V85 owns icon color/material/depth. No layout/content/function changes. */
-:where(.nav-svg,.hero-action-icon,.access-icon,.directory-feature-icon,.feature-icon-v25,.rail-card-icon,.workspace-ai-nav-v27 .nav-svg,.orbit-item,.welcome-icon,.panel-kicker,.teacher-doc-menu button>span,.ai-drawer-brand-v27>span,.spensus-ai-launcher-v27>span){
-  opacity:1!important;visibility:visible!important;mix-blend-mode:normal!important;isolation:isolate!important;
-}
-:where(.nav-svg,.hero-action-icon,.access-icon,.directory-feature-icon,.feature-icon-v25,.rail-card-icon,.workspace-ai-nav-v27 .nav-svg,.orbit-item) svg,
-:where(.access-tile,.directory-feature-v25,.feature-card-v25,.islamic-menu button,.teacher-doc-menu button) :where(svg,path,circle,rect,polygon,line,polyline){
-  display:block!important;opacity:1!important;visibility:visible!important;mix-blend-mode:normal!important;
-}
-.workspace-role-nav button{overflow:visible!important;isolation:isolate!important}
-.islamic-menu button,.teacher-doc-menu button,.workspace-role-nav button{position:relative!important}
-.islamic-menu button::before,.teacher-doc-menu button::before,.workspace-role-nav button::before{pointer-events:none!important;mix-blend-mode:normal!important}
+/* V108 compatibility guard — jangan menyalakan kembali glyph putih lama. */
+:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg){opacity:1!important;visibility:visible!important;mix-blend-mode:normal!important;isolation:isolate!important}
+:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)>*{display:none!important;opacity:0!important;visibility:hidden!important}
+.workspace-role-nav button,.islamic-menu button,.teacher-doc-menu button{position:relative!important}
