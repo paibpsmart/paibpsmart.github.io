@@ -1,4 +1,4 @@
-const CACHE_NAME="paibp-smart-v110-fast-shell-r2";
+const CACHE_NAME="paibp-smart-v111-integrated-media-r1";
 const CORE=[
   "./",
   "./index.html",
@@ -7,7 +7,7 @@ const CORE=[
   "./v37-final.css?v=37",
   "./visual-v85.css?v=85",
   "./icon-guard-v84.css?v=109",
-  "./icon-art-v85.js?v=109"
+  "./icon-art-v85.js?v=111"
 ];
 
 self.addEventListener("install",event=>{
@@ -29,6 +29,15 @@ async function fetchWithTimeout(request,ms){
   try{return await fetch(request,{cache:"no-store",signal:ctl.signal})}finally{clearTimeout(timer)}
 }
 
+async function networkFirst(request,ms=1800){
+  const cache=await caches.open(CACHE_NAME);
+  try{
+    const response=await fetchWithTimeout(request,ms);
+    if(response&&response.ok)cache.put(request,response.clone());
+    return response;
+  }catch{return await cache.match(request)||await cache.match(request,{ignoreSearch:true})||fetch(request)}
+}
+
 async function staleWhileRevalidate(request){
   const cache=await caches.open(CACHE_NAME);
   const hit=await cache.match(request)||await cache.match(request,{ignoreSearch:true});
@@ -42,15 +51,8 @@ async function staleWhileRevalidate(request){
 async function navigationFast(request){
   const cache=await caches.open(CACHE_NAME);
   const hit=await cache.match(request)||await cache.match(request,{ignoreSearch:true});
-  if(!hit){
-    const fresh=await fetch(request,{cache:"no-store"});
-    if(fresh&&fresh.ok)cache.put(request,fresh.clone());
-    return fresh;
-  }
-  try{
-    const fresh=await fetchWithTimeout(request,650);
-    if(fresh&&fresh.ok){cache.put(request,fresh.clone());return fresh}
-  }catch{}
+  if(!hit){const fresh=await fetch(request,{cache:"no-store"});if(fresh&&fresh.ok)cache.put(request,fresh.clone());return fresh}
+  try{const fresh=await fetchWithTimeout(request,650);if(fresh&&fresh.ok){cache.put(request,fresh.clone());return fresh}}catch{}
   return hit;
 }
 
@@ -58,34 +60,28 @@ async function cacheFirst(request){
   const cache=await caches.open(CACHE_NAME);
   const hit=await cache.match(request)||await cache.match(request,{ignoreSearch:true});
   if(hit)return hit;
-  try{
-    const response=await fetch(request,{cache:"no-store"});
-    if(response&&response.ok)cache.put(request,response.clone());
-    return response;
-  }catch{return Response.error()}
+  try{const response=await fetch(request,{cache:"no-store"});if(response&&response.ok)cache.put(request,response.clone());return response}catch{return Response.error()}
 }
 
 self.addEventListener("fetch",event=>{
   const request=event.request;
   if(request.method!=="GET")return;
   const url=new URL(request.url);
-
-  /* Media besar dan range request langsung ke CDN; tidak memenuhi cache shell. */
   if(url.origin!==self.location.origin)return;
-  if(url.pathname.includes("/media-library/files/")||request.destination==="video"||request.destination==="audio")return;
-  if(request.headers.has("range"))return;
+
+  /* File video/audio tidak pernah masuk cache aplikasi; Range diteruskan langsung. */
+  if(url.pathname.includes("/news-media/")||url.pathname.includes("/media-library/files/")||request.destination==="video"||request.destination==="audio"||request.headers.has("range"))return;
 
   if(request.mode==="navigate"||request.destination==="document"){
-    event.respondWith(navigationFast(request));
-    return;
+    if(url.pathname.endsWith("/editor-berita.html")||url.pathname.endsWith("/kendali-editor.html")){event.respondWith(networkFirst(request,1800));return}
+    event.respondWith(navigationFast(request));return;
   }
-  if(request.destination==="style"||request.destination==="script"){
-    event.respondWith(staleWhileRevalidate(request));
-    return;
+
+  if(url.pathname.endsWith("/icon-art-v85.js")||url.pathname.endsWith("/news-attachments-v111.js")||url.pathname.endsWith("/news-attachments-v111.css")||url.pathname.endsWith("/home-news-media-v111.js")){
+    event.respondWith(networkFirst(request,1600));return;
   }
-  if(request.destination==="image"||request.destination==="font"){
-    event.respondWith(cacheFirst(request));
-    return;
-  }
+
+  if(request.destination==="style"||request.destination==="script"){event.respondWith(staleWhileRevalidate(request));return}
+  if(request.destination==="image"||request.destination==="font"){event.respondWith(cacheFirst(request));return}
   event.respondWith(staleWhileRevalidate(request));
 });
