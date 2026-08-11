@@ -1,0 +1,4 @@
+PAIBP SMART UI V105 aktif.
+Perbaikan: anti-ghosting perpindahan panel/tab, ikon multicolor tanpa holder putih dominan, cache UI lama diputus.
+Loader: icon-art-v85.js memuat ui-final-v105.css dan ui-final-v105.js.
+Service worker: paibp-smart-v105-clean-ui-r1.
