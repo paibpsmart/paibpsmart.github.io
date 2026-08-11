@@ -2,6 +2,7 @@
 "use strict";
 if(window.__NEWS_ATTACHMENTS_V112__)return;window.__NEWS_ATTACHMENTS_V112__=1;
 const WORKER="https://paibp-smart-api.sunarso29.workers.dev";
+const MEDIA_WORKER="https://paibp-smart-media.sunarso29.workers.dev";
 const KEY="b082937b2165453ba7d9f81ecac063b00310b339ec0643da";
 const MAX_VIDEOS=5,MAX_BYTES=95*1024*1024;
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -47,7 +48,7 @@ async function uploadOne(q,id,index,total){
   status(`Mengunggah ${q.type==="video"?"video":"audio"} ${index}/${total}: ${f.name}`);progress(Math.max(4,Math.round((index-1)/Math.max(total,1)*88)));
   const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),120000);
   try{
-    const r=await fetch(`${WORKER}/media/upload`,{method:"POST",body:fd,cache:"no-store",headers:{"Accept":"application/json","X-PAIBP-Editor":"news-v112"},signal:ctl.signal});
+    const r=await fetch(`${MEDIA_WORKER}/media/upload`,{method:"POST",body:fd,cache:"no-store",headers:{"Accept":"application/json","X-PAIBP-Editor":"news-v112"},signal:ctl.signal});
     const t=await r.text();let j={};try{j=JSON.parse(t)}catch{}
     if(!r.ok||j?.ok!==true||!j?.item?.url)throw new Error(j?.error||`Server media HTTP ${r.status}`);
     return{...j.item,id:q.id,type:q.type,name:j.item.name||f.name,title:j.item.title||f.name.replace(/\.[^.]+$/,"")||f.name,size:j.item.size||f.size,mime:j.item.mime||f.type||"",createdAt:j.item.createdAt||new Date().toISOString()}
