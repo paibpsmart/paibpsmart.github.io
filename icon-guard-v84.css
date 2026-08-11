@@ -1,4 +1,100 @@
-/* V108 compatibility guard — jangan menyalakan kembali glyph putih lama. */
-:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg){opacity:1!important;visibility:visible!important;mix-blend-mode:normal!important;isolation:isolate!important}
-:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)>*{display:none!important;opacity:0!important;visibility:hidden!important}
-.workspace-role-nav button,.islamic-menu button,.teacher-doc-menu button{position:relative!important}
+/* PAIBP SMART V109 — FINAL ICON HARD FIX
+   File ini dimuat paling akhir di <head>. Holder putih/glyph lama dimatikan di sini.
+   Ikon utama memakai aset SVG mandiri, bukan repaint JavaScript. */
+
+:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg){
+  position:relative!important;
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 auto!important;
+  overflow:visible!important;
+  isolation:isolate!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  background-repeat:no-repeat!important;
+  background-position:center!important;
+  background-size:contain!important;
+  border:0!important;
+  outline:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  color:transparent!important;
+  -webkit-text-fill-color:transparent!important;
+  text-shadow:none!important;
+  font-size:0!important;
+  line-height:0!important;
+  opacity:1!important;
+  visibility:visible!important;
+  filter:drop-shadow(0 4px 5px rgba(2,18,48,.26)) saturate(1.14) contrast(1.04)!important;
+  mix-blend-mode:normal!important;
+}
+
+:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)::before,
+:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)::after{
+  display:none!important;
+  content:none!important;
+  background:none!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+
+/* Glyph/emoji/SVG lama tidak boleh muncul lagi. */
+:where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.workspace-role-nav .nav-svg)>*{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+.access-tile .access-icon{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important}
+.feature-icon-v25,.hero-action-icon{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important}
+.directory-feature-icon{width:58px!important;height:58px!important;min-width:58px!important;min-height:58px!important}
+.workspace-role-nav .nav-svg{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important}
+
+/* 01 Ruang Murid */
+:where([data-open-panel="student"],a[href*="#student"]) :where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.nav-svg){background-image:url("assets/menu-icons-v108/student.svg?v=109")!important}
+/* 02 Fitur Islami */
+:where([data-open-panel="islamic"],a[href*="#islamic"]) :where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.nav-svg){background-image:url("assets/menu-icons-v108/islamic.svg?v=109")!important}
+/* 03 Game Edukasi */
+:where([data-open-panel="games"],a[href*="#games"]) :where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.nav-svg){background-image:url("assets/menu-icons-v108/game.svg?v=109")!important}
+/* Literasi Digital */
+a[href*="literasi-digital"] :where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.nav-svg){background-image:url("assets/menu-icons-v108/library.svg?v=109")!important}
+/* Baca Artikel */
+a[href*="artikel-islam"] :where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.nav-svg){background-image:url("assets/menu-icons-v108/article.svg?v=109")!important}
+/* About Spensus */
+a[href*="about-spensus"] :where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.nav-svg){background-image:url("assets/menu-icons-v108/school.svg?v=109")!important}
+/* Mapel Lain */
+a[href*="mapel-lain"] :where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.nav-svg){background-image:url("assets/menu-icons-v108/mapel.svg?v=109")!important}
+/* Portal Guru */
+a[href*="akses-guru"] :where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.nav-svg),[data-open-panel="teacher"] :where(.access-icon,.directory-feature-icon,.feature-icon-v25,.hero-action-icon,.nav-svg){background-image:url("assets/menu-icons-v108/teacher.svg?v=109")!important}
+
+/* Fallback halaman beranda berdasarkan urutan 8 shortcut. */
+.access-tile:nth-child(1) .access-icon{background-image:url("assets/menu-icons-v108/student.svg?v=109")!important}
+.access-tile:nth-child(2) .access-icon{background-image:url("assets/menu-icons-v108/islamic.svg?v=109")!important}
+.access-tile:nth-child(3) .access-icon{background-image:url("assets/menu-icons-v108/game.svg?v=109")!important}
+.access-tile:nth-child(4) .access-icon{background-image:url("assets/menu-icons-v108/library.svg?v=109")!important}
+.access-tile:nth-child(5) .access-icon{background-image:url("assets/menu-icons-v108/article.svg?v=109")!important}
+.access-tile:nth-child(6) .access-icon{background-image:url("assets/menu-icons-v108/school.svg?v=109")!important}
+.access-tile:nth-child(7) .access-icon{background-image:url("assets/menu-icons-v108/mapel.svg?v=109")!important}
+.access-tile:nth-child(8) .access-icon{background-image:url("assets/menu-icons-v108/teacher.svg?v=109")!important}
+
+/* Direktori fitur: href menjadi sumber kebenaran. */
+.directory-feature-v25[href*="#student"] .directory-feature-icon{background-image:url("assets/menu-icons-v108/student.svg?v=109")!important}
+.directory-feature-v25[href*="#islamic"] .directory-feature-icon{background-image:url("assets/menu-icons-v108/islamic.svg?v=109")!important}
+.directory-feature-v25[href*="#games"] .directory-feature-icon{background-image:url("assets/menu-icons-v108/game.svg?v=109")!important}
+.directory-feature-v25[href*="mapel-lain"] .directory-feature-icon{background-image:url("assets/menu-icons-v108/mapel.svg?v=109")!important}
+.directory-feature-v25[href*="about-spensus"] .directory-feature-icon{background-image:url("assets/menu-icons-v108/school.svg?v=109")!important}
+.directory-feature-v25[href*="literasi-digital"] .directory-feature-icon{background-image:url("assets/menu-icons-v108/library.svg?v=109")!important}
+.directory-feature-v25[href*="artikel-islam"] .directory-feature-icon{background-image:url("assets/menu-icons-v108/article.svg?v=109")!important}
+
+/* Jangan biarkan visual-v86 memaksa stroke/fill ikon lama. */
+:where(.access-tile,.directory-feature-v25,.feature-card-v25) :where(svg,path,circle,rect,polygon,line,polyline){stroke:unset!important;fill:unset!important;filter:none!important}
+
+/* Anti-ghosting perpindahan panel. */
+[hidden],.workspace-panel[hidden],[data-islamic-page][hidden],[data-teacher-page][hidden]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;transform:none!important;animation:none!important;transition:none!important}
+
+@media(max-width:760px){
+  .access-tile .access-icon{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important}
+  .feature-icon-v25,.hero-action-icon{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important}
+  .directory-feature-icon{width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important}
+}
