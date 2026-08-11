@@ -23,35 +23,37 @@ jobs:
       - name: Verify deployed carousel
         shell: node {0}
         run: |
-          const { chromium } = require('playwright');
-          const id='news-1786463411888-925mqh8';
-          const url=`https://sunarso29.github.io/paibp-smart/index.html?news=${id}&ui=118#kabar-spensus`;
-          const browser=await chromium.launch({headless:true});
-          const page=await browser.newPage({viewport:{width:390,height:844}});
-          page.on('console',m=>{ if(m.type()==='error') console.log('CONSOLE_ERROR',m.text()) });
-          page.on('pageerror',e=>console.log('PAGE_ERROR',e.message));
-          await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
-          await page.waitForTimeout(18000);
-          const out=await page.evaluate((id)=>{
-            const p=document.querySelector(`.ig-post[data-post="${id}"]`)||document.querySelector('.ig-post[data-post]');
-            const scripts=[...document.scripts].map(s=>s.src).filter(Boolean);
-            if(!p)return {post:false,scripts};
-            return {
-              post:true,
-              postId:p.dataset.post,
-              mediaCount:p.dataset.mediaCount||'',
-              totalSlides:p.querySelectorAll('.ig-slide').length,
-              videoSlides:p.querySelectorAll('.ig-slide[data-kind="video"]').length,
-              audioSlides:p.querySelectorAll('.ig-slide[data-kind="audio"]').length,
-              attachmentSlides:p.querySelectorAll('[data-media-v118]').length,
-              counter:p.querySelector('.ig-count')?.textContent||'',
-              scripts:scripts.filter(x=>/home-news|icon-art|share/.test(x))
-            };
-          },id);
-          console.log('LIVE_RESULT',JSON.stringify(out,null,2));
-          await page.screenshot({path:'live-v118.png',fullPage:true});
-          await browser.close();
-          if(!out.post || out.videoSlides!==4 || out.totalSlides<8) process.exit(2);
+          (async()=>{
+            const { chromium } = require('playwright');
+            const id='news-1786463411888-925mqh8';
+            const url=`https://sunarso29.github.io/paibp-smart/index.html?news=${id}&ui=118#kabar-spensus`;
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:390,height:844}});
+            page.on('console',m=>{ if(m.type()==='error') console.log('CONSOLE_ERROR',m.text()) });
+            page.on('pageerror',e=>console.log('PAGE_ERROR',e.message));
+            await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForTimeout(18000);
+            const out=await page.evaluate((id)=>{
+              const p=document.querySelector(`.ig-post[data-post="${id}"]`)||document.querySelector('.ig-post[data-post]');
+              const scripts=[...document.scripts].map(s=>s.src).filter(Boolean);
+              if(!p)return {post:false,scripts};
+              return {
+                post:true,
+                postId:p.dataset.post,
+                mediaCount:p.dataset.mediaCount||'',
+                totalSlides:p.querySelectorAll('.ig-slide').length,
+                videoSlides:p.querySelectorAll('.ig-slide[data-kind="video"]').length,
+                audioSlides:p.querySelectorAll('.ig-slide[data-kind="audio"]').length,
+                attachmentSlides:p.querySelectorAll('[data-media-v118]').length,
+                counter:p.querySelector('.ig-count')?.textContent||'',
+                scripts:scripts.filter(x=>/home-news|icon-art|share/.test(x))
+              };
+            },id);
+            console.log('LIVE_RESULT',JSON.stringify(out,null,2));
+            await page.screenshot({path:'live-v118.png',fullPage:true});
+            await browser.close();
+            if(!out.post || out.videoSlides!==4 || out.totalSlides<8) process.exit(2);
+          })().catch(e=>{console.error(e);process.exit(1)});
       - name: Upload screenshot
         if: always()
         uses: actions/upload-artifact@v4
