@@ -23,7 +23,7 @@
   if(page==="mapel-lain.html"){addStyle("multimapel-admin-v89.css","102");addStyle("mapel-premium-v102.css","102");addScript("mapel-card-icons-v102.js","102");addScript("multimapel-admin-v89.js","102")}
   if(page==="kendali-editor.html")addScript("news-editor-entry-v96.js","102");
   if("serviceWorker" in navigator&&location.protocol!=="file:"){
-    const register=()=>navigator.serviceWorker.register("service-worker.js?v=109").then(r=>r.update()).catch(()=>null);
+    const register=()=>navigator.serviceWorker.register("service-worker.js?v=110").then(r=>r.update()).catch(()=>null);
     if(document.readyState==="complete")register();else window.addEventListener("load",register,{once:true});
   }
 })();
