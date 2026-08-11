@@ -1,0 +1,59 @@
+name: Diagnose V118 live post
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/diagnose-v118.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Inspect public snapshot and share preview
+        shell: python
+        run: |
+          import json, urllib.request, re
+          post_id = 'news-1786463411888-925mqh8'
+          api = 'https://paibp-smart-api.sunarso29.workers.dev/?action=publicSnapshot'
+          with urllib.request.urlopen(api, timeout=20) as r:
+              data = json.load(r)
+          news = data.get('news') or []
+          row = next((x for x in news if str(x.get('id','')) == post_id), None)
+          print('POST_FOUND', bool(row))
+          if row:
+              print('TITLE', row.get('title'))
+          content = data.get('content') or {}
+          keys = [k for k in content if post_id in k]
+          print('POST_KEYS', keys)
+          def unwrap(x):
+              for _ in range(6):
+                  if isinstance(x, dict) and 'value' in x:
+                      x = x['value']; continue
+                  if isinstance(x, str):
+                      s=x.strip()
+                      if (s.startswith('{') and s.endswith('}')) or (s.startswith('[') and s.endswith(']')):
+                          try: x=json.loads(s); continue
+                          except: pass
+                  break
+              return x
+          for k in keys:
+              x=unwrap(content.get(k))
+              if isinstance(x, dict):
+                  items=unwrap(x.get('items'))
+                  if isinstance(items, list):
+                      print('MEDIA_KEY', k, 'COUNT', len(items))
+                      for i,m in enumerate(items):
+                          if isinstance(m, dict):
+                              print('ITEM',i,'type=',m.get('type'),'name=',m.get('name'),'url=',str(m.get('url',''))[:120])
+          share='https://paibp-smart-share.sunarso29.workers.dev/?id='+post_id
+          with urllib.request.urlopen(share, timeout=20) as r:
+              html=r.read().decode('utf-8','replace')
+          for prop in ['og:title','og:description','og:image']:
+              m=re.search(r'<meta[^>]+property="'+re.escape(prop)+r'"[^>]+content="([^"]*)"',html,re.I)
+              print('SHARE_META',prop, m.group(1) if m else 'MISSING')
