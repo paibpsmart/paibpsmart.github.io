@@ -1,0 +1,118 @@
+name: Verify full sync V126
+
+on:
+  workflow_run:
+    workflows: ['Bootstrap PAIBP D1 V126']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: End-to-end API verification
+        shell: bash
+        env:
+          API: https://paibp-smart-api.sunarso29.workers.dev
+          ORIGIN: https://paibpsmart.github.io
+          READ_KEY: b082937b2165453ba7d9f81ecac063b00310b339ec0643da
+        run: |
+          set -euo pipefail
+          TEST_ID="v126-e2e-$(date +%s)-$RANDOM"
+          CONTENT_KEY="verify:${TEST_ID}"
+          export TEST_ID CONTENT_KEY
+
+          post() {
+            local action="$1" data="$2"
+            curl -fsS "$API/" \
+              -H "Origin: $ORIGIN" \
+              -H 'Content-Type: application/json' \
+              -H 'Accept: application/json' \
+              --data "$(jq -nc --arg action "$action" --arg readKey "$READ_KEY" --argjson data "$data" '{app:"paibp-smart",version:"126",action:$action,readKey:$readKey,data:($data + {readKey:$readKey})}')"
+          }
+
+          cleanup() {
+            set +e
+            post contentDelete "$(jq -nc --arg key "$CONTENT_KEY" '{key:$key}')" >/dev/null 2>&1
+            post newsDelete "$(jq -nc --arg id "$TEST_ID" '{id:$id}')" >/dev/null 2>&1
+          }
+          trap cleanup EXIT
+
+          echo '1/8 health'
+          curl -fsS "$API/health" -H "Origin: $ORIGIN" | tee /tmp/health.json
+          jq -e '.ok == true and .version == "126-d1" and .database == "Cloudflare D1" and .schema == "126"' /tmp/health.json >/dev/null
+
+          echo '2/8 CORS preflight'
+          curl -sS -D /tmp/cors.h -o /dev/null -X OPTIONS "$API/" \
+            -H "Origin: $ORIGIN" \
+            -H 'Access-Control-Request-Method: POST' \
+            -H 'Access-Control-Request-Headers: Content-Type,Accept'
+          grep -qi "^access-control-allow-origin: $ORIGIN" /tmp/cors.h
+          grep -qi '^access-control-allow-methods:.*POST' /tmp/cors.h
+
+          echo '3/8 contentUpsert'
+          CONTENT_DATA="$(jq -nc --arg key "$CONTENT_KEY" --arg id "$TEST_ID" '{key:$key,value:{schema:"verify-v126",id:$id,text:"sinkronisasi konten editor"},authorName:"PAIBP SMART E2E",authorSchool:"SMP Negeri 1 Susukan"}')"
+          post contentUpsert "$CONTENT_DATA" | tee /tmp/content-upsert.json
+          jq -e '.ok == true' /tmp/content-upsert.json >/dev/null
+
+          echo '4/8 newsUpsert'
+          NEWS_DATA="$(jq -nc --arg id "$TEST_ID" '{id:$id,title:"Verifikasi Sinkronisasi V126",date:"2026-08-12",summary:"Data uji otomatis yang akan dihapus.",authorName:"PAIBP SMART E2E",authorSchool:"SMP Negeri 1 Susukan",isPublished:true,sortOrder:999999}')"
+          post newsUpsert "$NEWS_DATA" | tee /tmp/news-upsert.json
+          jq -e '.ok == true' /tmp/news-upsert.json >/dev/null
+
+          echo '5/8 publicSnapshot read-back'
+          curl -fsS "$API/?action=publicSnapshot" -H "Origin: $ORIGIN" -H 'Accept: application/json' | tee /tmp/snapshot.json >/dev/null
+          jq -e --arg id "$TEST_ID" --arg key "$CONTENT_KEY" '.ok == true and any(.news[]?; .id == $id) and (.content[$key].id == $id)' /tmp/snapshot.json >/dev/null
+
+          echo '6/8 editorSnapshot read-back'
+          curl -fsS "$API/?action=editorSnapshot&readKey=$READ_KEY" -H "Origin: $ORIGIN" -H 'Accept: application/json' | tee /tmp/editor.json >/dev/null
+          jq -e '.ok == true and (.public.ok == true) and (.activities|type == "array") and (.submissions|type == "array")' /tmp/editor.json >/dev/null
+
+          echo '7/8 delete test records'
+          post newsDelete "$(jq -nc --arg id "$TEST_ID" '{id:$id}')" | jq -e '.ok == true' >/dev/null
+          post contentDelete "$(jq -nc --arg key "$CONTENT_KEY" '{key:$key}')" | jq -e '.ok == true' >/dev/null
+
+          echo '8/8 verify cleanup'
+          curl -fsS "$API/?action=publicSnapshot" -H "Origin: $ORIGIN" -H 'Accept: application/json' > /tmp/final.json
+          jq -e --arg id "$TEST_ID" --arg key "$CONTENT_KEY" '([.news[]? | select(.id == $id)] | length) == 0 and (.content[$key] == null)' /tmp/final.json >/dev/null
+          trap - EXIT
+
+          cat > LIVE-SYNC-STATUS-V126.txt <<EOF
+          PAIBP SMART FULL SYNC V126
+          Verified UTC: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          Domain: https://paibpsmart.github.io/
+          API Worker: paibp-smart-api
+          Backend: Cloudflare D1
+          Schema: 126
+          CORS new domain: PASS
+          API health: PASS
+          contentUpsert -> publicSnapshot: PASS
+          newsUpsert -> publicSnapshot: PASS
+          editorSnapshot: PASS
+          newsDelete/contentDelete cleanup: PASS
+          Test residue: NONE
+          Overall: PASS
+          EOF
+          cat LIVE-SYNC-STATUS-V126.txt
+
+      - name: Commit verified status
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'PAIBP SMART Sync Verification'
+          git config user.email 'actions@users.noreply.github.com'
+          git add LIVE-SYNC-STATUS-V126.txt
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'V126 sinkronisasi berita editor database terverifikasi'
+          git pull --rebase origin main
+          git push origin HEAD:main
