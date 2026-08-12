@@ -1,6 +1,6 @@
 (()=>{
 "use strict";
-if(window.__SPENSUS_SHARE_V137__)return;window.__SPENSUS_SHARE_V137__=1;
+if(window.__SPENSUS_SHARE_V138__)return;window.__SPENSUS_SHARE_V138__=1;
 const SITE="https://paibpsmart.github.io/";
 const SHARE_WORKER="https://paibp-smart-share.sunarso29.workers.dev/";
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];

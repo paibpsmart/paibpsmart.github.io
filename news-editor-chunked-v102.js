@@ -27,21 +27,28 @@
 
   async function post(action,data){
     const body=JSON.stringify({action,readKey:KEY,key:KEY,data:{...data,readKey:KEY},origin:location.origin});
+    const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),22000);
     try{
-      const r=await fetch(PROXY,{method:"POST",cache:"no-store",headers:{"Content-Type":"text/plain;charset=UTF-8","Accept":"application/json"},body});
-      const text=await r.text();let j={};try{j=JSON.parse(text)}catch{}
-      if(r.ok&&j?.ok===true)return j;
-      if(j?.error)throw new Error(j.error);
-    }catch(proxyError){
-      try{await fetch(GAS,{method:"POST",mode:"no-cors",cache:"no-store",headers:{"Content-Type":"text/plain;charset=UTF-8"},body});return{ok:true,opaque:true}}catch{throw proxyError}
-    }
-    throw new Error("Server menolak penyimpanan berita.");
+      const r=await fetch(PROXY,{method:"POST",cache:"no-store",headers:{"Content-Type":"text/plain;charset=UTF-8","Accept":"application/json"},body,signal:ctl.signal});
+      const text=await r.text();let j={};try{j=JSON.parse(text)}catch{throw new Error("Respons server tidak valid.")}
+      if(!r.ok||j?.ok!==true)throw new Error(j?.error||`Server HTTP ${r.status}`);
+      return j;
+    }catch(e){
+      if(e?.name==="AbortError")throw new Error("Server tidak merespons dalam batas waktu.");
+      throw new Error(e?.message||"Penyimpanan server gagal.");
+    }finally{clearTimeout(timer)}
   }
 
-  async function verify(id){
-    for(const ms of [500,900,1400,2200,3500,5000,7000,9000]){
+  async function verify(id,expectedTitle=""){
+    for(const ms of [450,800,1200,1800,2600,3800,5200,7000,9000]){
       await sleep(ms);
-      try{const j=await jsonpSnapshot();const row=(j?.news||[]).find(n=>String(n.id)===String(id));const manifest=j?.content?.[`news:${id}`];if(j?.ok===true&&row&&manifest)return{snapshot:j,row,manifest}}catch{}
+      try{
+        const j=await jsonpSnapshot(),row=(j?.news||[]).find(n=>String(n.id)===String(id)),manifest=j?.content?.[`news:${id}`];
+        const coverKey=manifest?.coverKey||(Array.isArray(manifest?.photoKeys)?manifest.photoKeys[0]:"");
+        const cover=coverKey?j?.content?.[coverKey]:null;
+        const titleOk=!expectedTitle||String(row?.title||"")===String(expectedTitle);
+        if(j?.ok===true&&row&&row.isPublished!==false&&titleOk&&manifest&&String(manifest?.id||id)===String(id)&&coverKey&&cover)return{snapshot:j,row,manifest,cover};
+      }catch{}
     }
     return null;
   }
@@ -100,7 +107,7 @@
       const manifest={schema:"chunks-v102",id:x.id,title:x.title,date:x.date,category:x.category,summary:x.summary,photoKeys,bodyKeys,coverKey:photoKeys[0]||"",year:x.year,month:x.month,author:x.author};
       await post("contentUpsert",{key:`news:${x.id}`,value:manifest,authorName:x.author,authorSchool:"SMP Negeri 1 Susukan",updatedAt:new Date().toISOString()});
       b.textContent="Verifikasi…";status("Memastikan berita sudah benar-benar tayang…");
-      const verified=await verify(x.id);if(!verified)throw new Error("Server belum mengembalikan berita setelah penyimpanan selesai.");
+      const verified=await verify(x.id,x.title);if(!verified)throw new Error("Server belum mengembalikan berita setelah penyimpanan selesai.");
       x.status="published";x.publishedAt=new Date().toISOString();await putLocal(x);$("#ne-id").value=x.id;$("#ne-editor-status").textContent="Tayang";status(`Berhasil. Berita tayang dengan ${photos.length} foto tanpa memotong naskah.`,"ok");try{new BroadcastChannel("spensus-news").postMessage({type:"published",id:x.id})}catch{}refreshLists();
     }catch(e){x.status="draft";await putLocal(x);$("#ne-editor-status").textContent="Draft";status(`Belum tayang: ${e.message||"server belum mengonfirmasi"}. Tulisan tetap aman sebagai Draft.`,"error")}
     finally{b.disabled=false;b.textContent="Terbitkan"}
