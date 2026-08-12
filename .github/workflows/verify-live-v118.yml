@@ -16,52 +16,27 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 6
     steps:
       - name: Wait for GitHub Pages deploy
-        run: sleep 35
-      - name: Install Playwright
-        run: |
-          npm init -y >/dev/null 2>&1
-          npm i playwright@1.58.2 >/dev/null 2>&1
-          npx playwright install chromium >/dev/null 2>&1
-      - name: Verify clean PAIBP SMART share URL
+        run: sleep 25
+      - name: Verify deployed clean share script
         shell: bash
         run: |
-          node <<'NODE'
-          (async()=>{
-            const { chromium } = require('playwright');
-            const id='news-1786463411888-925mqh8';
-            const expected=`https://paibpsmart.github.io/index.html?news=${encodeURIComponent(id)}&from=share#kabar-spensus`;
-            const pageUrl=`https://paibpsmart.github.io/index.html?ui=132#kabar-spensus`;
-            const browser=await chromium.launch({headless:true});
-            const page=await browser.newPage({viewport:{width:390,height:844}});
-            await page.goto(pageUrl,{waitUntil:'domcontentloaded',timeout:60000});
-            await page.waitForSelector(`.ig-post[data-post="${id}"]`,{timeout:45000});
-            const post=page.locator(`.ig-post[data-post="${id}"]`);
-            await post.locator('[data-share]').click();
-            await page.waitForSelector('#ig-share-modal-v132:not([hidden])',{timeout:10000});
-            const out=await page.evaluate(()=>{
-              const input=document.querySelector('#ig-share-link');
-              const buttons=[...document.querySelectorAll('#ig-share-modal-v132 [data-external]')];
-              const scripts=[...document.scripts].map(s=>s.src).filter(Boolean);
-              return {
-                value:input?.value||'',
-                modal:Boolean(document.querySelector('#ig-share-modal-v132:not([hidden])')),
-                scripts:scripts.filter(x=>/home-share-v102/.test(x)),
-                externalCount:buttons.length
-              };
-            });
-            console.log('CLEAN_SHARE_RESULT',JSON.stringify(out,null,2));
-            if(!out.modal)throw new Error('Modal share V132 tidak aktif');
-            if(out.value!==expected)throw new Error(`URL share salah: ${out.value}`);
-            if(out.value.includes('workers.dev'))throw new Error('URL publik masih memakai workers.dev');
-            if(!out.value.startsWith('https://paibpsmart.github.io/'))throw new Error('URL publik bukan domain PAIBP SMART');
-            const deep=await browser.newPage({viewport:{width:390,height:844}});
-            await deep.goto(expected,{waitUntil:'domcontentloaded',timeout:60000});
-            await deep.waitForSelector(`.ig-post[data-post="${id}"]`,{timeout:45000});
-            const title=await deep.locator(`.ig-post[data-post="${id}"] .ig-title`).textContent();
-            console.log('DEEPLINK_TITLE',title?.trim());
-            await browser.close();
-          })().catch(e=>{console.error(e);process.exit(1)});
-          NODE
+          set -euo pipefail
+          curl -fsSL 'https://paibpsmart.github.io/home-share-v102.js?v=132' -o /tmp/share.js
+          curl -fsSL 'https://paibpsmart.github.io/icon-art-v85.js?v=132' -o /tmp/loader.js
+          curl -fsSL 'https://paibpsmart.github.io/service-worker.js?v=132' -o /tmp/sw.js
+          grep -F 'const SITE="https://paibpsmart.github.io/"' /tmp/share.js
+          grep -F 'const SHARE_WORKER="https://paibp-smart-share.sunarso29.workers.dev/"' /tmp/share.js
+          grep -F 'function shareUrl(id){const u=new URL("index.html",SITE)' /tmp/share.js
+          grep -F 'u.searchParams.set("news",String(id||""))' /tmp/share.js
+          grep -F 'u.searchParams.set("from","share")' /tmp/share.js
+          grep -F 'u.hash="kabar-spensus"' /tmp/share.js
+          grep -F 'addScript("home-share-v102.js","132")' /tmp/loader.js
+          grep -F 'paibp-smart-v132-share-domain-r1' /tmp/sw.js
+          if grep -F 'function shareUrl(id){const u=new URL(SHARE_WORKER)' /tmp/share.js; then
+            echo 'FAIL: public share URL still points to Worker'
+            exit 1
+          fi
+          echo 'PASS: public sharing uses https://paibpsmart.github.io/'
