@@ -24,129 +24,123 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Enforce server-truth publishing and permanent dynamic sharing
+      - name: Patch server-truth publication core
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
           import re
-
-          def read(name): return Path(name).read_text(encoding='utf-8')
-          def write(name, text): Path(name).write_text(text, encoding='utf-8')
-          def need(cond, msg):
-              if not cond: raise SystemExit(msg)
-
-          # 1) Editor: every remote write must receive a real JSON ACK.
-          p='news-editor-chunked-v102.js'; s=read(p)
+          p=Path('news-editor-chunked-v102.js')
+          s=p.read_text(encoding='utf-8')
           pat=r'  async function post\(action,data\)\{.*?\n  \}\n\n  async function verify\(id\)\{.*?\n  \}\n'
-          m=re.search(pat,s,re.S); need(m is not None,'publish post/verify block not found')
-          repl='''  async function post(action,data){
-    const body=JSON.stringify({action,readKey:KEY,key:KEY,data:{...data,readKey:KEY},origin:location.origin});
-    const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),22000);
-    try{
-      const r=await fetch(PROXY,{method:"POST",cache:"no-store",headers:{"Content-Type":"text/plain;charset=UTF-8","Accept":"application/json"},body,signal:ctl.signal});
-      const text=await r.text();let j={};try{j=JSON.parse(text)}catch{throw new Error("Respons server tidak valid.")}
-      if(!r.ok||j?.ok!==true)throw new Error(j?.error||`Server HTTP ${r.status}`);
-      return j;
-    }catch(e){
-      if(e?.name==="AbortError")throw new Error("Server tidak merespons dalam batas waktu.");
-      throw new Error(e?.message||"Penyimpanan server gagal.");
-    }finally{clearTimeout(timer)}
-  }
-
-  async function verify(id,expectedTitle=""){
-    for(const ms of [450,800,1200,1800,2600,3800,5200,7000,9000]){
-      await sleep(ms);
-      try{
-        const j=await jsonpSnapshot(),row=(j?.news||[]).find(n=>String(n.id)===String(id)),manifest=j?.content?.[`news:${id}`];
-        const coverKey=manifest?.coverKey||(Array.isArray(manifest?.photoKeys)?manifest.photoKeys[0]:"");
-        const cover=coverKey?j?.content?.[coverKey]:null;
-        const titleOk=!expectedTitle||String(row?.title||"")===String(expectedTitle);
-        if(j?.ok===true&&row&&row.isPublished!==false&&titleOk&&manifest&&String(manifest?.id||id)===String(id)&&coverKey&&cover)return{snapshot:j,row,manifest,cover};
-      }catch{}
-    }
-    return null;
-  }
-'''
-          s=s[:m.start()]+repl+s[m.end():]
-          s=s.replace('const verified=await verify(x.id);if(!verified)', 'const verified=await verify(x.id,x.title);if(!verified)')
-          need('verify(x.id,x.title)' in s,'verified publish gate not patched')
-          need('mode:"no-cors"' not in s,'opaque no-cors publish fallback still present')
-          write(p,s)
-
-          # 2) Redirect helper may redirect only after verified server success.
-          p='news-publish-direct-v114.js'
-          write(p,'''(()=>{
-"use strict";
-if(window.__NEWS_PUBLISH_DIRECT_V138__)return;window.__NEWS_PUBLISH_DIRECT_V138__=1;
-const $=(s,r=document)=>r.querySelector(s);
-const editorStatus=$("#ne-editor-status"),formStatus=$("#ne-form-status"),mediaStatus=$("#nea-status"),mediaProgress=$("#nea-progress");
-let redirecting=false;
-function serverConfirmed(){
-  return String(editorStatus?.textContent||"").trim()==="Tayang" && /^Berhasil\./i.test(String(formStatus?.textContent||"").trim());
-}
-async function goHome(){
-  if(redirecting||!serverConfirmed())return;redirecting=true;
-  const id=$("#ne-id")?.value||"";
-  if(mediaProgress)mediaProgress.style.display="none";
-  if(mediaStatus)mediaStatus.textContent="Berita telah dikonfirmasi server.";
-  try{new BroadcastChannel("spensus-news").postMessage({type:"published",id,source:"server-confirmed-v138"})}catch{}
-  const u=new URL("index.html",document.baseURI);u.searchParams.set("published",id||"1");u.searchParams.set("v","138");
-  setTimeout(()=>location.replace(u.href),180);
-}
-const observer=new MutationObserver(goHome);
-[editorStatus,formStatus].filter(Boolean).forEach(el=>observer.observe(el,{subtree:true,childList:true,characterData:true}));
-goHome();
-})();
-''')
-
-          # 3) Public news: D1 server is the sole live source. IndexedDB is editor-only.
-          p='home-news-v102.js'; s=read(p)
-          need('spensus-news-ig-cache-v102' in s,'home cache key not found')
-          s=s.replace('spensus-news-ig-cache-v102','spensus-news-ig-cache-v138-server-truth')
-          need('items=mergeRows(normalize(j),items)' in s,'server merge expression not found')
-          s=s.replace('items=mergeRows(normalize(j),items)','items=normalize(j)')
-          boot_old='async function boot(){shell();const cached=readCache();if(cached.length){items=sortRows(cached);selectedId=items[0].id;render()}const local=await editorRows();if(local.length){items=mergeRows(local,items);selectedId=items[0].id;render()}if(!items.length)$("[data-ig-main]",shell()).innerHTML=\'<div class="ig-skeleton"></div>\';const bg=()=>fetchServer();if("requestIdleCallback" in window)requestIdleCallback(bg,{timeout:700});else setTimeout(bg,180)}'
-          boot_new='async function boot(){shell();const cached=readCache();if(cached.length){items=sortRows(cached);selectedId=items[0].id;render()}if(!items.length)$("[data-ig-main]",shell()).innerHTML=\'<div class="ig-skeleton"></div>\';const bg=()=>fetchServer();if("requestIdleCallback" in window)requestIdleCallback(bg,{timeout:700});else setTimeout(bg,180)}'
-          need(boot_old in s,'home boot local merge block not found')
-          s=s.replace(boot_old,boot_new)
-          bc_old='try{new BroadcastChannel("spensus-news").addEventListener("message",async()=>{const local=await editorRows();if(local.length){items=mergeRows(local,items);selectedId=items[0].id;render()}setTimeout(fetchServer,180)})}catch{}'
-          bc_new='try{new BroadcastChannel("spensus-news").addEventListener("message",()=>{setTimeout(fetchServer,180)})}catch{}'
-          need(bc_old in s,'home broadcast local merge block not found')
-          s=s.replace(bc_old,bc_new)
-          write(p,s)
-
-          # 4) Dynamic share URL is permanent; bump cache/version so all clients receive it.
-          p='home-share-v133.js'; s=read(p)
-          s=s.replace('__SPENSUS_SHARE_V137__','__SPENSUS_SHARE_V138__')
-          need('new URL(`?id=${encodeURIComponent(String(id||""))}`,SHARE_WORKER)' in s,'dynamic Worker share URL missing')
-          need('share-v136/${encodeURIComponent' not in s,'legacy static share URL still active')
-          write(p,s)
-
-          p='icon-art-v85.js'; s=read(p)
-          s=s.replace('addScript("home-news-v102.js","102")','addScript("home-news-v102.js","138")')
-          s=s.replace('addScript("home-share-v133.js","137")','addScript("home-share-v133.js","138")')
-          s=s.replace('service-worker.js?v=137','service-worker.js?v=138')
-          write(p,s)
-
-          p='index.html'; s=read(p)
-          s=s.replace('icon-art-v85.js?v=137','icon-art-v85.js?v=138')
-          write(p,s)
-
-          p='service-worker.js'; s=read(p)
-          s=s.replace('paibp-smart-v137-share-worker-r1','paibp-smart-v138-server-truth-share-r1')
-          s=s.replace('icon-art-v85.js?v=137','icon-art-v85.js?v=138')
-          write(p,s)
-
-          p='editor-berita.html'; s=read(p)
-          s=s.replace('news-editor-chunked-v102.js?v=118','news-editor-chunked-v102.js?v=138')
-          s=s.replace('news-publish-direct-v114.js?v=118','news-publish-direct-v114.js?v=138')
-          s=s.replace('Tekan Posting satu kali; setelah data utama tersimpan halaman langsung kembali ke beranda.','Tekan Posting satu kali; halaman kembali ke beranda hanya setelah seluruh data dan sampul dikonfirmasi server.')
-          write(p,s)
+          m=re.search(pat,s,re.S)
+          if not m: raise SystemExit('publish post/verify block not found')
+          new=(
+          '  async function post(action,data){\n'
+          '    const body=JSON.stringify({action,readKey:KEY,key:KEY,data:{...data,readKey:KEY},origin:location.origin});\n'
+          '    const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),22000);\n'
+          '    try{\n'
+          '      const r=await fetch(PROXY,{method:"POST",cache:"no-store",headers:{"Content-Type":"text/plain;charset=UTF-8","Accept":"application/json"},body,signal:ctl.signal});\n'
+          '      const text=await r.text();let j={};try{j=JSON.parse(text)}catch{throw new Error("Respons server tidak valid.")}\n'
+          '      if(!r.ok||j?.ok!==true)throw new Error(j?.error||`Server HTTP ${r.status}`);\n'
+          '      return j;\n'
+          '    }catch(e){\n'
+          '      if(e?.name==="AbortError")throw new Error("Server tidak merespons dalam batas waktu.");\n'
+          '      throw new Error(e?.message||"Penyimpanan server gagal.");\n'
+          '    }finally{clearTimeout(timer)}\n'
+          '  }\n\n'
+          '  async function verify(id,expectedTitle=""){\n'
+          '    for(const ms of [450,800,1200,1800,2600,3800,5200,7000,9000]){\n'
+          '      await sleep(ms);\n'
+          '      try{\n'
+          '        const j=await jsonpSnapshot(),row=(j?.news||[]).find(n=>String(n.id)===String(id)),manifest=j?.content?.[`news:${id}`];\n'
+          '        const coverKey=manifest?.coverKey||(Array.isArray(manifest?.photoKeys)?manifest.photoKeys[0]:"");\n'
+          '        const cover=coverKey?j?.content?.[coverKey]:null;\n'
+          '        const titleOk=!expectedTitle||String(row?.title||"")===String(expectedTitle);\n'
+          '        if(j?.ok===true&&row&&row.isPublished!==false&&titleOk&&manifest&&String(manifest?.id||id)===String(id)&&coverKey&&cover)return{snapshot:j,row,manifest,cover};\n'
+          '      }catch{}\n'
+          '    }\n'
+          '    return null;\n'
+          '  }\n')
+          s=s[:m.start()]+new+s[m.end():]
+          s=s.replace('const verified=await verify(x.id);if(!verified)','const verified=await verify(x.id,x.title);if(!verified)')
+          if 'verify(x.id,x.title)' not in s: raise SystemExit('verified publish gate not patched')
+          if 'mode:"no-cors"' in s: raise SystemExit('opaque no-cors fallback remains')
+          p.write_text(s,encoding='utf-8')
           PY
 
-      - name: Static verification before commit
+      - name: Replace redirect helper with confirmed-success gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > news-publish-direct-v114.js <<'EOF'
+          (()=>{
+          "use strict";
+          if(window.__NEWS_PUBLISH_DIRECT_V138__)return;window.__NEWS_PUBLISH_DIRECT_V138__=1;
+          const $=(s,r=document)=>r.querySelector(s);
+          const editorStatus=$("#ne-editor-status"),formStatus=$("#ne-form-status"),mediaStatus=$("#nea-status"),mediaProgress=$("#nea-progress");
+          let redirecting=false;
+          function serverConfirmed(){
+            return String(editorStatus?.textContent||"").trim()==="Tayang" && /^Berhasil\./i.test(String(formStatus?.textContent||"").trim());
+          }
+          function goHome(){
+            if(redirecting||!serverConfirmed())return;redirecting=true;
+            const id=$("#ne-id")?.value||"";
+            if(mediaProgress)mediaProgress.style.display="none";
+            if(mediaStatus)mediaStatus.textContent="Berita telah dikonfirmasi server.";
+            try{new BroadcastChannel("spensus-news").postMessage({type:"published",id,source:"server-confirmed-v138"})}catch{}
+            const u=new URL("index.html",document.baseURI);u.searchParams.set("published",id||"1");u.searchParams.set("v","138");
+            setTimeout(()=>location.replace(u.href),180);
+          }
+          const observer=new MutationObserver(goHome);
+          [editorStatus,formStatus].filter(Boolean).forEach(el=>observer.observe(el,{subtree:true,childList:true,characterData:true}));
+          goHome();
+          })();
+          EOF
+
+      - name: Make public news server-truth only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('home-news-v102.js');s=p.read_text(encoding='utf-8')
+          if 'spensus-news-ig-cache-v102' not in s: raise SystemExit('cache key not found')
+          s=s.replace('spensus-news-ig-cache-v102','spensus-news-ig-cache-v138-server-truth')
+          if 'items=mergeRows(normalize(j),items)' not in s: raise SystemExit('server merge not found')
+          s=s.replace('items=mergeRows(normalize(j),items)','items=normalize(j)')
+          old='async function boot(){shell();const cached=readCache();if(cached.length){items=sortRows(cached);selectedId=items[0].id;render()}const local=await editorRows();if(local.length){items=mergeRows(local,items);selectedId=items[0].id;render()}if(!items.length)$("[data-ig-main]",shell()).innerHTML=\'<div class="ig-skeleton"></div>\';const bg=()=>fetchServer();if("requestIdleCallback" in window)requestIdleCallback(bg,{timeout:700});else setTimeout(bg,180)}'
+          new='async function boot(){shell();const cached=readCache();if(cached.length){items=sortRows(cached);selectedId=items[0].id;render()}if(!items.length)$("[data-ig-main]",shell()).innerHTML=\'<div class="ig-skeleton"></div>\';const bg=()=>fetchServer();if("requestIdleCallback" in window)requestIdleCallback(bg,{timeout:700});else setTimeout(bg,180)}'
+          if old not in s: raise SystemExit('local boot merge not found')
+          s=s.replace(old,new)
+          old='try{new BroadcastChannel("spensus-news").addEventListener("message",async()=>{const local=await editorRows();if(local.length){items=mergeRows(local,items);selectedId=items[0].id;render()}setTimeout(fetchServer,180)})}catch{}'
+          new='try{new BroadcastChannel("spensus-news").addEventListener("message",()=>{setTimeout(fetchServer,180)})}catch{}'
+          if old not in s: raise SystemExit('local broadcast merge not found')
+          s=s.replace(old,new)
+          p.write_text(s,encoding='utf-8')
+          PY
+
+      - name: Bump permanent client versions and keep dynamic Worker sharing
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('home-share-v133.js');s=p.read_text(encoding='utf-8').replace('__SPENSUS_SHARE_V137__','__SPENSUS_SHARE_V138__')
+          if 'new URL(`?id=${encodeURIComponent(String(id||""))}`,SHARE_WORKER)' not in s: raise SystemExit('dynamic Worker share URL missing')
+          if 'share-v136/${encodeURIComponent' in s: raise SystemExit('static share URL still active')
+          p.write_text(s,encoding='utf-8')
+          p=Path('icon-art-v85.js');s=p.read_text(encoding='utf-8')
+          s=s.replace('addScript("home-news-v102.js","102")','addScript("home-news-v102.js","138")')
+          s=s.replace('addScript("home-share-v133.js","137")','addScript("home-share-v133.js","138")')
+          s=s.replace('service-worker.js?v=137','service-worker.js?v=138');p.write_text(s,encoding='utf-8')
+          p=Path('index.html');s=p.read_text(encoding='utf-8').replace('icon-art-v85.js?v=137','icon-art-v85.js?v=138');p.write_text(s,encoding='utf-8')
+          p=Path('service-worker.js');s=p.read_text(encoding='utf-8').replace('paibp-smart-v137-share-worker-r1','paibp-smart-v138-server-truth-share-r1').replace('icon-art-v85.js?v=137','icon-art-v85.js?v=138');p.write_text(s,encoding='utf-8')
+          p=Path('editor-berita.html');s=p.read_text(encoding='utf-8').replace('news-editor-chunked-v102.js?v=118','news-editor-chunked-v102.js?v=138').replace('news-publish-direct-v114.js?v=118','news-publish-direct-v114.js?v=138').replace('Tekan Posting satu kali; setelah data utama tersimpan halaman langsung kembali ke beranda.','Tekan Posting satu kali; halaman kembali ke beranda hanya setelah seluruh data dan sampul dikonfirmasi server.');p.write_text(s,encoding='utf-8')
+          PY
+
+      - name: Verify invariants and commit
         shell: bash
         run: |
           set -euo pipefail
@@ -158,19 +152,15 @@ goHome();
           ! grep -F 'const local=await editorRows()' home-news-v102.js
           grep -F 'home-share-v133.js","138"' icon-art-v85.js
           grep -F 'icon-art-v85.js?v=138' index.html
-
-      - name: Commit permanent V138 architecture
-        shell: bash
-        run: |
-          set -euo pipefail
           git add news-editor-chunked-v102.js news-publish-direct-v114.js home-news-v102.js home-share-v133.js icon-art-v85.js index.html service-worker.js editor-berita.html
-          if git diff --cached --quiet; then exit 0; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'V138 permanent server-truth publishing and social preview'
-          git push origin HEAD:main
+          if ! git diff --cached --quiet; then
+            git commit -m 'V138 permanent server-truth publishing and social preview'
+            git push origin HEAD:main
+          fi
 
-      - name: Request GitHub Pages rebuild
+      - name: Request Pages rebuild
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
