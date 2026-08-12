@@ -34,7 +34,7 @@ jobs:
           files = subprocess.check_output(['git','ls-files','-z']).decode().split('\0')
           changed = []
           for name in files:
-              if not name:
+              if not name or name.startswith('.github/workflows/'):
                   continue
               p = Path(name)
               try:
@@ -49,23 +49,16 @@ jobs:
                   continue
               old = text
 
-              # Seluruh URL absolut situs lama menjadi root Pages organisasi baru.
               text = text.replace(OLD_BASE, NEW_BASE)
               text = text.replace(OLD_BASE_NO_SLASH, NEW_BASE_NO_SLASH)
-
-              # Origin CORS yang ditulis sebagai nilai literal tepat.
               text = text.replace('"https://sunarso29.github.io"', '"https://paibpsmart.github.io"')
               text = text.replace("'https://sunarso29.github.io'", "'https://paibpsmart.github.io'")
-
-              # Host pemeriksaan share di browser.
               text = text.replace('"sunarso29.github.io"', '"paibpsmart.github.io"')
               text = text.replace("'sunarso29.github.io'", "'paibpsmart.github.io'")
 
-              # Halaman 404 dahulu berada di project-site /paibp-smart/; kini root user/org-site.
               if name == '404.html':
                   text = text.replace('/paibp-smart/', '/')
 
-              # Putus cache/loader lama setelah migrasi domain.
               if name == 'service-worker.js':
                   text = text.replace('paibp-smart-v122-fast-open-r1', 'paibp-smart-v123-root-domain-r1')
                   text = text.replace('icon-art-v85.js?v=122', 'icon-art-v85.js?v=123')
@@ -74,8 +67,6 @@ jobs:
                   text = text.replace('home-share-v102.js","119"', 'home-share-v102.js","123"')
               if name == 'index.html':
                   text = text.replace('icon-art-v85.js?v=85', 'icon-art-v85.js?v=123')
-
-              # Penanda versi Worker share.
               if name == 'cloudflare/share-worker/src/index.js':
                   text = text.replace('version:"121"', 'version:"123"')
                   text = text.replace('PAIBP-SMART-Share/121', 'PAIBP-SMART-Share/123')
@@ -96,15 +87,15 @@ jobs:
           for item in changed:
               print(item)
 
-      - name: Verify old public URL is gone from tracked text
+      - name: Verify production text no longer uses old public URL
         shell: bash
         run: |
           set -e
-          if git grep -n -I -F 'https://sunarso29.github.io/paibp-smart' -- . ':!MIGRATION-V123-ROOT-DOMAIN.txt'; then
-            echo 'Old absolute site URL still found.' >&2
+          if git grep -n -I -F 'https://sunarso29.github.io/paibp-smart' -- . ':!MIGRATION-V123-ROOT-DOMAIN.txt' ':!.github/workflows/**'; then
+            echo 'Old absolute site URL still found in production files.' >&2
             exit 1
           fi
-          echo 'Old absolute site URL no longer appears in tracked text.'
+          echo 'Old absolute site URL no longer appears in production files.'
 
       - name: Commit migration
         shell: bash
@@ -112,7 +103,7 @@ jobs:
           set -e
           git config user.name 'PAIBP SMART Migration'
           git config user.email 'actions@users.noreply.github.com'
-          git add -A
+          git add -A ':!.github/workflows/**'
           if git diff --cached --quiet; then
             echo 'No migration changes required.'
             exit 0
