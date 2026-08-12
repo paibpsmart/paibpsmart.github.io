@@ -18,6 +18,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      - name: Require D1 binding for V126+
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -q '126-d1' cloudflare/api-worker/src/index.js; then
+            grep -q '^\[\[d1_databases\]\]' cloudflare/api-worker/wrangler.toml || {
+              echo 'D1 binding belum ada. Jalankan Bootstrap PAIBP D1 V126 terlebih dahulu.' >&2
+              exit 1
+            }
+            grep -q 'binding = "DB"' cloudflare/api-worker/wrangler.toml || exit 1
+          fi
       - name: Deploy API Worker
         uses: cloudflare/wrangler-action@v4
         with:
