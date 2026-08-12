@@ -1,0 +1,78 @@
+name: Harden permanent share workflow V142
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/harden-share-workflow-v142.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: harden-share-workflow-v142
+  cancel-in-progress: false
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Harden permanent preview generator
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/sync-share-pages-v133.yml')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('name: Permanent GitHub Pages social previews V141','name: Permanent GitHub Pages social previews V142')
+          s=s.replace('  pages: write\n','')
+          old="""          git commit -m 'V141 sync permanent social previews from D1'
+          git push origin HEAD:main
+          echo 'changed=true' >> \"$GITHUB_OUTPUT\"
+
+      - name: Request GitHub Pages rebuild
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api --method POST \"repos/${GITHUB_REPOSITORY}/pages/builds\" >/dev/null || true
+
+      - name: Verify current preview on paibpsmart.github.io
+"""
+          new="""          git commit -m 'V142 sync permanent social previews from D1'
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo 'changed=true' >> \"$GITHUB_OUTPUT\"
+
+      - name: Verify current preview on paibpsmart.github.io
+"""
+          if old not in s:
+              raise SystemExit('Target workflow block not found')
+          s=s.replace(old,new)
+          p.write_text(s,encoding='utf-8')
+          PY
+          grep -F 'name: Permanent GitHub Pages social previews V142' .github/workflows/sync-share-pages-v133.yml
+          grep -F 'git pull --rebase origin main' .github/workflows/sync-share-pages-v133.yml
+          ! grep -F 'Request GitHub Pages rebuild' .github/workflows/sync-share-pages-v133.yml
+          ! grep -F 'pages: write' .github/workflows/sync-share-pages-v133.yml
+
+      - name: Commit hardened workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add .github/workflows/sync-share-pages-v133.yml
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'V142 harden permanent social preview generator'
+          git pull --rebase origin main
+          git push origin HEAD:main
