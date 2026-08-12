@@ -1,0 +1,35 @@
+name: Diagnose live news V129
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/diagnose-news-v129.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Diagnose API and D1
+        shell: bash
+        run: |
+          set -euo pipefail
+          API='https://paibp-smart-api.sunarso29.workers.dev'
+          ORIGIN='https://paibpsmart.github.io'
+          curl -fsS "$API/?action=publicSnapshot" -H "Origin: $ORIGIN" -H 'Accept: application/json' > /tmp/snapshot.json
+          echo '--- publicSnapshot summary ---'
+          jq '{ok,version,database,newsCount:(.news|length),contentCount:(.content|keys|length),feedbackCount:(.feedback|length),news:(.news|map({id,title,date,isPublished,updatedAt})[:20])}' /tmp/snapshot.json
+          echo '--- D1 news table ---'
+          cd cloudflare/api-worker
+          npx --yes wrangler@latest d1 execute paibp-smart-db --remote --command "SELECT COUNT(*) AS total, SUM(CASE WHEN is_published=1 THEN 1 ELSE 0 END) AS published FROM news; SELECT id,title,date,is_published,updated_at FROM news ORDER BY updated_at DESC LIMIT 30;"
+          echo '--- D1 content keys ---'
+          npx --yes wrangler@latest d1 execute paibp-smart-db --remote --command "SELECT COUNT(*) AS total FROM content; SELECT key,updated_at,author_name FROM content ORDER BY updated_at DESC LIMIT 50;"
