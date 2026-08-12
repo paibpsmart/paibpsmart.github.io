@@ -1,0 +1,27 @@
+name: Deploy PAIBP API Worker
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cloudflare/api-worker/**'
+      - '.github/workflows/deploy-api-worker.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Deploy API Worker
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: cloudflare/api-worker
+          command: deploy
