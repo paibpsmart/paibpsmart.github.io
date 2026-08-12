@@ -1,4 +1,4 @@
-name: Verify share V120
+name: Verify share V121 multi-phone
 
 on:
   push:
@@ -14,43 +14,54 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 7
     steps:
       - name: Wait for Worker deployment
-        run: sleep 25
-      - name: Verify browser redirect and social preview
+        run: sleep 30
+      - name: Verify direct opening on multiple mobile browsers
         shell: bash
         run: |
           set -euo pipefail
           ID='news-1786463411888-925mqh8'
           BASE='https://paibp-smart-share.sunarso29.workers.dev'
           URL="$BASE/?id=$ID"
+          WANT='https://sunarso29.github.io/paibp-smart/index.html?news=news-1786463411888-925mqh8'
 
           echo '--- HEALTH ---'
           HEALTH="$(curl -fsS --max-time 20 "$BASE/health")"
           echo "$HEALTH"
-          echo "$HEALTH" | grep -q '"version":"120"'
+          echo "$HEALTH" | grep -q '"version":"121"'
 
-          echo '--- NORMAL BROWSER ---'
-          curl -sS --max-time 20 -A 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/138 Mobile Safari/537.36' -D /tmp/browser.h -o /tmp/browser.body "$URL"
-          cat /tmp/browser.h
-          STATUS="$(awk 'toupper($1) ~ /^HTTP\// {s=$2} END{print s}' /tmp/browser.h)"
-          LOCATION="$(awk 'BEGIN{IGNORECASE=1} /^location:/ {sub(/^[^:]*:[[:space:]]*/,""); sub(/\r$/,""); print; exit}' /tmp/browser.h)"
-          echo "BROWSER_STATUS=$STATUS"
-          echo "BROWSER_LOCATION=$LOCATION"
-          test "$STATUS" = '302'
-          echo "$LOCATION" | grep -q 'https://sunarso29.github.io/paibp-smart/index.html?news=news-1786463411888-925mqh8'
+          check_redirect(){
+            NAME="$1"; UA="$2"; shift 2
+            echo "--- $NAME ---"
+            curl -sS --max-time 20 -A "$UA" "$@" -D /tmp/h -o /tmp/b "$URL"
+            STATUS="$(awk 'toupper($1) ~ /^HTTP\// {s=$2} END{print s}' /tmp/h)"
+            LOCATION="$(awk 'BEGIN{IGNORECASE=1} /^location:/ {sub(/^[^:]*:[[:space:]]*/,""); sub(/\r$/,""); print; exit}' /tmp/h)"
+            echo "STATUS=$STATUS"
+            echo "LOCATION=$LOCATION"
+            test "$STATUS" = '302'
+            echo "$LOCATION" | grep -Fq "$WANT"
+          }
+
+          check_redirect 'Android Chrome' 'Mozilla/5.0 (Linux; Android 13; CPH1937) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36'
+          check_redirect 'Samsung Internet' 'Mozilla/5.0 (Linux; Android 14; SM-A546E) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/28.0 Chrome/130.0.0.0 Mobile Safari/537.36'
+          check_redirect 'Android WebView WhatsApp' 'Mozilla/5.0 (Linux; Android 13; CPH1937 Build/RKQ1; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/138.0.0.0 Mobile Safari/537.36 WhatsApp/2.26.16.76'
+          check_redirect 'Facebook in-app browser' 'Mozilla/5.0 (Linux; Android 14; SM-A546E) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/130.0.0.0 Mobile Safari/537.36 [FBAN/FB4A;FBAV/529.0.0.0]'
+          check_redirect 'Modern navigation headers' 'Mozilla/5.0 (Linux; Android 11) AppleWebKit/537.36 Mobile Safari/537.36 WhatsApp/2.26.16.76' -H 'Sec-Fetch-Mode: navigate' -H 'Sec-Fetch-Dest: document' -H 'Sec-Fetch-User: ?1'
 
           echo '--- FOLLOW REDIRECT ---'
           FINAL="$(curl -sS -L --max-time 30 -A 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/138 Mobile Safari/537.36' -o /tmp/final.html -w '%{http_code} %{url_effective}' "$URL")"
           echo "FINAL=$FINAL"
           echo "$FINAL" | grep -q '^200 https://sunarso29.github.io/paibp-smart/index.html?news='
 
-          echo '--- SOCIAL CRAWLER ---'
-          curl -fsS --max-time 20 -A 'facebookexternalhit/1.1' "$URL" -o /tmp/social.html
-          grep -o '<meta property="og:title"[^>]*>' /tmp/social.html | head -1
-          grep -o '<meta property="og:image"[^>]*>' /tmp/social.html | head -1
-          grep -q 'Semarak HUT Ke-81 RI' /tmp/social.html
-          grep -q 'property="og:image"' /tmp/social.html
+          echo '--- SOCIAL PREVIEW CRAWLERS MUST NOT REDIRECT ---'
+          for UA in 'facebookexternalhit/1.1' 'WhatsApp/2.26.16.76 A'; do
+            CODE="$(curl -sS --max-time 20 -A "$UA" -o /tmp/social.html -w '%{http_code}' "$URL")"
+            echo "$UA => $CODE"
+            test "$CODE" = '200'
+            grep -q 'property="og:title"' /tmp/social.html
+            grep -q 'property="og:image"' /tmp/social.html
+          done
 
-          echo 'V120_OK: browser langsung redirect, target terbuka 200, crawler tetap menerima judul dan sampul.'
+          echo 'V121_OK: tautan manusia langsung 302 ke posting dan halaman tujuan 200 pada beberapa tipe browser HP; crawler tetap menerima OG.'
