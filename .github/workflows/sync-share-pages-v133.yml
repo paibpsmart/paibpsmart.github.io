@@ -1,158 +1,71 @@
-name: Sync share previews V136
+name: Social preview regression guard V138
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '17 */6 * * *'
   push:
     branches: [main]
     paths:
+      - 'home-share-v133.js'
+      - 'home-news-v102.js'
+      - 'news-editor-chunked-v102.js'
+      - 'news-publish-direct-v114.js'
+      - 'cloudflare/share-worker/**'
+      - 'cloudflare/api-worker/**'
       - '.github/workflows/sync-share-pages-v133.yml'
 
 permissions:
-  contents: write
-  pages: write
+  contents: read
 
 concurrency:
-  group: share-previews-v136
+  group: social-preview-regression-v138
   cancel-in-progress: true
 
 jobs:
-  sync:
+  verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
 
-      - name: Fetch published news and content from D1 API
+      - name: Enforce permanent architecture invariants
         shell: bash
         run: |
           set -euo pipefail
-          curl -fsSL 'https://paibp-smart-api.sunarso29.workers.dev/?action=publicSnapshot' \
-            -H 'Origin: https://paibpsmart.github.io' \
-            -H 'Accept: application/json' \
-            -o /tmp/snapshot.json
-          jq -e '.ok == true and (.news | type == "array") and (.content | type == "object")' /tmp/snapshot.json >/dev/null
+          grep -F 'SHARE_WORKER="https://paibp-smart-share.sunarso29.workers.dev/"' home-share-v133.js
+          grep -F 'new URL(`?id=${encodeURIComponent(String(id||""))}`,SHARE_WORKER)' home-share-v133.js
+          ! grep -Eq 'share-v13[0-9]/\$\{encodeURIComponent' home-share-v133.js
+          ! grep -F 'editorRows();if(local.length){items=mergeRows(local,items)' home-news-v102.js
+          ! grep -F 'items=mergeRows(normalize(j),items)' home-news-v102.js
+          ! grep -F 'isVerifyText' news-publish-direct-v114.js
+          grep -F 'Memastikan berita sudah benar-benar tayang' news-editor-chunked-v102.js
+          echo 'PASS: sharing is dynamic, public news is server-truth, and local verification cannot fake publication.'
 
-      - name: Install image converter
+      - name: Verify a current published post end-to-end
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p /tmp/previewgen
-          cd /tmp/previewgen
-          npm init -y >/dev/null 2>&1
-          npm i sharp@0.34.3 >/dev/null 2>&1
-
-      - name: Generate preview from actual D1 cover
-        shell: bash
-        run: |
-          set -euo pipefail
-          node <<'NODE'
-          const fs=require('fs');
-          const sharp=require('/tmp/previewgen/node_modules/sharp');
-          const s=JSON.parse(fs.readFileSync('/tmp/snapshot.json','utf8'));
-          const news=(Array.isArray(s.news)?s.news:[]).filter(n=>n && n.isPublished!==false && n.id && n.title);
-          const content=s.content&&typeof s.content==='object'?s.content:{};
-          fs.mkdirSync('share-v136',{recursive:true});
-          fs.mkdirSync('share-images-v136',{recursive:true});
-          const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-          const clean=v=>String(v??'').replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim();
-          function unwrap(v){let x=v;for(let i=0;i<8;i++){if(x&&typeof x==='object'&&Object.prototype.hasOwnProperty.call(x,'value')){x=x.value;continue}if(typeof x==='string'){const t=x.trim();if((t.startsWith('{')&&t.endsWith('}'))||(t.startsWith('[')&&t.endsWith(']'))){try{x=JSON.parse(t);continue}catch{}}}break}return x}
-          function dataUriBuffer(uri){const m=/^data:([^;,]+)?(;base64)?,(.*)$/s.exec(String(uri||''));if(!m)return null;return m[2]?Buffer.from(m[3]||'','base64'):Buffer.from(decodeURIComponent(m[3]||''));}
-          function actualCover(n){
-            const rawId=String(n.id||'');
-            const manifest=unwrap(content[`news:${rawId}`])||{};
-            const key=manifest.coverKey||(Array.isArray(manifest.photoKeys)&&manifest.photoKeys[0])||'';
-            const photo=key?unwrap(content[key]):null;
-            const src=photo&&typeof photo==='object'?(photo.data||photo.src||photo.url||''):photo;
-            return {manifest,key,src:String(src||manifest.coverDataUrl||manifest.coverUrl||n.imageUrl||'')};
-          }
-          async function loadCover(src){
-            const d=dataUriBuffer(src);if(d&&d.length)return d;
-            if(/^https:\/\//i.test(src)){const r=await fetch(src,{headers:{Accept:'image/*','User-Agent':'PAIBP-SMART-D1CoverSync/136'},cache:'no-store'});if(!r.ok)throw new Error(`cover URL HTTP ${r.status}`);return Buffer.from(await r.arrayBuffer())}
-            throw new Error('cover D1 kosong atau bukan gambar');
-          }
-          (async()=>{
-            for(const n of news){
-              const rawId=clean(n.id),id=rawId.replace(/[^A-Za-z0-9._-]/g,'_').slice(0,180);if(!id)continue;
-              const title=clean(n.title).slice(0,300),desc=clean(n.summary||n.description||'Kabar terbaru SMP Negeri 1 Susukan.').slice(0,340);
-              const c=actualCover(n);
-              const buf=await loadCover(c.src);
-              if(buf.length<1000)throw new Error(`${rawId}: cover D1 terlalu kecil (${buf.length})`);
-              const imagePath=`share-images-v136/${id}.jpg`;
-              await sharp(buf).rotate().resize(1200,630,{fit:'cover',position:'centre'}).jpeg({quality:88,mozjpeg:true}).toFile(imagePath);
-              const stat=fs.statSync(imagePath);if(stat.size<5000)throw new Error(`${rawId}: JPEG terlalu kecil (${stat.size})`);
-              const share=`https://paibpsmart.github.io/share-v136/${encodeURIComponent(id)}.html`;
-              const target=`https://paibpsmart.github.io/index.html?news=${encodeURIComponent(rawId)}&from=share#kabar-spensus`;
-              const image=`https://paibpsmart.github.io/share-images-v136/${encodeURIComponent(id)}.jpg`;
-              const html=`<!doctype html>\n<html lang="id">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>${esc(title)}</title>\n<meta name="description" content="${esc(desc)}">\n<meta property="og:type" content="article">\n<meta property="og:locale" content="id_ID">\n<meta property="og:site_name" content="PAIBP SMART SMP">\n<meta property="og:title" content="${esc(title)}">\n<meta property="og:description" content="${esc(desc)}">\n<meta property="og:url" content="${esc(share)}">\n<meta property="og:image" content="${esc(image)}">\n<meta property="og:image:url" content="${esc(image)}">\n<meta property="og:image:secure_url" content="${esc(image)}">\n<meta property="og:image:type" content="image/jpeg">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta property="og:image:alt" content="Sampul ${esc(title)}">\n<link rel="image_src" href="${esc(image)}">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="${esc(title)}">\n<meta name="twitter:description" content="${esc(desc)}">\n<meta name="twitter:image" content="${esc(image)}">\n<link rel="canonical" href="${esc(share)}">\n</head>\n<body>\n<img src="${esc(image)}" alt="Sampul ${esc(title)}" width="1200" height="630">\n<p><a href="${esc(target)}">Buka berita di PAIBP SMART SMP</a></p>\n<script>window.location.replace(${JSON.stringify(target)});<\/script>\n</body>\n</html>\n`;
-              fs.writeFileSync(`share-v136/${id}.html`,html);
-              console.log(`D1 COVER ${id}: key=${c.key||'(fallback)'} source=${c.src.startsWith('data:image/')?'data:image':c.src.slice(0,80)} jpg=${stat.size}`);
-            }
-            console.log(`Generated ${news.length} V136 preview(s) directly from D1 cover data`);
-          })().catch(e=>{console.error(e);process.exit(1)});
-          NODE
-
-      - name: Patch sharing client to V136 path
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-          p=Path('home-share-v133.js')
-          s=p.read_text()
-          s=s.replace('__SPENSUS_SHARE_V135__','__SPENSUS_SHARE_V136__')
-          s=s.replace('share-v135/${encodeURIComponent(String(id||""))}.html','share-v136/${encodeURIComponent(String(id||""))}.html')
-          p.write_text(s)
-          p=Path('icon-art-v85.js')
-          s=p.read_text().replace('addScript("home-share-v133.js","135")','addScript("home-share-v133.js","136")').replace('service-worker.js?v=135','service-worker.js?v=136')
-          p.write_text(s)
-          p=Path('service-worker.js')
-          s=p.read_text().replace('paibp-smart-v135-whatsapp-preview-r1','paibp-smart-v136-d1-cover-r1').replace('icon-art-v85.js?v=135','icon-art-v85.js?v=136')
-          p.write_text(s)
+          API='https://paibp-smart-api.sunarso29.workers.dev/?action=publicSnapshot'
+          WORKER='https://paibp-smart-share.sunarso29.workers.dev'
+          curl -fsSL "$API" -H 'Origin: https://paibpsmart.github.io' -H 'Accept: application/json' -o /tmp/snapshot.json
+          ID="$(jq -r '.news[] | select(.isPublished != false) | .id' /tmp/snapshot.json | head -n1)"
+          test -n "$ID" && test "$ID" != 'null'
+          TITLE="$(jq -r --arg id "$ID" '.news[] | select(.id==$id) | .title' /tmp/snapshot.json)"
+          PAGE="${WORKER}/?id=${ID}"
+          IMAGE="${WORKER}/image?id=${ID}"
+          curl -fsSL -A 'WhatsApp/2.24.0' "$PAGE" -o /tmp/preview.html
+          grep -F 'property="og:type" content="article"' /tmp/preview.html
+          grep -F 'property="og:image"' /tmp/preview.html
+          python - "$TITLE" <<'PY'
+          import html,sys
+          title=html.escape(sys.argv[1], quote=True)
+          body=open('/tmp/preview.html',encoding='utf-8').read()
+          if title not in body:
+              raise SystemExit('Worker title does not match current D1 title')
           PY
-
-      - name: Commit V136 preview updates
-        id: commit
-        shell: bash
-        run: |
-          set -euo pipefail
-          git add share-v136 share-images-v136 home-share-v133.js icon-art-v85.js service-worker.js
-          if git diff --cached --quiet; then echo 'changed=false' >> "$GITHUB_OUTPUT"; exit 0; fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'V136 preview WhatsApp pakai sampul asli dari D1'
-          git push origin HEAD:main
-          echo 'changed=true' >> "$GITHUB_OUTPUT"
-
-      - name: Request GitHub Pages rebuild
-        if: steps.commit.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds" >/dev/null
-
-      - name: Verify exact V136 WhatsApp page and image
-        shell: bash
-        run: |
-          set -euo pipefail
-          ID='a92311f1-9784-4b38-bd6b-f14b3cba3252'
-          PAGE="https://paibpsmart.github.io/share-v136/${ID}.html"
-          IMG="https://paibpsmart.github.io/share-images-v136/${ID}.jpg"
-          ok=0
-          for i in $(seq 1 15); do
-            if curl -fsSL -A 'WhatsApp/2.24.0' "$PAGE?probe=$RANDOM" -o /tmp/wa.html \
-              && grep -F "<meta property=\"og:image\" content=\"${IMG}\">" /tmp/wa.html >/dev/null \
-              && curl -fsSL -A 'WhatsApp/2.24.0' "$IMG?probe=$RANDOM" -o /tmp/wa.jpg \
-              && test "$(wc -c < /tmp/wa.jpg)" -gt 5000; then ok=1; break; fi
-            sleep 8
-          done
-          test "$ok" = 1
-          file /tmp/wa.jpg
-          identify /tmp/wa.jpg || true
-          echo "V136 static cover bytes: $(wc -c < /tmp/wa.jpg)"
-          echo 'PASS: WhatsApp page uses the JPEG generated from D1 article cover.'
+          CODE="$(curl -sS -A 'WhatsApp/2.24.0' -o /tmp/cover.bin -w '%{http_code}' "$IMAGE")"
+          test "$CODE" = '200'
+          test "$(wc -c < /tmp/cover.bin)" -gt 1000
+          file /tmp/cover.bin | grep -Ei 'image|jpeg|png|webp'
+          echo "PASS: current D1 post $ID has crawler metadata and a fetchable cover."
