@@ -1,5 +1,5 @@
-# Permanent guard: do not generate or rewrite per-post share pages.
-name: Social preview permanent regression guard V139
+# Permanent guard: social previews are dynamic and read published data directly from D1.
+name: Social preview permanent regression guard V140
 
 on:
   workflow_dispatch:
@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: social-preview-regression-v139
+  group: social-preview-regression-v140
   cancel-in-progress: true
 
 jobs:
@@ -41,11 +41,12 @@ jobs:
           ! grep -F 'items=mergeRows(normalize(j),items)' home-news-v102.js
           ! grep -F 'isVerifyText' news-publish-direct-v114.js
           grep -F 'Memastikan berita sudah benar-benar tayang' news-editor-chunked-v102.js
-          grep -F 'async function publicNews(env, id)' cloudflare/api-worker/src/index.js
-          grep -F 'async function directPost(id)' cloudflare/share-worker/src/index.js
-          echo 'PASS: permanent architecture invariants hold.'
+          grep -F 'async function directPost(env,id)' cloudflare/share-worker/src/index.js
+          grep -F 'binding = "DB"' cloudflare/share-worker/wrangler.toml
+          grep -F 'database_name = "paibp-smart-db"' cloudflare/share-worker/wrangler.toml
+          echo 'PASS: publication and sharing architecture is server-truth and D1-direct.'
 
-      - name: Verify direct D1 API and social preview end-to-end
+      - name: Verify live D1 source and social preview end-to-end
         shell: bash
         run: |
           set -euo pipefail
@@ -56,16 +57,12 @@ jobs:
           curl -fsSL "${API}/health?probe=$RANDOM" -H "Origin: ${ORIGIN}" -o /tmp/api-health.json
           jq -e '.ok==true and (.version|startswith("139"))' /tmp/api-health.json >/dev/null
           curl -fsSL "${WORKER}/health?probe=$RANDOM" -o /tmp/share-health.json
-          jq -e '.ok==true and (.version=="139")' /tmp/share-health.json >/dev/null
+          jq -e '.ok==true and (.version|startswith("140")) and .database=="Cloudflare D1"' /tmp/share-health.json >/dev/null
 
           curl -fsSL "${API}/?action=publicSnapshot&probe=$RANDOM" -H "Origin: ${ORIGIN}" -H 'Accept: application/json' -o /tmp/snapshot.json
           ID="$(jq -r '.news[] | select(.isPublished != false) | .id' /tmp/snapshot.json | head -n1)"
           test -n "$ID" && test "$ID" != 'null'
           TITLE="$(jq -r --arg id "$ID" '.news[] | select(.id==$id) | .title' /tmp/snapshot.json)"
-
-          curl -fsSL "${API}/?action=publicNews&id=${ID}&probe=$RANDOM" -H "Origin: ${ORIGIN}" -H 'Accept: application/json' -o /tmp/public-news.json
-          jq -e --arg id "$ID" --arg title "$TITLE" '.ok==true and .found==true and .news.id==$id and .news.title==$title' /tmp/public-news.json >/dev/null
-          jq -e '.coverKey != null and .coverKey != "" and .cover != null' /tmp/public-news.json >/dev/null
 
           PAGE="${WORKER}/?id=${ID}&probe=$RANDOM"
           IMAGE="${WORKER}/image?id=${ID}&probe=$RANDOM"
@@ -83,4 +80,4 @@ jobs:
           test "$CODE" = '200'
           test "$(wc -c < /tmp/cover.bin)" -gt 1000
           file /tmp/cover.bin | grep -Ei 'image|jpeg|png|webp'
-          echo "PASS: current D1 post $ID has matching metadata and fetchable cover through the permanent Worker path."
+          echo "PASS: current D1 post $ID has matching Open Graph metadata and a fetchable cover through the permanent D1-direct Worker path."
