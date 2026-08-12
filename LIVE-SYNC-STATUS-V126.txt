@@ -1,0 +1,16 @@
+PAIBP SMART FULL SYNC V126
+Verified UTC: 2026-08-12T12:46:27Z
+Domain: https://paibpsmart.github.io/
+API Worker: paibp-smart-api
+Backend: Cloudflare D1
+Schema: 126
+CORS new domain: PASS
+API health: PASS
+contentUpsert -> publicSnapshot: PASS
+newsUpsert -> publicSnapshot: PASS
+Public payload security: PASS
+editorSnapshot: PASS
+newsDelete/contentDelete cleanup: PASS
+Previous interrupted test residue: REMOVED
+Current test residue: NONE
+Overall: PASS
