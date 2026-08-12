@@ -1,3 +1,4 @@
+# Permanent guard: do not generate or rewrite per-post share pages.
 name: Social preview regression guard V138
 
 on:
