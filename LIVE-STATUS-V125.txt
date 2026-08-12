@@ -1,0 +1,13 @@
+PAIBP SMART LIVE VERIFICATION V125
+Verified UTC: 2026-08-12T11:30:58Z
+GitHub Pages root: PASS
+Pages URL: https://paibpsmart.github.io/
+Pages HTTP: 200
+API Worker CORS preflight: PASS
+API CORS status: 204
+API allow origin: https://paibpsmart.github.io
+API allow methods: GET,POST,OPTIONS
+API Worker health: PASS
+API health HTTP: 200
+API health allow origin: https://paibpsmart.github.io
+Worker version: 125-proxy
