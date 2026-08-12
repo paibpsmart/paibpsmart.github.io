@@ -1,0 +1,133 @@
+name: V137 hotfix preview media sosial realtime
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/hotfix-share-preview-v137.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hotfix-share-preview-v137
+  cancel-in-progress: false
+
+jobs:
+  hotfix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Switch sharing to realtime Cloudflare Worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          # 1) Share client: do not hand users an asynchronous GitHub static page.
+          p = Path('home-share-v133.js')
+          s = p.read_text(encoding='utf-8')
+          old_marker = 'if(window.__SPENSUS_SHARE_V136__)return;window.__SPENSUS_SHARE_V136__=1;'
+          new_marker = 'if(window.__SPENSUS_SHARE_V137__)return;window.__SPENSUS_SHARE_V137__=1;'
+          old_url = 'function shareUrl(id){return new URL(`share-v136/${encodeURIComponent(String(id||""))}.html`,SITE).toString()}'
+          new_url = 'function shareUrl(id){return new URL(`?id=${encodeURIComponent(String(id||""))}`,SHARE_WORKER).toString()}'
+          if old_marker not in s and new_marker not in s:
+              raise SystemExit('Marker share V136 tidak ditemukan')
+          if old_url not in s and new_url not in s:
+              raise SystemExit('Fungsi shareUrl V136 tidak ditemukan')
+          s = s.replace(old_marker, new_marker).replace(old_url, new_url)
+          p.write_text(s, encoding='utf-8')
+
+          # 2) Force browser to load the new share client and a fresh service worker.
+          p = Path('icon-art-v85.js')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace('addScript("home-share-v133.js","136")','addScript("home-share-v133.js","137")')
+          s = s.replace('service-worker.js?v=136','service-worker.js?v=137')
+          p.write_text(s, encoding='utf-8')
+
+          # 3) New cache namespace so an old loader cannot keep the broken static-share URL alive.
+          p = Path('service-worker.js')
+          s = p.read_text(encoding='utf-8')
+          import re
+          s, n = re.subn(r'const CACHE_NAME="paibp-smart-[^"]+";', 'const CACHE_NAME="paibp-smart-v137-share-worker-r1";', s, count=1)
+          if n != 1:
+              raise SystemExit('CACHE_NAME service worker tidak ditemukan')
+          s = s.replace('./icon-art-v85.js?v=136','./icon-art-v85.js?v=137')
+          p.write_text(s, encoding='utf-8')
+
+          # 4) Bust the initial loader cache from index.html as well.
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          s2 = re.sub(r'icon-art-v85\.js\?v=\d+', 'icon-art-v85.js?v=137', s)
+          if s2 == s:
+              raise SystemExit('Referensi icon-art di index.html tidak ditemukan')
+          p.write_text(s2, encoding='utf-8')
+
+          # 5) Repair the exact already-shared Harlah URL immediately.
+          article_id = 'c3c165f0-f772-4071-ac54-2fcece466e1e'
+          title = 'Meriahkan Harlah Ke-37 dan HUT Ke-72 RI, SMP Negeri 1 Susukan Gelar Wayang, Sholawatan, dan Jalan Sehat Berhadiah Motor'
+          desc = 'SMP Negeri 1 Susukan memeriahkan Harlah Ke-37 sekaligus HUT Ke-72 RI melalui pentas wayang, sholawatan, dan jalan sehat berhadiah.'
+          share = f'https://paibpsmart.github.io/share-v136/{article_id}.html'
+          image = f'https://paibp-smart-share.sunarso29.workers.dev/image?id={article_id}'
+          target = f'https://paibpsmart.github.io/index.html?news={article_id}&from=share#kabar-spensus'
+          import html, json
+          e = lambda x: html.escape(x, quote=True)
+          page = f'''<!doctype html>
+          <html lang="id"><head>
+          <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+          <title>{e(title)}</title><meta name="description" content="{e(desc)}">
+          <meta property="og:type" content="article"><meta property="og:locale" content="id_ID">
+          <meta property="og:site_name" content="PAIBP SMART SMP"><meta property="og:title" content="{e(title)}">
+          <meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{e(share)}">
+          <meta property="og:image" content="{e(image)}"><meta property="og:image:secure_url" content="{e(image)}">
+          <meta property="og:image:alt" content="Sampul {e(title)}"><link rel="image_src" href="{e(image)}">
+          <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{e(title)}">
+          <meta name="twitter:description" content="{e(desc)}"><meta name="twitter:image" content="{e(image)}">
+          <link rel="canonical" href="{e(share)}"></head><body>
+          <img src="{e(image)}" alt="Sampul {e(title)}"><p><a href="{e(target)}">Buka berita di PAIBP SMART SMP</a></p>
+          <script>window.location.replace({json.dumps(target)});<\/script></body></html>'''
+          out = Path('share-v136') / f'{article_id}.html'
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_text(page, encoding='utf-8')
+
+          # Guardrails: fail the deployment if the production path could regress.
+          hs = Path('home-share-v133.js').read_text(encoding='utf-8')
+          assert 'new URL(`?id=${encodeURIComponent(String(id||""))}`,SHARE_WORKER)' in hs
+          assert 'share-v136/${encodeURIComponent(String(id||""))}.html' not in hs
+          assert 'home-share-v133.js","137"' in Path('icon-art-v85.js').read_text(encoding='utf-8')
+          assert 'service-worker.js?v=137' in Path('icon-art-v85.js').read_text(encoding='utf-8')
+          assert 'paibp-smart-v137-share-worker-r1' in Path('service-worker.js').read_text(encoding='utf-8')
+          assert 'icon-art-v85.js?v=137' in Path('index.html').read_text(encoding='utf-8')
+          PY
+
+      - name: Commit production hotfix
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add home-share-v133.js icon-art-v85.js service-worker.js index.html share-v136/c3c165f0-f772-4071-ac54-2fcece466e1e.html
+          if git diff --cached --quiet; then
+            echo 'V137 already applied.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'V137 fix realtime social preview for every news post'
+          git push origin HEAD:main
+
+      - name: Verify repository state
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F 'function shareUrl(id){return new URL(`?id=${encodeURIComponent(String(id||""))}`,SHARE_WORKER).toString()}' home-share-v133.js
+          grep -F 'home-share-v133.js","137"' icon-art-v85.js
+          grep -F 'service-worker.js?v=137' icon-art-v85.js
+          grep -F 'paibp-smart-v137-share-worker-r1' service-worker.js
+          grep -F 'icon-art-v85.js?v=137' index.html
+          grep -F 'og:image' share-v136/c3c165f0-f772-4071-ac54-2fcece466e1e.html
+          echo 'PASS: share path is realtime Worker and the current Harlah static link is repaired.'
