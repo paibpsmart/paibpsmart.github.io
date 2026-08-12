@@ -2,7 +2,7 @@
 "use strict";
 const OWNER="Sunarso29",REPO="paibp-smart",BRANCH="main";
 const API=`https://api.github.com/repos/${OWNER}/${REPO}/contents/`;
-const PAGES="https://sunarso29.github.io/paibp-smart/";
+const PAGES="https://paibpsmart.github.io/";
 const MANIFEST="media-library/index.json";
 const TOKEN_KEY="paibp-smart-media-github-token-session-v110";
 const MAX_VIDEOS=5,MAX_BYTES=95*1024*1024;

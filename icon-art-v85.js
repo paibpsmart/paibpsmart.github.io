@@ -41,7 +41,7 @@
       addScript("home-ticker-v93.js","102");
       addScript("home-news-v102.js","102");
       addScript("home-news-media-v111.js","118");
-      addScript("home-share-v102.js","119");
+      addScript("home-share-v102.js","123");
       addStyle("spensus-ai-v90.css","102");
       addScript("spensus-ai-shell-v90.js","102");
     }
@@ -69,7 +69,7 @@
     // Registrasi SW dilakukan setelah load dan tanpa r.update() paksa.
     // Pembaruan tidak lagi membuat halaman baru saja dibuka memuat ulang sendiri.
     if("serviceWorker" in navigator&&location.protocol!=="file:"){
-      navigator.serviceWorker.register("service-worker.js?v=122").catch(()=>null);
+      navigator.serviceWorker.register("service-worker.js?v=123").catch(()=>null);
     }
   };
 

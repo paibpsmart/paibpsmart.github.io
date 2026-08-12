@@ -1,0 +1,56 @@
+PAIBP SMART V123 ROOT DOMAIN MIGRATION
+Old: https://sunarso29.github.io/paibp-smart/
+New: https://paibpsmart.github.io/
+Files changed by migration: 52
+404.html
+BUILD-INFO.txt
+INDEXNOW-KEY.txt
+INDEXNOW-URLS.txt
+README-UPLOAD-SEO-v38.txt
+README_UPLOAD_GITHUB.txt
+about-spensus.html
+akses-guru.html
+artikel-extra-v102.js
+artikel-islam.js
+asesmen-smp.html
+cloudflare-worker-v68.js
+cloudflare/share-worker/src/index.js
+contact.html
+docx-export.js
+editor-media-v110.js
+fitur.html
+icon-art-v85.js
+index.html
+indexnow-payload.json
+kendali-editor.html
+kurikulum-merdeka-smp.html
+literasi-pendidikan-smp.html
+mapel-bahasa-indonesia.html
+mapel-bahasa-inggris.html
+mapel-bimbingan-konseling.html
+mapel-informatika.html
+mapel-ipa.html
+mapel-ips.html
+mapel-kelas-7-8-9.html
+mapel-koding-ai.html
+mapel-lain.html
+mapel-matematika.html
+mapel-pendidikan-pancasila.html
+mapel-pjok.html
+mapel-prakarya.html
+mapel-seni-musik.html
+mapel-seni-tari.html
+media-library.html
+multimapel-ui.js
+paibp-smp.html
+pendidikan-smp-banjarnegara.html
+perangkat-pembelajaran-smp.html
+privacy.html
+pusat-pendidikan-smp.html
+service-worker.js
+sitemap.xml
+spmb-rapor-praktik-baik.html
+support.html
+tenaga-kependidikan.html
+tenaga-pendidik.html
+terms.html

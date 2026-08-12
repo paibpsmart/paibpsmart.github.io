@@ -21,10 +21,10 @@ LANGKAH UPLOAD:
 10. Klik Save. Tunggu beberapa menit sampai deployment berhasil.
 
 URL WEBSITE:
-https://sunarso29.github.io/paibp-smart/
+https://paibpsmart.github.io/
 
 URL PRIVACY POLICY UNTUK GOOGLE PLAY:
-https://sunarso29.github.io/paibp-smart/privacy.html
+https://paibpsmart.github.io/privacy.html
 
 PENTING:
 - Repository harus Public.

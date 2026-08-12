@@ -1,7 +1,7 @@
 PAIBP SMART SMP
 Versi paket: 37.0 FINAL VISUAL
 Tanggal paket: 2 Agustus 2026
-Target publikasi: https://sunarso29.github.io/paibp-smart/
+Target publikasi: https://paibpsmart.github.io/
 
 Pembaruan utama:
 - 171 paket mapel selain PAIBP dinormalisasi dengan hierarki Bab → A/B → 1/2 → a/b dan turunan yang konsisten

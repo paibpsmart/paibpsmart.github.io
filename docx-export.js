@@ -223,7 +223,7 @@
   function createDocument({ title = "Dokumen PAIBP SMART", blocks = [], customData = null } = {}) {
     const promoBlocks = [
       { text: "PAIBP SMART SMP — Portal Pembelajaran Digital SMP Negeri 1 Susukan", style: "Heading3" },
-      { text: "Belajar • Paham • Berakhlak | https://sunarso29.github.io/paibp-smart/" }
+      { text: "Belajar • Paham • Berakhlak | https://paibpsmart.github.io/" }
     ];
     const allBlocks = title ? [{ text: title, style: "Title" }, ...blocks, ...promoBlocks] : [...blocks, ...promoBlocks];
     const media = {};

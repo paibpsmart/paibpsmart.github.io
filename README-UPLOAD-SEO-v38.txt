@@ -14,8 +14,8 @@ CARA UNGGAH
 3. Pilih Replace/Overwrite khusus sitemap.xml.
 4. Tunggu GitHub Pages selesai memperbarui.
 5. Pastikan halaman ini dapat dibuka:
-   https://sunarso29.github.io/paibp-smart/pusat-pendidikan-smp.html
-   https://sunarso29.github.io/paibp-smart/a7c1f4d93e6b4821b9d2e4f68a5c7d31.txt
+   https://paibpsmart.github.io/pusat-pendidikan-smp.html
+   https://paibpsmart.github.io/a7c1f4d93e6b4821b9d2e4f68a5c7d31.txt
 6. Kirim ulang sitemap di Google Search Console hanya bila status sitemap lama belum membaca 32 URL.
 7. Di Bing Webmaster Tools, buka IndexNow dan gunakan URL pada INDEXNOW-URLS.txt, atau submit halaman baru melalui URL Submission.
 

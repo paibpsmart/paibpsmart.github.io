@@ -1,5 +1,5 @@
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyRxOw6oWDZUuQxwuqOMRO92KOwqOGF_9J6rPzSfxr9Dqy9kAQGJ9qZA6Tm_deUOgtjKg/exec";
-const SITE = "https://sunarso29.github.io";
+const SITE = "https://paibpsmart.github.io";
 
 function cors(origin) {
   return {
