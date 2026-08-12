@@ -16,6 +16,7 @@ jobs:
           set +e
           API='https://paibp-smart-api.sunarso29.workers.dev'
           ORIGIN='https://paibpsmart.github.io'
+          READ_KEY='b082937b2165453ba7d9f81ecac063b00310b339ec0643da'
           echo '--- HEALTH ---'
           curl -sS -D /tmp/health.h -o /tmp/health.b "$API/health" -H "Origin: $ORIGIN"
           cat /tmp/health.h
@@ -24,5 +25,10 @@ jobs:
           echo '--- PUBLIC SNAPSHOT ---'
           curl -sS -D /tmp/snap.h -o /tmp/snap.b "$API/?action=publicSnapshot" -H "Origin: $ORIGIN" -H 'Accept: application/json'
           cat /tmp/snap.h
-          head -c 1000 /tmp/snap.b
+          head -c 2000 /tmp/snap.b
+          echo
+          echo '--- EDITOR SNAPSHOT ---'
+          curl -sS -D /tmp/editor.h -o /tmp/editor.b "$API/?action=editorSnapshot&readKey=$READ_KEY" -H "Origin: $ORIGIN" -H 'Accept: application/json'
+          cat /tmp/editor.h
+          head -c 5000 /tmp/editor.b
           echo
