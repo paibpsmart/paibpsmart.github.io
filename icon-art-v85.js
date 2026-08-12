@@ -18,9 +18,6 @@
     document.head.append(l);
   };
 
-  // Hanya lapisan final yang benar-benar dibutuhkan untuk tampilan awal.
-  // Loader V85 sebelumnya meminta belasan CSS/JS sebelum event load sehingga indikator
-  // browser terus berputar walaupun konten utama sudah terlihat.
   addStyle("menu-icons-v108.css","109");
   addStyle("ui-final-v105.css","109");
   addScript("ui-final-v105.js","109");
@@ -41,7 +38,7 @@
       addScript("home-ticker-v93.js","102");
       addScript("home-news-v102.js","102");
       addScript("home-news-media-v111.js","118");
-      addScript("home-share-v102.js","123");
+      addScript("home-share-v102.js","132");
       addStyle("spensus-ai-v90.css","102");
       addScript("spensus-ai-shell-v90.js","102");
     }
@@ -66,10 +63,8 @@
     if("requestIdleCallback" in window)requestIdleCallback(work,{timeout:450});
     else setTimeout(work,80);
 
-    // Registrasi SW dilakukan setelah load dan tanpa r.update() paksa.
-    // Pembaruan tidak lagi membuat halaman baru saja dibuka memuat ulang sendiri.
     if("serviceWorker" in navigator&&location.protocol!=="file:"){
-      navigator.serviceWorker.register("service-worker.js?v=123").catch(()=>null);
+      navigator.serviceWorker.register("service-worker.js?v=132").catch(()=>null);
     }
   };
 
