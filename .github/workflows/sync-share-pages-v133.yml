@@ -1,0 +1,88 @@
+name: Sync share previews V133
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/sync-share-pages-v133.yml'
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: share-previews-v133
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Fetch published news
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL 'https://paibp-smart-api.sunarso29.workers.dev/?action=publicSnapshot' \
+            -H 'Origin: https://paibpsmart.github.io' \
+            -H 'Accept: application/json' \
+            -o /tmp/snapshot.json
+          jq -e '.ok == true and (.news | type == "array")' /tmp/snapshot.json >/dev/null
+
+      - name: Generate static Open Graph pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs=require('fs');
+          const s=JSON.parse(fs.readFileSync('/tmp/snapshot.json','utf8'));
+          const news=(Array.isArray(s.news)?s.news:[]).filter(n=>n && n.isPublished!==false && n.id && n.title);
+          fs.mkdirSync('share',{recursive:true});
+          const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+          const clean=v=>String(v??'').replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim();
+          for(const n of news){
+            const id=clean(n.id).replace(/[^A-Za-z0-9._-]/g,'_').slice(0,180);
+            if(!id) continue;
+            const title=clean(n.title).slice(0,300);
+            const desc=clean(n.summary||n.description||'Kabar terbaru SMP Negeri 1 Susukan.').slice(0,340);
+            const share=`https://paibpsmart.github.io/share/${encodeURIComponent(id)}.html`;
+            const target=`https://paibpsmart.github.io/index.html?news=${encodeURIComponent(n.id)}&from=share#kabar-spensus`;
+            const image=`https://paibp-smart-share.sunarso29.workers.dev/image?id=${encodeURIComponent(n.id)}`;
+            const html=`<!doctype html>\n<html lang="id">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>${esc(title)}</title>\n<meta name="description" content="${esc(desc)}">\n<meta property="og:type" content="article">\n<meta property="og:locale" content="id_ID">\n<meta property="og:site_name" content="PAIBP SMART SMP">\n<meta property="og:title" content="${esc(title)}">\n<meta property="og:description" content="${esc(desc)}">\n<meta property="og:url" content="${esc(share)}">\n<meta property="og:image" content="${esc(image)}">\n<meta property="og:image:secure_url" content="${esc(image)}">\n<meta property="og:image:alt" content="Sampul ${esc(title)}">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="${esc(title)}">\n<meta name="twitter:description" content="${esc(desc)}">\n<meta name="twitter:image" content="${esc(image)}">\n<link rel="canonical" href="${esc(share)}">\n<script>location.replace(${JSON.stringify(target)});<\/script>\n</head>\n<body><p><a href="${esc(target)}">Buka berita di PAIBP SMART SMP</a></p></body>\n</html>\n`;
+            fs.writeFileSync(`share/${id}.html`,html);
+          }
+          console.log(`Generated ${news.length} share preview page(s)`);
+          NODE
+
+      - name: Commit preview updates
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add share
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'V133 sinkronkan preview WhatsApp berita'
+          git push origin HEAD:main
+          echo 'changed=true' >> "$GITHUB_OUTPUT"
+
+      - name: Request GitHub Pages rebuild
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds" >/dev/null
+          echo 'GitHub Pages rebuild requested.'
