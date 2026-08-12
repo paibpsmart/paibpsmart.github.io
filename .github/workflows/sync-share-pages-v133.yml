@@ -1,4 +1,4 @@
-name: Sync share previews V134
+name: Sync share previews V135
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ permissions:
   pages: write
 
 concurrency:
-  group: share-previews-v134
+  group: share-previews-v135
   cancel-in-progress: true
 
 jobs:
@@ -45,7 +45,7 @@ jobs:
           npm init -y >/dev/null 2>&1
           npm i sharp@0.34.3 >/dev/null 2>&1
 
-      - name: Generate static JPEG covers and Open Graph pages
+      - name: Generate cache-proof WhatsApp pages and JPEG covers
         shell: bash
         run: |
           set -euo pipefail
@@ -54,8 +54,8 @@ jobs:
           const sharp=require('/tmp/previewgen/node_modules/sharp');
           const s=JSON.parse(fs.readFileSync('/tmp/snapshot.json','utf8'));
           const news=(Array.isArray(s.news)?s.news:[]).filter(n=>n && n.isPublished!==false && n.id && n.title);
-          fs.mkdirSync('share',{recursive:true});
-          fs.mkdirSync('share-images',{recursive:true});
+          fs.mkdirSync('share-v135',{recursive:true});
+          fs.mkdirSync('share-images-v135',{recursive:true});
           const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
           const clean=v=>String(v??'').replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim();
           (async()=>{
@@ -65,28 +65,28 @@ jobs:
               if(!id) continue;
               const title=clean(n.title).slice(0,300);
               const desc=clean(n.summary||n.description||'Kabar terbaru SMP Negeri 1 Susukan.').slice(0,340);
-              const source=`https://paibp-smart-share.sunarso29.workers.dev/image?id=${encodeURIComponent(rawId)}&v=134`;
-              const imagePath=`share-images/${id}.jpg`;
-              const rr=await fetch(source,{headers:{'Accept':'image/*','User-Agent':'PAIBP-SMART-PreviewSync/134'},cache:'no-store'});
+              const source=`https://paibp-smart-share.sunarso29.workers.dev/image?id=${encodeURIComponent(rawId)}&v=135`;
+              const imagePath=`share-images-v135/${id}.jpg`;
+              const rr=await fetch(source,{headers:{'Accept':'image/*','User-Agent':'PAIBP-SMART-PreviewSync/135'},cache:'no-store'});
               if(!rr.ok) throw new Error(`cover ${rawId}: HTTP ${rr.status}`);
               const buf=Buffer.from(await rr.arrayBuffer());
               if(buf.length<1000) throw new Error(`cover ${rawId}: terlalu kecil (${buf.length})`);
-              await sharp(buf).rotate().resize(1200,630,{fit:'cover',position:'centre'}).jpeg({quality:86,mozjpeg:true}).toFile(imagePath);
+              await sharp(buf).rotate().resize(1200,630,{fit:'cover',position:'centre'}).jpeg({quality:88,mozjpeg:true}).toFile(imagePath);
               const stat=fs.statSync(imagePath);
               if(stat.size<5000) throw new Error(`cover JPEG ${rawId}: terlalu kecil (${stat.size})`);
 
-              const share=`https://paibpsmart.github.io/share/${encodeURIComponent(id)}.html?v=134`;
+              const share=`https://paibpsmart.github.io/share-v135/${encodeURIComponent(id)}.html`;
               const target=`https://paibpsmart.github.io/index.html?news=${encodeURIComponent(rawId)}&from=share#kabar-spensus`;
-              const image=`https://paibpsmart.github.io/share-images/${encodeURIComponent(id)}.jpg?v=134`;
-              const html=`<!doctype html>\n<html lang="id">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>${esc(title)}</title>\n<meta name="description" content="${esc(desc)}">\n<meta property="og:type" content="article">\n<meta property="og:locale" content="id_ID">\n<meta property="og:site_name" content="PAIBP SMART SMP">\n<meta property="og:title" content="${esc(title)}">\n<meta property="og:description" content="${esc(desc)}">\n<meta property="og:url" content="${esc(share)}">\n<meta property="og:image" content="${esc(image)}">\n<meta property="og:image:secure_url" content="${esc(image)}">\n<meta property="og:image:type" content="image/jpeg">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta property="og:image:alt" content="Sampul ${esc(title)}">\n<link rel="image_src" href="${esc(image)}">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="${esc(title)}">\n<meta name="twitter:description" content="${esc(desc)}">\n<meta name="twitter:image" content="${esc(image)}">\n<link rel="canonical" href="${esc(share)}">\n<script>location.replace(${JSON.stringify(target)});<\/script>\n</head>\n<body><p><a href="${esc(target)}">Buka berita di PAIBP SMART SMP</a></p></body>\n</html>\n`;
-              fs.writeFileSync(`share/${id}.html`,html);
+              const image=`https://paibpsmart.github.io/share-images-v135/${encodeURIComponent(id)}.jpg`;
+              const html=`<!doctype html>\n<html lang="id">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>${esc(title)}</title>\n<meta name="description" content="${esc(desc)}">\n<meta property="og:type" content="article">\n<meta property="og:locale" content="id_ID">\n<meta property="og:site_name" content="PAIBP SMART SMP">\n<meta property="og:title" content="${esc(title)}">\n<meta property="og:description" content="${esc(desc)}">\n<meta property="og:url" content="${esc(share)}">\n<meta property="og:image" content="${esc(image)}">\n<meta property="og:image:url" content="${esc(image)}">\n<meta property="og:image:secure_url" content="${esc(image)}">\n<meta property="og:image:type" content="image/jpeg">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta property="og:image:alt" content="Sampul ${esc(title)}">\n<link rel="image_src" href="${esc(image)}">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="${esc(title)}">\n<meta name="twitter:description" content="${esc(desc)}">\n<meta name="twitter:image" content="${esc(image)}">\n<link rel="canonical" href="${esc(share)}">\n</head>\n<body>\n<img src="${esc(image)}" alt="Sampul ${esc(title)}" width="1200" height="630">\n<p><a href="${esc(target)}">Buka berita di PAIBP SMART SMP</a></p>\n<script>window.location.replace(${JSON.stringify(target)});<\/script>\n</body>\n</html>\n`;
+              fs.writeFileSync(`share-v135/${id}.html`,html);
               console.log(`Generated ${id}: ${stat.size} bytes`);
             }
-            console.log(`Generated ${news.length} share preview page(s) with static JPEG covers`);
+            console.log(`Generated ${news.length} V135 preview page(s)`);
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
 
-      - name: Patch public sharing to fresh V134 URL
+      - name: Patch sharing client to V135 path
         shell: bash
         run: |
           set -euo pipefail
@@ -94,35 +94,49 @@ jobs:
           from pathlib import Path
           p=Path('home-share-v133.js')
           s=p.read_text()
-          s=s.replace('__SPENSUS_SHARE_V133__','__SPENSUS_SHARE_V134__')
-          old='function shareUrl(id){return new URL(`share/${encodeURIComponent(String(id||""))}.html`,SITE).toString()}'
-          new='function shareUrl(id){const u=new URL(`share/${encodeURIComponent(String(id||""))}.html`,SITE);u.searchParams.set("v","134");return u.toString()}'
-          if old in s: s=s.replace(old,new)
-          elif new not in s: raise SystemExit('shareUrl pattern not found')
+          s=s.replace('__SPENSUS_SHARE_V134__','__SPENSUS_SHARE_V135__')
+          s=s.replace('__SPENSUS_SHARE_V133__','__SPENSUS_SHARE_V135__')
+          old='function shareUrl(id){const u=new URL(`share/${encodeURIComponent(String(id||""))}.html`,SITE);u.searchParams.set("v","134");return u.toString()}'
+          new='function shareUrl(id){return new URL(`share-v135/${encodeURIComponent(String(id||""))}.html`,SITE).toString()}'
+          if old in s:
+              s=s.replace(old,new)
+          elif new not in s:
+              import re
+              s2,n=re.subn(r'function shareUrl\(id\)\{[^}]*?return u\.toString\(\)\}',new,s,count=1)
+              if n!=1: raise SystemExit('shareUrl pattern not found')
+              s=s2
           p.write_text(s)
 
           p=Path('icon-art-v85.js')
-          s=p.read_text().replace('addScript("home-share-v133.js","133")','addScript("home-share-v133.js","134")').replace('service-worker.js?v=133','service-worker.js?v=134')
+          s=p.read_text()
+          s=s.replace('addScript("home-share-v133.js","134")','addScript("home-share-v133.js","135")')
+          s=s.replace('addScript("home-share-v133.js","133")','addScript("home-share-v133.js","135")')
+          s=s.replace('service-worker.js?v=134','service-worker.js?v=135').replace('service-worker.js?v=133','service-worker.js?v=135')
           p.write_text(s)
 
           p=Path('service-worker.js')
-          s=p.read_text().replace('paibp-smart-v132-share-domain-r1','paibp-smart-v134-whatsapp-preview-r1').replace('icon-art-v85.js?v=132','icon-art-v85.js?v=134')
+          s=p.read_text()
+          import re
+          s=re.sub(r'const CACHE_NAME="paibp-smart-[^"]+";','const CACHE_NAME="paibp-smart-v135-whatsapp-image-r1";',s,count=1)
+          s=s.replace('icon-art-v85.js?v=134','icon-art-v85.js?v=135').replace('icon-art-v85.js?v=132','icon-art-v85.js?v=135')
+          if '"/home-share-v133.js"' not in s:
+              s=s.replace('"/home-news-media-v111.js","/home-share-v102.js"','"/home-news-media-v111.js","/home-share-v102.js","/home-share-v133.js"')
           p.write_text(s)
           PY
 
-      - name: Commit preview updates
+      - name: Commit V135 preview updates
         id: commit
         shell: bash
         run: |
           set -euo pipefail
-          git add share share-images home-share-v133.js icon-art-v85.js service-worker.js
+          git add share-v135 share-images-v135 home-share-v133.js icon-art-v85.js service-worker.js
           if git diff --cached --quiet; then
             echo 'changed=false' >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'V134 sinkronkan sampul WhatsApp statis'
+          git commit -m 'V135 preview WhatsApp gambar sampul tanpa cache lama'
           git push origin HEAD:main
           echo 'changed=true' >> "$GITHUB_OUTPUT"
 
@@ -134,29 +148,28 @@ jobs:
         run: |
           set -euo pipefail
           gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds" >/dev/null
-          echo 'GitHub Pages rebuild requested.'
 
-      - name: Verify WhatsApp-facing page and static JPEG cover
+      - name: Verify exact WhatsApp-facing V135 page
         shell: bash
         run: |
           set -euo pipefail
           ID='a92311f1-9784-4b38-bd6b-f14b3cba3252'
-          PAGE="https://paibpsmart.github.io/share/${ID}.html?v=134"
-          IMG="https://paibpsmart.github.io/share-images/${ID}.jpg?v=134"
+          PAGE="https://paibpsmart.github.io/share-v135/${ID}.html"
+          IMG="https://paibpsmart.github.io/share-images-v135/${ID}.jpg"
           ok=0
-          for i in $(seq 1 12); do
-            if curl -fsSL -A 'WhatsApp/2.24.0' "$PAGE&_=$RANDOM" -o /tmp/wa.html \
+          for i in $(seq 1 15); do
+            if curl -fsSL -A 'WhatsApp/2.24.0' "$PAGE" -o /tmp/wa.html \
               && grep -F "<meta property=\"og:image\" content=\"${IMG}\">" /tmp/wa.html >/dev/null \
-              && curl -fsSL -A 'WhatsApp/2.24.0' "$IMG&_=$RANDOM" -o /tmp/wa.jpg \
+              && grep -F '<meta property="og:image:type" content="image/jpeg">' /tmp/wa.html >/dev/null \
+              && curl -fsSL -A 'WhatsApp/2.24.0' "$IMG" -o /tmp/wa.jpg \
               && test "$(wc -c < /tmp/wa.jpg)" -gt 5000; then
               ok=1; break
             fi
-            sleep 10
+            sleep 8
           done
           test "$ok" = 1
-          file /tmp/wa.jpg
-          echo "Static cover bytes: $(wc -c < /tmp/wa.jpg)"
-          grep -F 'og:image:type" content="image/jpeg"' /tmp/wa.html
-          grep -F 'og:image:width" content="1200"' /tmp/wa.html
-          grep -F 'og:image:height" content="630"' /tmp/wa.html
-          echo 'PASS: WhatsApp preview page uses same-domain 1200x630 JPEG cover.'
+          file /tmp/wa.jpg | grep -i JPEG
+          curl -fsSI -A 'WhatsApp/2.24.0' "$IMG" | tr -d '\r' | tee /tmp/headers.txt
+          grep -qi '^content-type: image/jpeg' /tmp/headers.txt
+          echo "V135 cover bytes: $(wc -c < /tmp/wa.jpg)"
+          echo 'PASS: WhatsApp receives article OG metadata and same-domain JPEG on a brand-new URL path.'
