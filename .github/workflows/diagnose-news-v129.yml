@@ -19,23 +19,19 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v6
-      - name: Diagnose D1 and legacy Apps Script
+      - name: Diagnose API, D1 and legacy recovery
         shell: bash
         run: |
           set -euo pipefail
           API='https://paibp-smart-api.sunarso29.workers.dev'
-          GAS='https://script.google.com/macros/s/AKfycbyRxOw6oWDZUuQxwuqOMRO92KOwqOGF_9J6rPzSfxr9Dqy9kAQGJ9qZA6Tm_deUOgtjKg/exec'
           ORIGIN='https://paibpsmart.github.io'
           curl -fsSL "$API/?action=publicSnapshot" -H "Origin: $ORIGIN" -H 'Accept: application/json' > /tmp/d1.json
           echo '--- D1 publicSnapshot ---'
           jq '{ok,version,database,newsCount:(.news|length),contentCount:(.content|keys|length),feedbackCount:(.feedback|length),news:(.news|map({id,title,date,isPublished,updatedAt})[:30])}' /tmp/d1.json
-          echo '--- LEGACY GAS publicSnapshot ---'
-          if curl -fsSL "$GAS?action=publicSnapshot&_legacy=1" -H 'Accept: application/json' > /tmp/gas.json; then
-            head -c 180 /tmp/gas.json; echo
-            jq '{ok,version,newsCount:(.news|length),contentCount:(.content|keys|length),feedbackCount:(.feedback|length),news:(.news|map({id,title,date,isPublished,updatedAt})[:30])}' /tmp/gas.json || true
-          else
-            echo 'legacy GAS request failed'
-          fi
-          echo '--- D1 news table ---'
           cd cloudflare/api-worker
+          echo '--- D1 news table ---'
           npx --yes wrangler@latest d1 execute paibp-smart-db --remote --command "SELECT COUNT(*) AS total, SUM(CASE WHEN is_published=1 THEN 1 ELSE 0 END) AS published FROM news; SELECT id,title,date,is_published,updated_at FROM news ORDER BY updated_at DESC LIMIT 30;"
+          echo '--- RECOVERY V130 PROBE ---'
+          npx --yes wrangler@latest d1 execute paibp-smart-db --remote --command "SELECT key,value_json,updated_at FROM content WHERE key='migration:legacy-browser-probe-v130';"
+          echo '--- NEWS CONTENT KEYS ---'
+          npx --yes wrangler@latest d1 execute paibp-smart-db --remote --command "SELECT key,updated_at,author_name FROM content WHERE key LIKE 'news:%' OR key LIKE 'news-media:%' ORDER BY updated_at DESC LIMIT 100;"
