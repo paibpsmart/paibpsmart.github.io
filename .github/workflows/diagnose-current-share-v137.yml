@@ -1,0 +1,34 @@
+name: Diagnose current share V137
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/diagnose-current-share-v137.yml']
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect current D1 article and cover
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL 'https://paibp-smart-api.sunarso29.workers.dev/?action=publicSnapshot' -H 'Origin: https://paibpsmart.github.io' -H 'Accept: application/json' -o /tmp/s.json
+          echo "snapshot_bytes=$(wc -c < /tmp/s.json)"
+          node <<'NODE'
+          const fs=require('fs');
+          const s=JSON.parse(fs.readFileSync('/tmp/s.json'));
+          const id='c3c165f0-f772-4071-ac54-2fcece466e1e';
+          const n=(s.news||[]).find(x=>String(x.id)===id);
+          console.log('found=',!!n,'news_count=',(s.news||[]).length,'content_keys=',Object.keys(s.content||{}).length);
+          if(n) console.log('title=',n.title,'published=',n.isPublished,'imageUrl=',String(n.imageUrl||'').slice(0,120));
+          const unwrap=v=>{let x=v;for(let i=0;i<8;i++){if(x&&typeof x==='object'&&Object.prototype.hasOwnProperty.call(x,'value')){x=x.value;continue}if(typeof x==='string'){const t=x.trim();if((t.startsWith('{')&&t.endsWith('}'))||(t.startsWith('[')&&t.endsWith(']'))){try{x=JSON.parse(t);continue}catch{}}}break}return x};
+          const c=s.content||{}, m=unwrap(c[`news:${id}`])||{};
+          console.log('manifest_schema=',m.schema,'title=',m.title,'coverKey=',m.coverKey,'photoKeys=',Array.isArray(m.photoKeys)?m.photoKeys.length:0);
+          const key=m.coverKey||(Array.isArray(m.photoKeys)&&m.photoKeys[0])||'';
+          const p=key?unwrap(c[key]):null;
+          const src=p&&typeof p==='object'?(p.data||p.src||p.url||''):p;
+          const cover=String(src||m.coverDataUrl||m.coverUrl||n?.imageUrl||'');
+          console.log('cover_prefix=',cover.slice(0,80),'cover_chars=',cover.length);
+          NODE
