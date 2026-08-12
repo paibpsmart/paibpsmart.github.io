@@ -1,15 +1,13 @@
-name: Verify live V119 media and share
+name: Verify live V132 clean share
 
 on:
   push:
     branches: [main]
     paths:
       - '.github/workflows/verify-live-v118.yml'
-      - 'home-news-media-v111.js'
       - 'home-share-v102.js'
       - 'icon-art-v85.js'
       - 'service-worker.js'
-      - 'cloudflare/share-worker/**'
   workflow_dispatch:
 
 permissions:
@@ -20,57 +18,50 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
-      - name: Wait for Pages and Worker deploy
+      - name: Wait for GitHub Pages deploy
         run: sleep 35
       - name: Install Playwright
         run: |
           npm init -y >/dev/null 2>&1
           npm i playwright@1.58.2 >/dev/null 2>&1
           npx playwright install chromium >/dev/null 2>&1
-      - name: Verify deployed carousel and share preview
+      - name: Verify clean PAIBP SMART share URL
         shell: bash
         run: |
           node <<'NODE'
           (async()=>{
             const { chromium } = require('playwright');
             const id='news-1786463411888-925mqh8';
-            const expectedTitle='Semarak HUT Ke-81 RI, Guru, Tenaga Kependidikan, dan Murid SMP Negeri 1 Susukan Tampil Kompak di Gerak Jalan Gayeng 2026';
-            const url=`https://sunarso29.github.io/paibp-smart/index.html?news=${id}&ui=119#kabar-spensus`;
+            const expected=`https://paibpsmart.github.io/index.html?news=${encodeURIComponent(id)}&from=share#kabar-spensus`;
+            const pageUrl=`https://paibpsmart.github.io/index.html?ui=132#kabar-spensus`;
             const browser=await chromium.launch({headless:true});
             const page=await browser.newPage({viewport:{width:390,height:844}});
-            page.on('console',m=>{if(m.type()==='error')console.log('CONSOLE_ERROR',m.text())});
-            page.on('pageerror',e=>console.log('PAGE_ERROR',e.message));
-            await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
-            await page.waitForTimeout(16000);
-            const out=await page.evaluate((id)=>{
-              const p=document.querySelector(`.ig-post[data-post="${id}"]`)||document.querySelector('.ig-post[data-post]');
+            await page.goto(pageUrl,{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForSelector(`.ig-post[data-post="${id}"]`,{timeout:45000});
+            const post=page.locator(`.ig-post[data-post="${id}"]`);
+            await post.locator('[data-share]').click();
+            await page.waitForSelector('#ig-share-modal-v132:not([hidden])',{timeout:10000});
+            const out=await page.evaluate(()=>{
+              const input=document.querySelector('#ig-share-link');
+              const buttons=[...document.querySelectorAll('#ig-share-modal-v132 [data-external]')];
               const scripts=[...document.scripts].map(s=>s.src).filter(Boolean);
-              if(!p)return {post:false,scripts};
-              return {post:true,postId:p.dataset.post,title:p.querySelector('.ig-title')?.textContent?.trim()||'',mediaCount:p.dataset.mediaCount||'',totalSlides:p.querySelectorAll('.ig-slide').length,videoSlides:p.querySelectorAll('.ig-slide[data-kind="video"]').length,audioSlides:p.querySelectorAll('.ig-slide[data-kind="audio"]').length,attachmentSlides:p.querySelectorAll('[data-media-v118]').length,counter:p.querySelector('.ig-count')?.textContent||'',scripts:scripts.filter(x=>/home-news|icon-art|share/.test(x))};
-            },id);
-            console.log('LIVE_RESULT',JSON.stringify(out,null,2));
-            await page.screenshot({path:'live-v119.png',fullPage:true});
-
-            const share=`https://paibp-smart-share.sunarso29.workers.dev/?id=${id}`;
-            let shareOut={};
-            for(let attempt=0;attempt<5;attempt++){
-              const sr=await fetch(`${share}&_=${Date.now()}`,{headers:{'User-Agent':'facebookexternalhit/1.1'},cache:'no-store'});
-              const html=await sr.text();
-              const meta=(p)=>html.match(new RegExp(`<meta[^>]+property=["']${p}["'][^>]+content=["']([^"']*)`, 'i'))?.[1]||'';
-              shareOut={status:sr.status,title:meta('og:title'),description:meta('og:description'),image:meta('og:image')};
-              if(shareOut.title===expectedTitle&&shareOut.image)break;
-              await new Promise(r=>setTimeout(r,2500));
-            }
-            console.log('SHARE_RESULT',JSON.stringify(shareOut,null,2));
+              return {
+                value:input?.value||'',
+                modal:Boolean(document.querySelector('#ig-share-modal-v132:not([hidden])')),
+                scripts:scripts.filter(x=>/home-share-v102/.test(x)),
+                externalCount:buttons.length
+              };
+            });
+            console.log('CLEAN_SHARE_RESULT',JSON.stringify(out,null,2));
+            if(!out.modal)throw new Error('Modal share V132 tidak aktif');
+            if(out.value!==expected)throw new Error(`URL share salah: ${out.value}`);
+            if(out.value.includes('workers.dev'))throw new Error('URL publik masih memakai workers.dev');
+            if(!out.value.startsWith('https://paibpsmart.github.io/'))throw new Error('URL publik bukan domain PAIBP SMART');
+            const deep=await browser.newPage({viewport:{width:390,height:844}});
+            await deep.goto(expected,{waitUntil:'domcontentloaded',timeout:60000});
+            await deep.waitForSelector(`.ig-post[data-post="${id}"]`,{timeout:45000});
+            const title=await deep.locator(`.ig-post[data-post="${id}"] .ig-title`).textContent();
+            console.log('DEEPLINK_TITLE',title?.trim());
             await browser.close();
-            if(!out.post||out.videoSlides!==4||out.totalSlides!==8||out.counter!=='1/8')process.exit(2);
-            if(shareOut.title!==expectedTitle||!shareOut.image)process.exit(3);
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
-      - name: Upload screenshot
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: live-v119-proof
-          path: live-v119.png
-          if-no-files-found: ignore
