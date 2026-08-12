@@ -2,3 +2,8 @@ name = "paibp-smart-api"
 main = "src/index.js"
 compatibility_date = "2026-08-12"
 workers_dev = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "paibp-smart-db"
+database_id = "f3d77f14-6e2d-4157-bac6-e6ed4ecfdb1b"
