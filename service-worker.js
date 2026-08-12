@@ -1,9 +1,9 @@
-const CACHE_NAME="paibp-smart-v134-whatsapp-preview-r1";
+const CACHE_NAME="paibp-smart-v135-whatsapp-image-r1";
 const CORE=[
   "./","./index.html","./logo-spensus.png","./styles.css?v=37","./v37-final.css?v=37",
   "./app-config.js?v=85","./stable-v72.css?v=86","./mobile-fix-v70.css?v=86",
   "./visual-v86.css?v=86","./icon-v86.css?v=86","./ui-final-v105.css?v=109",
-  "./ui-final-v105.js?v=109","./icon-art-v85.js?v=134"
+  "./ui-final-v105.js?v=109","./icon-art-v85.js?v=135"
 ];
 
 self.addEventListener("install",event=>{
@@ -90,7 +90,7 @@ self.addEventListener("fetch",event=>{
 
   const critical=[
     "/app-config.js","/ui-final-v105.js","/icon-art-v85.js","/service-worker.js",
-    "/home-news-media-v111.js","/home-share-v102.js","/news-attachments-v113.js",
+    "/home-news-media-v111.js","/home-share-v102.js","/home-share-v133.js","/news-attachments-v113.js",
     "/news-attachments-v113.css","/news-publish-direct-v114.js","/cloudinary-media-config-v113.js",
     "/news-editor-chunked-v102.js","/editor-berita.html"
   ];
