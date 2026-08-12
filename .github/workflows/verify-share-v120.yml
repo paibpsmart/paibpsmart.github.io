@@ -1,0 +1,56 @@
+name: Verify share V120
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cloudflare/share-worker/**'
+      - '.github/workflows/verify-share-v120.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Wait for Worker deployment
+        run: sleep 25
+      - name: Verify browser redirect and social preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          ID='news-1786463411888-925mqh8'
+          BASE='https://paibp-smart-share.sunarso29.workers.dev'
+          URL="$BASE/?id=$ID"
+
+          echo '--- HEALTH ---'
+          HEALTH="$(curl -fsS --max-time 20 "$BASE/health")"
+          echo "$HEALTH"
+          echo "$HEALTH" | grep -q '"version":"120"'
+
+          echo '--- NORMAL BROWSER ---'
+          curl -sS --max-time 20 -A 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/138 Mobile Safari/537.36' -D /tmp/browser.h -o /tmp/browser.body "$URL"
+          cat /tmp/browser.h
+          STATUS="$(awk 'toupper($1) ~ /^HTTP\// {s=$2} END{print s}' /tmp/browser.h)"
+          LOCATION="$(awk 'BEGIN{IGNORECASE=1} /^location:/ {sub(/^[^:]*:[[:space:]]*/,""); sub(/\r$/,""); print; exit}' /tmp/browser.h)"
+          echo "BROWSER_STATUS=$STATUS"
+          echo "BROWSER_LOCATION=$LOCATION"
+          test "$STATUS" = '302'
+          echo "$LOCATION" | grep -q 'https://sunarso29.github.io/paibp-smart/index.html?news=news-1786463411888-925mqh8'
+
+          echo '--- FOLLOW REDIRECT ---'
+          FINAL="$(curl -sS -L --max-time 30 -A 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/138 Mobile Safari/537.36' -o /tmp/final.html -w '%{http_code} %{url_effective}' "$URL")"
+          echo "FINAL=$FINAL"
+          echo "$FINAL" | grep -q '^200 https://sunarso29.github.io/paibp-smart/index.html?news='
+
+          echo '--- SOCIAL CRAWLER ---'
+          curl -fsS --max-time 20 -A 'facebookexternalhit/1.1' "$URL" -o /tmp/social.html
+          grep -o '<meta property="og:title"[^>]*>' /tmp/social.html | head -1
+          grep -o '<meta property="og:image"[^>]*>' /tmp/social.html | head -1
+          grep -q 'Semarak HUT Ke-81 RI' /tmp/social.html
+          grep -q 'property="og:image"' /tmp/social.html
+
+          echo 'V120_OK: browser langsung redirect, target terbuka 200, crawler tetap menerima judul dan sampul.'
