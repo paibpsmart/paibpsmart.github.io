@@ -1,4 +1,4 @@
-name: Verify live Pages and API CORS V125
+name: Verify live Pages root and API CORS V125
 
 on:
   push:
@@ -8,26 +8,30 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
       - name: Verify GitHub Pages root
         shell: bash
         run: |
           set -euo pipefail
           SITE='https://paibpsmart.github.io/'
-          echo "Testing $SITE"
           code="$(curl -L -sS -o /tmp/site.html -w '%{http_code}' "$SITE")"
           final="$(curl -L -sS -o /dev/null -w '%{url_effective}' "$SITE")"
-          echo "HTTP=$code"
-          echo "FINAL_URL=$final"
+          echo "PAGES_HTTP=$code"
+          echo "PAGES_FINAL_URL=$final"
           test "$code" = '200'
           test "$final" = "$SITE"
           grep -qi '<html\|<!doctype' /tmp/site.html
+          printf '%s\n' "$code" > /tmp/pages_http
+          printf '%s\n' "$final" > /tmp/pages_final
           echo 'PAGES_ROOT_OK=true'
 
       - name: Verify API Worker CORS preflight
@@ -36,45 +40,85 @@ jobs:
           set -euo pipefail
           API='https://paibp-smart-api.sunarso29.workers.dev/'
           ORIGIN='https://paibpsmart.github.io'
-          echo "Testing preflight $API from $ORIGIN"
           curl -sS -D /tmp/cors.headers -o /dev/null -X OPTIONS "$API" \
             -H "Origin: $ORIGIN" \
             -H 'Access-Control-Request-Method: GET' \
             -H 'Access-Control-Request-Headers: Content-Type,Accept'
-          cat /tmp/cors.headers
           status="$(awk 'toupper($1) ~ /^HTTP\// {s=$2} END{print s}' /tmp/cors.headers | tr -d '\r')"
           allow_origin="$(awk 'BEGIN{IGNORECASE=1} /^access-control-allow-origin:/ {sub(/^[^:]+:[[:space:]]*/,""); gsub(/\r/,""); print; exit}' /tmp/cors.headers)"
           allow_methods="$(awk 'BEGIN{IGNORECASE=1} /^access-control-allow-methods:/ {sub(/^[^:]+:[[:space:]]*/,""); gsub(/\r/,""); print; exit}' /tmp/cors.headers)"
-          echo "STATUS=$status"
-          echo "ALLOW_ORIGIN=$allow_origin"
-          echo "ALLOW_METHODS=$allow_methods"
+          echo "CORS_STATUS=$status"
+          echo "CORS_ALLOW_ORIGIN=$allow_origin"
+          echo "CORS_ALLOW_METHODS=$allow_methods"
           test "$status" = '204'
           test "$allow_origin" = "$ORIGIN"
           echo "$allow_methods" | grep -qi 'GET'
+          echo "$allow_methods" | grep -qi 'POST'
+          printf '%s\n' "$status" > /tmp/cors_status
+          printf '%s\n' "$allow_origin" > /tmp/cors_origin
+          printf '%s\n' "$allow_methods" > /tmp/cors_methods
           echo 'API_CORS_PREFLIGHT_OK=true'
 
-      - name: Verify API Worker GET from new origin
+      - name: Verify API Worker health GET from new origin
         shell: bash
         run: |
           set -euo pipefail
-          API='https://paibp-smart-api.sunarso29.workers.dev/?action=publicSnapshot'
+          API='https://paibp-smart-api.sunarso29.workers.dev/health'
           ORIGIN='https://paibpsmart.github.io'
-          curl -sS -D /tmp/get.headers -o /tmp/get.body "$API" \
+          curl -sS -D /tmp/health.headers -o /tmp/health.body "$API" \
             -H "Origin: $ORIGIN" \
             -H 'Accept: application/json'
-          cat /tmp/get.headers
-          code="$(awk 'toupper($1) ~ /^HTTP\// {s=$2} END{print s}' /tmp/get.headers | tr -d '\r')"
-          allow_origin="$(awk 'BEGIN{IGNORECASE=1} /^access-control-allow-origin:/ {sub(/^[^:]+:[[:space:]]*/,""); gsub(/\r/,""); print; exit}' /tmp/get.headers)"
-          echo "HTTP=$code"
-          echo "ALLOW_ORIGIN=$allow_origin"
-          head -c 500 /tmp/get.body || true
-          echo
+          code="$(awk 'toupper($1) ~ /^HTTP\// {s=$2} END{print s}' /tmp/health.headers | tr -d '\r')"
+          allow_origin="$(awk 'BEGIN{IGNORECASE=1} /^access-control-allow-origin:/ {sub(/^[^:]+:[[:space:]]*/,""); gsub(/\r/,""); print; exit}' /tmp/health.headers)"
+          echo "HEALTH_HTTP=$code"
+          echo "HEALTH_ALLOW_ORIGIN=$allow_origin"
+          cat /tmp/health.body
           test "$code" = '200'
           test "$allow_origin" = "$ORIGIN"
           python - <<'PY'
           import json
-          with open('/tmp/get.body', encoding='utf-8') as f:
-              json.load(f)
-          print('API_GET_JSON_OK=true')
+          with open('/tmp/health.body', encoding='utf-8') as f:
+              j=json.load(f)
+          assert j.get('ok') is True
+          assert j.get('service') == 'paibp-smart-api'
+          assert j.get('version') == '125-proxy'
+          assert j.get('site') == 'https://paibpsmart.github.io'
+          print('API_HEALTH_OK=true')
           PY
-          echo 'API_GET_CORS_OK=true'
+          printf '%s\n' "$code" > /tmp/health_http
+          printf '%s\n' "$allow_origin" > /tmp/health_origin
+
+      - name: Write verification report
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > LIVE-STATUS-V125.txt <<EOF
+          PAIBP SMART LIVE VERIFICATION V125
+          Verified UTC: $(date -u '+%Y-%m-%dT%H:%M:%SZ')
+          GitHub Pages root: PASS
+          Pages URL: $(cat /tmp/pages_final)
+          Pages HTTP: $(cat /tmp/pages_http)
+          API Worker CORS preflight: PASS
+          API CORS status: $(cat /tmp/cors_status)
+          API allow origin: $(cat /tmp/cors_origin)
+          API allow methods: $(cat /tmp/cors_methods)
+          API Worker health: PASS
+          API health HTTP: $(cat /tmp/health_http)
+          API health allow origin: $(cat /tmp/health_origin)
+          Worker version: 125-proxy
+          EOF
+          cat LIVE-STATUS-V125.txt
+
+      - name: Commit verification report
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'PAIBP SMART Verification'
+          git config user.email 'actions@users.noreply.github.com'
+          git add LIVE-STATUS-V125.txt
+          if git diff --cached --quiet; then
+            echo 'Verification report unchanged.'
+            exit 0
+          fi
+          git commit -m 'Catat verifikasi live Pages root dan CORS V125'
+          git push origin HEAD:main
