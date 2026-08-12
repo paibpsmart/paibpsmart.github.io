@@ -1,13 +1,14 @@
-name: Verify live V132 clean share
+name: Verify live V133 WhatsApp preview
 
 on:
   push:
     branches: [main]
     paths:
       - '.github/workflows/verify-live-v118.yml'
+      - 'home-share-v133.js'
       - 'home-share-v102.js'
       - 'icon-art-v85.js'
-      - 'service-worker.js'
+      - 'share/**'
   workflow_dispatch:
 
 permissions:
@@ -16,27 +17,35 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 7
     steps:
       - name: Wait for GitHub Pages deploy
-        run: sleep 25
-      - name: Verify deployed clean share script
+        run: sleep 30
+      - name: Verify article-specific WhatsApp preview
         shell: bash
         run: |
           set -euo pipefail
-          curl -fsSL 'https://paibpsmart.github.io/home-share-v102.js?v=132' -o /tmp/share.js
-          curl -fsSL 'https://paibpsmart.github.io/icon-art-v85.js?v=132' -o /tmp/loader.js
-          curl -fsSL 'https://paibpsmart.github.io/service-worker.js?v=132' -o /tmp/sw.js
-          grep -F 'const SITE="https://paibpsmart.github.io/"' /tmp/share.js
-          grep -F 'const SHARE_WORKER="https://paibp-smart-share.sunarso29.workers.dev/"' /tmp/share.js
-          grep -F 'function shareUrl(id){const u=new URL("index.html",SITE)' /tmp/share.js
-          grep -F 'u.searchParams.set("news",String(id||""))' /tmp/share.js
-          grep -F 'u.searchParams.set("from","share")' /tmp/share.js
-          grep -F 'u.hash="kabar-spensus"' /tmp/share.js
-          grep -F 'addScript("home-share-v102.js","132")' /tmp/loader.js
-          grep -F 'paibp-smart-v132-share-domain-r1' /tmp/sw.js
-          if grep -F 'function shareUrl(id){const u=new URL(SHARE_WORKER)' /tmp/share.js; then
-            echo 'FAIL: public share URL still points to Worker'
-            exit 1
-          fi
-          echo 'PASS: public sharing uses https://paibpsmart.github.io/'
+          ID='a92311f1-9784-4b38-bd6b-f14b3cba3252'
+          SHARE="https://paibpsmart.github.io/share/${ID}.html"
+          IMAGE="https://paibp-smart-share.sunarso29.workers.dev/image?id=${ID}"
+          TITLE='Dari Sampah Menjadi Bernilai: Murid Kelas VIII SMP Negeri 1 Susukan Belajar Kelola Lingkungan melalui Bank Sampah'
+
+          curl -fsSL -A 'WhatsApp/2.24.0' "${SHARE}?v=133" -o /tmp/share.html
+          curl -fsSL 'https://paibpsmart.github.io/home-share-v133.js?v=133' -o /tmp/share.js
+          curl -fsSL 'https://paibpsmart.github.io/home-share-v102.js?v=133' -o /tmp/share-shim.js
+          curl -fsSL 'https://paibpsmart.github.io/icon-art-v85.js?v=133' -o /tmp/loader.js
+
+          grep -F "<meta property=\"og:title\" content=\"${TITLE}\">" /tmp/share.html
+          grep -F "<meta property=\"og:image\" content=\"${IMAGE}\">" /tmp/share.html
+          grep -F "https://paibpsmart.github.io/index.html?news=${ID}&amp;from=share#kabar-spensus" /tmp/share.html || grep -F "https://paibpsmart.github.io/index.html?news=${ID}&from=share#kabar-spensus" /tmp/share.html
+          grep -F 'function shareUrl(id){return new URL(`share/${encodeURIComponent(String(id||""))}.html`,SITE).toString()}' /tmp/share.js
+          grep -F "home-share-v133.js?v=133" /tmp/share-shim.js
+          grep -F 'addScript("home-share-v133.js","133")' /tmp/loader.js
+
+          curl -fsSL -A 'facebookexternalhit/1.1' "$IMAGE" -o /tmp/cover.bin
+          test -s /tmp/cover.bin
+          BYTES=$(wc -c < /tmp/cover.bin)
+          echo "Cover bytes: $BYTES"
+          test "$BYTES" -gt 5000
+
+          echo 'PASS: WhatsApp receives article title + article cover on paibpsmart.github.io share URL.'
