@@ -1,9 +1,9 @@
-const CACHE_NAME="paibp-smart-v123-root-domain-r1";
+const CACHE_NAME="paibp-smart-v132-share-domain-r1";
 const CORE=[
   "./","./index.html","./logo-spensus.png","./styles.css?v=37","./v37-final.css?v=37",
   "./app-config.js?v=85","./stable-v72.css?v=86","./mobile-fix-v70.css?v=86",
   "./visual-v86.css?v=86","./icon-v86.css?v=86","./ui-final-v105.css?v=109",
-  "./ui-final-v105.js?v=109","./icon-art-v85.js?v=123"
+  "./ui-final-v105.js?v=109","./icon-art-v85.js?v=132"
 ];
 
 self.addEventListener("install",event=>{
@@ -16,8 +16,6 @@ self.addEventListener("activate",event=>{
     const keys=await caches.keys();
     await Promise.all(keys.filter(key=>key!==CACHE_NAME&&!key.startsWith("paibp-quran-kemenag-")).map(key=>caches.delete(key)));
     await self.clients.claim();
-    // V122 sengaja TIDAK memanggil client.navigate().
-    // Aktivasi service worker tidak boleh memuat ulang halaman yang sedang dibuka.
   })());
 });
 
@@ -53,8 +51,6 @@ async function navigationInstant(event,request){
   const cache=await caches.open(CACHE_NAME);
   const hit=await cache.match(request)||await cache.match(request,{ignoreSearch:true})||await cache.match("./index.html");
   if(hit){
-    // Tampilkan cache seketika. Pembaruan jaringan berjalan di belakang layar,
-    // sehingga ikon loading browser tidak menunggu koneksi GitHub Pages.
     event.waitUntil(fetch(request,{cache:"no-store"}).then(response=>{
       if(response&&response.ok)return cache.put(request,response.clone());
     }).catch(()=>null));
