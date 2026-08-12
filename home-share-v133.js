@@ -1,3 +1,4 @@
+// V141 permanent public share host: https://paibpsmart.github.io/share/<id>/
 (()=>{
 "use strict";
 if(window.__SPENSUS_SHARE_V141__)return;window.__SPENSUS_SHARE_V141__=1;
