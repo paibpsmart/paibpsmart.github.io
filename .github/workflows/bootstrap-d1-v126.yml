@@ -1,4 +1,5 @@
 name: Bootstrap PAIBP D1 V126
+# rerun after D1 permission activation 2026-08-12
 
 on:
   push:
