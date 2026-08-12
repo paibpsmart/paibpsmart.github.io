@@ -1,0 +1,55 @@
+name: Apply V141 client bootstrap
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-bootstrap-v141.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-v141-client-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Pin homepage bootstrap to V141
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          old='icon-art-v85.js?v=138'
+          new='icon-art-v85.js?v=141'
+          if old in s:
+              s=s.replace(old,new)
+              p.write_text(s,encoding='utf-8')
+          elif new not in s:
+              raise SystemExit('Bootstrap script marker not found')
+          PY
+          grep -F 'icon-art-v85.js?v=141' index.html
+          ! grep -F 'icon-art-v85.js?v=138' index.html
+
+      - name: Commit bootstrap pin
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'V141 pin homepage share bootstrap'
+          git pull --rebase origin main
+          git push origin HEAD:main
