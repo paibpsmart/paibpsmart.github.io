@@ -19,12 +19,13 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v6
-      - name: Diagnose API and D1
+      - name: Diagnose API and D1 after legacy recovery attempt
         shell: bash
         run: |
           set -euo pipefail
           API='https://paibp-smart-api.sunarso29.workers.dev'
           ORIGIN='https://paibpsmart.github.io'
+          echo 'check=2026-08-12T20:36+07:00'
           curl -fsS "$API/?action=publicSnapshot" -H "Origin: $ORIGIN" -H 'Accept: application/json' > /tmp/snapshot.json
           echo '--- publicSnapshot summary ---'
           jq '{ok,version,database,newsCount:(.news|length),contentCount:(.content|keys|length),feedbackCount:(.feedback|length),news:(.news|map({id,title,date,isPublished,updatedAt})[:20])}' /tmp/snapshot.json
