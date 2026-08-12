@@ -1,5 +1,10 @@
-# V139: dynamic per-post Open Graph preview; no per-post static generation
+# V140: social preview reads the published post and cover directly from D1.
 name = "paibp-smart-share"
 main = "src/index.js"
 compatibility_date = "2026-08-11"
 workers_dev = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "paibp-smart-db"
+database_id = "f3d77f14-6e2d-4157-bac6-e6ed4ecfdb1b"
