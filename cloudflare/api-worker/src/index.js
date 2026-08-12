@@ -105,6 +105,7 @@ async function ensureDb(env) {
 
 function newsObject(row) {
   const payload = safeParse(row.payload_json, {}) || {};
+  for (const secretField of ["readKey","token","auth","authorization","apiKey","origin"]) delete payload[secretField];
   return {
     ...payload,
     id: row.id,
