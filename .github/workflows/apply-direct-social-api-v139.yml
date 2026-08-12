@@ -1,0 +1,107 @@
+name: Apply direct social preview API V139
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-direct-social-api-v139.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Add direct published-news endpoint to D1 API
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('cloudflare/api-worker/src/index.js');s=p.read_text(encoding='utf-8')
+          s=s.replace('const VERSION = "126-d1";','const VERSION = "139-social-preview";')
+          needle='public:"publicSnapshot", publicsnapshot:"publicSnapshot", stats:"publicSnapshot",'
+          if needle not in s: raise SystemExit('normalizeAction publicSnapshot mapping not found')
+          s=s.replace(needle,needle+'\n    publicnews:"publicNews", newspublic:"publicNews", newsbyid:"publicNews",')
+          marker='async function upsertContent(env, data) {'
+          if marker not in s: raise SystemExit('upsertContent marker not found')
+          fn=(
+          'async function publicNews(env, id) {\n'
+          '  const db = await ensureDb(env);\n'
+          '  const newsId = clean(id, 100);\n'
+          '  if (!newsId) return { ok:true, found:false, id:"" };\n'
+          '  const row = await db.prepare("SELECT * FROM news WHERE id=? AND is_published=1 LIMIT 1").bind(newsId).first();\n'
+          '  if (!row) return { ok:true, found:false, id:newsId };\n'
+          '  const manifestRow = await db.prepare("SELECT value_json FROM content WHERE key=? LIMIT 1").bind(`news:${newsId}`).first();\n'
+          '  const manifest = manifestRow ? decodeStoredValue(manifestRow.value_json) : null;\n'
+          '  const coverKey = clean(manifest?.coverKey || (Array.isArray(manifest?.photoKeys) ? manifest.photoKeys[0] : ""), 180);\n'
+          '  let cover = null;\n'
+          '  if (coverKey) {\n'
+          '    const coverRow = await db.prepare("SELECT value_json FROM content WHERE key=? LIMIT 1").bind(coverKey).first();\n'
+          '    if (coverRow) cover = decodeStoredValue(coverRow.value_json);\n'
+          '  }\n'
+          '  return { ok:true, found:true, news:newsObject(row), manifest, coverKey, cover };\n'
+          '}\n\n')
+          if 'async function publicNews(env, id)' not in s:s=s.replace(marker,fn+marker)
+          route='else if(action==="publicSnapshot") result=await publicSnapshot(env);'
+          if route not in s: raise SystemExit('publicSnapshot GET route not found')
+          s=s.replace(route,route+'\n        else if(action==="publicNews") result=await publicNews(env,params.id||params.newsId);')
+          p.write_text(s,encoding='utf-8')
+          PY
+
+      - name: Make share Worker use direct per-post API
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('cloudflare/share-worker/src/index.js');s=p.read_text(encoding='utf-8')
+          marker='async function snapshot(){'
+          if marker not in s: raise SystemExit('snapshot marker not found')
+          fn=(
+          'async function directPost(id){\n'
+          ' const u=new URL(API);u.searchParams.set("action","publicNews");u.searchParams.set("id",id);u.searchParams.set("_",Date.now().toString());\n'
+          ' const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),3500);\n'
+          ' try{\n'
+          '  const r=await fetch(u.toString(),{signal:ctl.signal,cf:{cacheTtl:0},headers:{Accept:"application/json",Origin:ALLOWED_ORIGIN,Referer:SITE}});\n'
+          '  if(!r.ok)throw new Error(`publicNews ${r.status}`);const j=await r.json();if(j?.ok!==true||j?.found!==true)throw new Error("published news not found");\n'
+          '  const n=j.news||{},m=unwrap(j.manifest)||{},cv=unwrap(j.cover);\n'
+          '  const cover=String((cv&&typeof cv==="object"?(cv.data||cv.src||cv.url||""):cv)||m.coverDataUrl||m.coverUrl||n.imageUrl||n.imageDataUrl||"");\n'
+          '  return{title:clean(m.title||n.title||"Berita SMP Negeri 1 Susukan",220),summary:clean(m.summary||n.summary||"Kabar terbaru SMP Negeri 1 Susukan",320),cover};\n'
+          ' }finally{clearTimeout(tm)}\n'
+          '}\n')
+          if 'async function directPost(id)' not in s:s=s.replace(marker,fn+marker)
+          pat=r'try\{const s=await snapshot\(\),p=findPost\(s,id\),cover=p\.cover;.*?\}catch\{\}'
+          rep='try{const p=await directPost(id),cover=p.cover;if(/^https?:\\/\\//i.test(cover)){const r=await fetch(cover,{headers:{Accept:"image/*"}});if(r.ok)return new Response(r.body,{headers:{"Content-Type":r.headers.get("Content-Type")||"image/jpeg","Cache-Control":"public,max-age=1800","Access-Control-Allow-Origin":"*"}})}const d=parseDataUri(cover);if(d)return new Response(d.body,{headers:{"Content-Type":d.mime,"Cache-Control":"public,max-age=1800","Access-Control-Allow-Origin":"*"}})}catch{}'
+          s,n=re.subn(pat,rep,s,count=1,flags=re.S)
+          if n!=1: raise SystemExit('imageResponse snapshot fallback not patched')
+          old='try{const s=await snapshot(),p=findPost(s,id);return htmlResponse(request,id,{title:p.title,description:p.summary,imageUrl:""})}catch{return htmlResponse(request,id,{title:"Berita SMP Negeri 1 Susukan",description:"Kabar terbaru SMP Negeri 1 Susukan",imageUrl:""})}'
+          new='try{const p=await directPost(id);return htmlResponse(request,id,{title:p.title,description:p.summary,imageUrl:""})}catch{return htmlResponse(request,id,{title:"Berita SMP Negeri 1 Susukan",description:"Kabar terbaru SMP Negeri 1 Susukan",imageUrl:""})}'
+          if old not in s: raise SystemExit('crawler snapshot lookup not found')
+          s=s.replace(old,new).replace('version:"124"','version:"139"')
+          p.write_text(s,encoding='utf-8')
+          PY
+
+      - name: Verify and commit V139 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F 'async function publicNews(env, id)' cloudflare/api-worker/src/index.js
+          grep -F 'action==="publicNews"' cloudflare/api-worker/src/index.js
+          grep -F 'async function directPost(id)' cloudflare/share-worker/src/index.js
+          grep -F 'searchParams.set("action","publicNews")' cloudflare/share-worker/src/index.js
+          git add cloudflare/api-worker/src/index.js cloudflare/share-worker/src/index.js
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if ! git diff --cached --quiet; then
+            git commit -m 'V139 direct D1 social preview endpoint'
+            git push origin HEAD:main
+          fi
