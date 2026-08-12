@@ -1,9 +1,9 @@
-const CACHE_NAME="paibp-smart-v138-server-truth-share-r1";
+const CACHE_NAME="paibp-smart-v141-github-pages-share-r1";
 const CORE=[
   "./","./index.html","./logo-spensus.png","./styles.css?v=37","./v37-final.css?v=37",
   "./app-config.js?v=85","./stable-v72.css?v=86","./mobile-fix-v70.css?v=86",
   "./visual-v86.css?v=86","./icon-v86.css?v=86","./ui-final-v105.css?v=109",
-  "./ui-final-v105.js?v=109","./icon-art-v85.js?v=138"
+  "./ui-final-v105.js?v=109","./icon-art-v85.js?v=141"
 ];
 
 self.addEventListener("install",event=>{
