@@ -1,12 +1,12 @@
 (()=>{
 "use strict";
-if(window.__SPENSUS_SHARE_V133__)return;window.__SPENSUS_SHARE_V133__=1;
+if(window.__SPENSUS_SHARE_V134__)return;window.__SPENSUS_SHARE_V134__=1;
 const SITE="https://paibpsmart.github.io/";
 const SHARE_WORKER="https://paibp-smart-share.sunarso29.workers.dev/";
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 let active=null,restoreY=0,registered=new Set();
 const enc=v=>encodeURIComponent(String(v||""));
-function shareUrl(id){return new URL(`share/${encodeURIComponent(String(id||""))}.html`,SITE).toString()}
+function shareUrl(id){const u=new URL(`share/${encodeURIComponent(String(id||""))}.html`,SITE);u.searchParams.set("v","134");return u.toString()}
 function dataFromPost(post){if(!post)return null;const id=post.dataset.post||"",title=$(".ig-title",post)?.textContent?.trim()||"Berita SMP Negeri 1 Susukan",body=$(".ig-body",post)?.textContent?.trim().replace(/\s+/g," ")||"",summary=body.slice(0,260),cover=$(".ig-track .ig-slide img",post)?.src||$(".ig-carousel img",post)?.src||"";return{id,title,description:summary,text:summary.slice(0,190),image:cover,url:shareUrl(id)}}
 function dataFrom(btn){return dataFromPost(btn.closest("[data-post]"))}
 async function register(d,force=false){if(!d?.id)return false;if(registered.has(d.id)&&!force)return true;try{const r=await fetch(`${SHARE_WORKER}register`,{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({id:d.id,title:d.title,description:d.description,image:d.image})});const j=await r.json().catch(()=>({}));if(r.ok&&j?.ok){registered.add(d.id);return true}}catch{}return false}
