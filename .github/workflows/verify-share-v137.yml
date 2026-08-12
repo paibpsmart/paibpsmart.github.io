@@ -1,0 +1,62 @@
+name: Verify V137 social preview end-to-end
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-share-v137.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Wait for Pages propagation
+        run: sleep 20
+
+      - name: Verify realtime Worker preview and actual cover
+        shell: bash
+        run: |
+          set -euo pipefail
+          ID='c3c165f0-f772-4071-ac54-2fcece466e1e'
+          WORKER="https://paibp-smart-share.sunarso29.workers.dev"
+          PAGE="${WORKER}/?id=${ID}"
+          IMAGE="${WORKER}/image?id=${ID}"
+
+          curl -fsS -A 'WhatsApp/2.24.0' "$PAGE" -o /tmp/worker.html
+          grep -F 'property="og:type" content="article"' /tmp/worker.html
+          grep -F 'property="og:image"' /tmp/worker.html
+          grep -F 'Harlah Ke-37' /tmp/worker.html
+
+          CODE="$(curl -sS -A 'WhatsApp/2.24.0' -o /tmp/cover.bin -w '%{http_code}' "$IMAGE")"
+          test "$CODE" = '200'
+          test "$(wc -c < /tmp/cover.bin)" -gt 5000
+          file /tmp/cover.bin | grep -Ei 'image|jpeg|png|webp'
+          echo "Worker cover bytes: $(wc -c < /tmp/cover.bin)"
+
+      - name: Verify repaired legacy share URL and V137 loader live
+        shell: bash
+        run: |
+          set -euo pipefail
+          ID='c3c165f0-f772-4071-ac54-2fcece466e1e'
+          LEGACY="https://paibpsmart.github.io/share-v136/${ID}.html?verify=137"
+          INDEX='https://paibpsmart.github.io/index.html?published=1&v=137'
+
+          curl -fsS -A 'WhatsApp/2.24.0' "$LEGACY" -o /tmp/legacy.html
+          grep -F 'Harlah Ke-37' /tmp/legacy.html
+          grep -F 'property="og:image"' /tmp/legacy.html
+          grep -F 'paibp-smart-share.sunarso29.workers.dev/image?id=' /tmp/legacy.html
+
+          curl -fsS "$INDEX" -o /tmp/index.html
+          grep -F 'icon-art-v85.js?v=137' /tmp/index.html
+          curl -fsS 'https://paibpsmart.github.io/home-share-v133.js?v=137' -o /tmp/share.js
+          grep -F 'new URL(`?id=${encodeURIComponent(String(id||""))}`,SHARE_WORKER)' /tmp/share.js
+          if grep -F 'share-v136/${encodeURIComponent(String(id||""))}.html' /tmp/share.js; then
+            echo 'ERROR: old asynchronous static share path is still live' >&2
+            exit 1
+          fi
+          echo 'PASS: live site now uses realtime Worker sharing and legacy Harlah URL has OG image.'
