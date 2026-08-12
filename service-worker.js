@@ -1,10 +1,114 @@
-const CACHE_NAME="paibp-smart-v119-share-preview-r1";
-const CORE=["./","./index.html","./logo-spensus.png","./styles.css?v=37","./v37-final.css?v=37","./visual-v85.css?v=85","./icon-guard-v84.css?v=109","./icon-art-v85.js?v=119"];
-self.addEventListener("install",event=>{self.skipWaiting();event.waitUntil(caches.open(CACHE_NAME).then(cache=>Promise.allSettled(CORE.map(url=>cache.add(url)))))});
-self.addEventListener("activate",event=>{event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(key=>key!==CACHE_NAME&&!key.startsWith("paibp-quran-kemenag-")).map(key=>caches.delete(key)));await self.clients.claim();const clients=await self.clients.matchAll({type:"window"});for(const client of clients){try{const u=new URL(client.url);if(u.origin===self.location.origin&&u.searchParams.get("ui")!=="119"){u.searchParams.set("ui","119");await client.navigate(u.href)}}catch{}}})())});
-async function fetchWithTimeout(request,ms){const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),ms);try{return await fetch(request,{cache:"no-store",signal:ctl.signal})}finally{clearTimeout(timer)}}
-async function networkFirst(request,ms=1400){const cache=await caches.open(CACHE_NAME);try{const response=await fetchWithTimeout(request,ms);if(response&&response.ok)cache.put(request,response.clone());return response}catch{return await cache.match(request)||await cache.match(request,{ignoreSearch:true})||fetch(request)}}
-async function staleWhileRevalidate(request){const cache=await caches.open(CACHE_NAME),hit=await cache.match(request)||await cache.match(request,{ignoreSearch:true});const update=fetch(request,{cache:"no-store"}).then(response=>{if(response&&response.ok)cache.put(request,response.clone());return response}).catch(()=>null);return hit||await update||Response.error()}
-async function navigationFast(request){const cache=await caches.open(CACHE_NAME),hit=await cache.match(request)||await cache.match(request,{ignoreSearch:true});if(!hit){const fresh=await fetch(request,{cache:"no-store"});if(fresh&&fresh.ok)cache.put(request,fresh.clone());return fresh}try{const fresh=await fetchWithTimeout(request,500);if(fresh&&fresh.ok){cache.put(request,fresh.clone());return fresh}}catch{}return hit}
-async function cacheFirst(request){const cache=await caches.open(CACHE_NAME),hit=await cache.match(request)||await cache.match(request,{ignoreSearch:true});if(hit)return hit;try{const response=await fetch(request,{cache:"no-store"});if(response&&response.ok)cache.put(request,response.clone());return response}catch{return Response.error()}}
-self.addEventListener("fetch",event=>{const request=event.request;if(request.method!=="GET")return;const url=new URL(request.url);if(url.origin!==self.location.origin)return;if(request.destination==="video"||request.destination==="audio"||request.headers.has("range"))return;if(request.mode==="navigate"||request.destination==="document"){if(url.pathname.endsWith("/editor-berita.html")||url.pathname.endsWith("/kendali-editor.html")){event.respondWith(networkFirst(request,1000));return}event.respondWith(navigationFast(request));return}const critical=["/home-news-media-v111.js","/home-share-v102.js","/news-attachments-v113.js","/news-attachments-v113.css","/news-publish-direct-v114.js","/cloudinary-media-config-v113.js","/news-editor-chunked-v102.js","/editor-berita.html","/icon-art-v85.js","/service-worker.js"];if(critical.some(p=>url.pathname.endsWith(p))){event.respondWith(networkFirst(request,850));return}if(request.destination==="style"||request.destination==="script"){event.respondWith(staleWhileRevalidate(request));return}if(request.destination==="image"||request.destination==="font"){event.respondWith(cacheFirst(request));return}event.respondWith(staleWhileRevalidate(request))});
+const CACHE_NAME="paibp-smart-v122-fast-open-r1";
+const CORE=[
+  "./","./index.html","./logo-spensus.png","./styles.css?v=37","./v37-final.css?v=37",
+  "./app-config.js?v=85","./stable-v72.css?v=86","./mobile-fix-v70.css?v=86",
+  "./visual-v86.css?v=86","./icon-v86.css?v=86","./ui-final-v105.css?v=109",
+  "./ui-final-v105.js?v=109","./icon-art-v85.js?v=122"
+];
+
+self.addEventListener("install",event=>{
+  self.skipWaiting();
+  event.waitUntil(caches.open(CACHE_NAME).then(cache=>Promise.allSettled(CORE.map(url=>cache.add(url)))));
+});
+
+self.addEventListener("activate",event=>{
+  event.waitUntil((async()=>{
+    const keys=await caches.keys();
+    await Promise.all(keys.filter(key=>key!==CACHE_NAME&&!key.startsWith("paibp-quran-kemenag-")).map(key=>caches.delete(key)));
+    await self.clients.claim();
+    // V122 sengaja TIDAK memanggil client.navigate().
+    // Aktivasi service worker tidak boleh memuat ulang halaman yang sedang dibuka.
+  })());
+});
+
+async function fetchWithTimeout(request,ms){
+  const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),ms);
+  try{return await fetch(request,{cache:"no-store",signal:ctl.signal})}
+  finally{clearTimeout(timer)}
+}
+
+async function networkFirst(request,ms=900){
+  const cache=await caches.open(CACHE_NAME);
+  try{
+    const response=await fetchWithTimeout(request,ms);
+    if(response&&response.ok)cache.put(request,response.clone());
+    return response;
+  }catch{
+    return await cache.match(request)||await cache.match(request,{ignoreSearch:true})||fetch(request);
+  }
+}
+
+async function staleWhileRevalidate(event,request){
+  const cache=await caches.open(CACHE_NAME);
+  const hit=await cache.match(request)||await cache.match(request,{ignoreSearch:true});
+  const update=fetch(request,{cache:"no-store"}).then(response=>{
+    if(response&&response.ok)cache.put(request,response.clone());
+    return response;
+  }).catch(()=>null);
+  if(event&&hit)event.waitUntil(update);
+  return hit||await update||Response.error();
+}
+
+async function navigationInstant(event,request){
+  const cache=await caches.open(CACHE_NAME);
+  const hit=await cache.match(request)||await cache.match(request,{ignoreSearch:true})||await cache.match("./index.html");
+  if(hit){
+    // Tampilkan cache seketika. Pembaruan jaringan berjalan di belakang layar,
+    // sehingga ikon loading browser tidak menunggu koneksi GitHub Pages.
+    event.waitUntil(fetch(request,{cache:"no-store"}).then(response=>{
+      if(response&&response.ok)return cache.put(request,response.clone());
+    }).catch(()=>null));
+    return hit;
+  }
+  const fresh=await fetch(request,{cache:"no-store"});
+  if(fresh&&fresh.ok)cache.put(request,fresh.clone());
+  return fresh;
+}
+
+async function cacheFirst(request){
+  const cache=await caches.open(CACHE_NAME);
+  const hit=await cache.match(request)||await cache.match(request,{ignoreSearch:true});
+  if(hit)return hit;
+  try{
+    const response=await fetch(request,{cache:"no-store"});
+    if(response&&response.ok)cache.put(request,response.clone());
+    return response;
+  }catch{return Response.error()}
+}
+
+self.addEventListener("fetch",event=>{
+  const request=event.request;
+  if(request.method!=="GET")return;
+  const url=new URL(request.url);
+  if(url.origin!==self.location.origin)return;
+  if(request.destination==="video"||request.destination==="audio"||request.headers.has("range"))return;
+
+  if(request.mode==="navigate"||request.destination==="document"){
+    if(url.pathname.endsWith("/editor-berita.html")||url.pathname.endsWith("/kendali-editor.html")){
+      event.respondWith(networkFirst(request,900));
+      return;
+    }
+    event.respondWith(navigationInstant(event,request));
+    return;
+  }
+
+  const critical=[
+    "/app-config.js","/ui-final-v105.js","/icon-art-v85.js","/service-worker.js",
+    "/home-news-media-v111.js","/home-share-v102.js","/news-attachments-v113.js",
+    "/news-attachments-v113.css","/news-publish-direct-v114.js","/cloudinary-media-config-v113.js",
+    "/news-editor-chunked-v102.js","/editor-berita.html"
+  ];
+  if(critical.some(p=>url.pathname.endsWith(p))){
+    event.respondWith(networkFirst(request,700));
+    return;
+  }
+  if(request.destination==="style"||request.destination==="script"){
+    event.respondWith(staleWhileRevalidate(event,request));
+    return;
+  }
+  if(request.destination==="image"||request.destination==="font"){
+    event.respondWith(cacheFirst(request));
+    return;
+  }
+  event.respondWith(staleWhileRevalidate(event,request));
+});
