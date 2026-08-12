@@ -1,4 +1,4 @@
-name: Verify live Pages and API CORS V124
+name: Verify live Pages and API CORS V125
 
 on:
   push:
