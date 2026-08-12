@@ -1,0 +1,4 @@
+name = "paibp-smart-api"
+main = "src/index.js"
+compatibility_date = "2026-08-12"
+workers_dev = true
