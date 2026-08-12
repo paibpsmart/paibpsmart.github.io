@@ -1,0 +1,121 @@
+name: Migrate public root domain V123
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/migrate-root-domain-v123.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Replace old Pages URL with organization root URL
+        shell: python
+        run: |
+          from pathlib import Path
+          import subprocess
+
+          OLD_BASE = 'https://sunarso29.github.io/paibp-smart/'
+          OLD_BASE_NO_SLASH = 'https://sunarso29.github.io/paibp-smart'
+          NEW_BASE = 'https://paibpsmart.github.io/'
+          NEW_BASE_NO_SLASH = 'https://paibpsmart.github.io'
+
+          files = subprocess.check_output(['git','ls-files','-z']).decode().split('\0')
+          changed = []
+          for name in files:
+              if not name:
+                  continue
+              p = Path(name)
+              try:
+                  raw = p.read_bytes()
+              except OSError:
+                  continue
+              if b'\x00' in raw:
+                  continue
+              try:
+                  text = raw.decode('utf-8')
+              except UnicodeDecodeError:
+                  continue
+              old = text
+
+              # Seluruh URL absolut situs lama menjadi root Pages organisasi baru.
+              text = text.replace(OLD_BASE, NEW_BASE)
+              text = text.replace(OLD_BASE_NO_SLASH, NEW_BASE_NO_SLASH)
+
+              # Origin CORS yang ditulis sebagai nilai literal tepat.
+              text = text.replace('"https://sunarso29.github.io"', '"https://paibpsmart.github.io"')
+              text = text.replace("'https://sunarso29.github.io'", "'https://paibpsmart.github.io'")
+
+              # Host pemeriksaan share di browser.
+              text = text.replace('"sunarso29.github.io"', '"paibpsmart.github.io"')
+              text = text.replace("'sunarso29.github.io'", "'paibpsmart.github.io'")
+
+              # Halaman 404 dahulu berada di project-site /paibp-smart/; kini root user/org-site.
+              if name == '404.html':
+                  text = text.replace('/paibp-smart/', '/')
+
+              # Putus cache/loader lama setelah migrasi domain.
+              if name == 'service-worker.js':
+                  text = text.replace('paibp-smart-v122-fast-open-r1', 'paibp-smart-v123-root-domain-r1')
+                  text = text.replace('icon-art-v85.js?v=122', 'icon-art-v85.js?v=123')
+              if name == 'icon-art-v85.js':
+                  text = text.replace('service-worker.js?v=122', 'service-worker.js?v=123')
+                  text = text.replace('home-share-v102.js","119"', 'home-share-v102.js","123"')
+              if name == 'index.html':
+                  text = text.replace('icon-art-v85.js?v=85', 'icon-art-v85.js?v=123')
+
+              # Penanda versi Worker share.
+              if name == 'cloudflare/share-worker/src/index.js':
+                  text = text.replace('version:"121"', 'version:"123"')
+                  text = text.replace('PAIBP-SMART-Share/121', 'PAIBP-SMART-Share/123')
+
+              if text != old:
+                  p.write_text(text, encoding='utf-8', newline='')
+                  changed.append(name)
+
+          report = Path('MIGRATION-V123-ROOT-DOMAIN.txt')
+          report.write_text(
+              'PAIBP SMART V123 ROOT DOMAIN MIGRATION\n'
+              'Old: https://sunarso29.github.io/paibp-smart/\n'
+              'New: https://paibpsmart.github.io/\n'
+              f'Files changed by migration: {len(changed)}\n' + '\n'.join(changed) + '\n',
+              encoding='utf-8'
+          )
+          print(f'Changed {len(changed)} tracked text files')
+          for item in changed:
+              print(item)
+
+      - name: Verify old public URL is gone from tracked text
+        shell: bash
+        run: |
+          set -e
+          if git grep -n -I -F 'https://sunarso29.github.io/paibp-smart' -- . ':!MIGRATION-V123-ROOT-DOMAIN.txt'; then
+            echo 'Old absolute site URL still found.' >&2
+            exit 1
+          fi
+          echo 'Old absolute site URL no longer appears in tracked text.'
+
+      - name: Commit migration
+        shell: bash
+        run: |
+          set -e
+          git config user.name 'PAIBP SMART Migration'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'No migration changes required.'
+            exit 0
+          fi
+          git commit -m 'V123 migrasi penuh ke paibpsmart.github.io'
+          git push origin HEAD:main
