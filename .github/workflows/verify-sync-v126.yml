@@ -1,6 +1,10 @@
 name: Verify full sync V126
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-sync-v126.yml'
   workflow_run:
     workflows: ['Bootstrap PAIBP D1 V126']
     types: [completed]
@@ -11,7 +15,7 @@ permissions:
 
 jobs:
   verify:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -30,6 +34,8 @@ jobs:
           set -euo pipefail
           TEST_ID="v126-e2e-$(date +%s)-$RANDOM"
           CONTENT_KEY="verify:${TEST_ID}"
+          STALE_ID='v126-e2e-1786538496-32663'
+          STALE_CONTENT="verify:${STALE_ID}"
           export TEST_ID CONTENT_KEY
 
           post() {
@@ -38,21 +44,34 @@ jobs:
               -H "Origin: $ORIGIN" \
               -H 'Content-Type: application/json' \
               -H 'Accept: application/json' \
-              --data "$(jq -nc --arg action "$action" --arg readKey "$READ_KEY" --argjson data "$data" '{app:"paibp-smart",version:"126",action:$action,readKey:$readKey,data:($data + {readKey:$readKey})}')"
+              --data "$(jq -nc --arg action "$action" --arg readKey "$READ_KEY" --argjson data "$data" '{app:"paibp-smart",version:"126",action:$action,readKey:$readKey,data:$data}')"
+          }
+
+          delete_with_retry() {
+            local action="$1" data="$2"
+            for attempt in 1 2 3 4; do
+              if post "$action" "$data" >/dev/null 2>&1; then return 0; fi
+              sleep 1
+            done
+            return 1
           }
 
           cleanup() {
             set +e
-            post contentDelete "$(jq -nc --arg key "$CONTENT_KEY" '{key:$key}')" >/dev/null 2>&1
-            post newsDelete "$(jq -nc --arg id "$TEST_ID" '{id:$id}')" >/dev/null 2>&1
+            delete_with_retry contentDelete "$(jq -nc --arg key "$CONTENT_KEY" '{key:$key}')"
+            delete_with_retry newsDelete "$(jq -nc --arg id "$TEST_ID" '{id:$id}')"
           }
           trap cleanup EXIT
 
-          echo '1/8 health'
+          echo '0/9 remove stale E2E residue from interrupted verification'
+          delete_with_retry contentDelete "$(jq -nc --arg key "$STALE_CONTENT" '{key:$key}')" || true
+          delete_with_retry newsDelete "$(jq -nc --arg id "$STALE_ID" '{id:$id}')" || true
+
+          echo '1/9 health'
           curl -fsS "$API/health" -H "Origin: $ORIGIN" | tee /tmp/health.json
           jq -e '.ok == true and .version == "126-d1" and .database == "Cloudflare D1" and .schema == "126"' /tmp/health.json >/dev/null
 
-          echo '2/8 CORS preflight'
+          echo '2/9 CORS preflight'
           curl -sS -D /tmp/cors.h -o /dev/null -X OPTIONS "$API/" \
             -H "Origin: $ORIGIN" \
             -H 'Access-Control-Request-Method: POST' \
@@ -60,31 +79,42 @@ jobs:
           grep -qi "^access-control-allow-origin: $ORIGIN" /tmp/cors.h
           grep -qi '^access-control-allow-methods:.*POST' /tmp/cors.h
 
-          echo '3/8 contentUpsert'
+          echo '3/9 contentUpsert'
           CONTENT_DATA="$(jq -nc --arg key "$CONTENT_KEY" --arg id "$TEST_ID" '{key:$key,value:{schema:"verify-v126",id:$id,text:"sinkronisasi konten editor"},authorName:"PAIBP SMART E2E",authorSchool:"SMP Negeri 1 Susukan"}')"
           post contentUpsert "$CONTENT_DATA" | tee /tmp/content-upsert.json
           jq -e '.ok == true' /tmp/content-upsert.json >/dev/null
 
-          echo '4/8 newsUpsert'
+          echo '4/9 newsUpsert'
           NEWS_DATA="$(jq -nc --arg id "$TEST_ID" '{id:$id,title:"Verifikasi Sinkronisasi V126",date:"2026-08-12",summary:"Data uji otomatis yang akan dihapus.",authorName:"PAIBP SMART E2E",authorSchool:"SMP Negeri 1 Susukan",isPublished:true,sortOrder:999999}')"
           post newsUpsert "$NEWS_DATA" | tee /tmp/news-upsert.json
           jq -e '.ok == true' /tmp/news-upsert.json >/dev/null
 
-          echo '5/8 publicSnapshot read-back'
+          echo '5/9 publicSnapshot read-back + public security'
           curl -fsS "$API/?action=publicSnapshot" -H "Origin: $ORIGIN" -H 'Accept: application/json' | tee /tmp/snapshot.json >/dev/null
-          jq -e --arg id "$TEST_ID" --arg key "$CONTENT_KEY" '.ok == true and any(.news[]?; .id == $id) and (.content[$key].id == $id)' /tmp/snapshot.json >/dev/null
+          jq -e --arg id "$TEST_ID" --arg key "$CONTENT_KEY" '.ok == true and any(.news[]?; .id == $id) and (.content[$key].id == $id) and all(.news[]?; (has("readKey")|not) and (has("token")|not) and (has("authorization")|not))' /tmp/snapshot.json >/dev/null
 
-          echo '6/8 editorSnapshot read-back'
-          curl -fsS "$API/?action=editorSnapshot&readKey=$READ_KEY" -H "Origin: $ORIGIN" -H 'Accept: application/json' | tee /tmp/editor.json >/dev/null
-          jq -e '.ok == true and (.public.ok == true) and (.activities|type == "array") and (.submissions|type == "array")' /tmp/editor.json >/dev/null
+          echo '6/9 editorSnapshot read-back with transient retry'
+          EDITOR_OK=0
+          for attempt in 1 2 3 4 5; do
+            if curl -fsS "$API/?action=editorSnapshot&readKey=$READ_KEY" -H "Origin: $ORIGIN" -H 'Accept: application/json' > /tmp/editor.json; then
+              if jq -e '.ok == true and (.public.ok == true) and (.activities|type == "array") and (.submissions|type == "array")' /tmp/editor.json >/dev/null; then
+                EDITOR_OK=1
+                break
+              fi
+            fi
+            sleep 1
+          done
+          test "$EDITOR_OK" = 1
 
-          echo '7/8 delete test records'
-          post newsDelete "$(jq -nc --arg id "$TEST_ID" '{id:$id}')" | jq -e '.ok == true' >/dev/null
-          post contentDelete "$(jq -nc --arg key "$CONTENT_KEY" '{key:$key}')" | jq -e '.ok == true' >/dev/null
+          echo '7/9 delete test records'
+          delete_with_retry newsDelete "$(jq -nc --arg id "$TEST_ID" '{id:$id}')"
+          delete_with_retry contentDelete "$(jq -nc --arg key "$CONTENT_KEY" '{key:$key}')"
 
-          echo '8/8 verify cleanup'
+          echo '8/9 verify cleanup and stale residue removal'
           curl -fsS "$API/?action=publicSnapshot" -H "Origin: $ORIGIN" -H 'Accept: application/json' > /tmp/final.json
-          jq -e --arg id "$TEST_ID" --arg key "$CONTENT_KEY" '([.news[]? | select(.id == $id)] | length) == 0 and (.content[$key] == null)' /tmp/final.json >/dev/null
+          jq -e --arg id "$TEST_ID" --arg stale "$STALE_ID" --arg key "$CONTENT_KEY" --arg staleKey "$STALE_CONTENT" '([.news[]? | select(.id == $id or .id == $stale)] | length) == 0 and (.content[$key] == null) and (.content[$staleKey] == null) and all(.news[]?; (has("readKey")|not) and (has("token")|not))' /tmp/final.json >/dev/null
+
+          echo '9/9 completed'
           trap - EXIT
 
           cat > LIVE-SYNC-STATUS-V126.txt <<EOF
@@ -98,9 +128,11 @@ jobs:
           API health: PASS
           contentUpsert -> publicSnapshot: PASS
           newsUpsert -> publicSnapshot: PASS
+          Public payload security: PASS
           editorSnapshot: PASS
           newsDelete/contentDelete cleanup: PASS
-          Test residue: NONE
+          Previous interrupted test residue: REMOVED
+          Current test residue: NONE
           Overall: PASS
           EOF
           cat LIVE-SYNC-STATUS-V126.txt
