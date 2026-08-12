@@ -1,0 +1,67 @@
+name: Audit API actions V126
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-api-actions-v126.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+      - name: Scan API action usage
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          endpoint = 'paibp-smart-api.sunarso29.workers.dev'
+          action_patterns = [
+              re.compile(r'''\baction\s*[:=]\s*["']([^"']+)["']''', re.I),
+              re.compile(r'''searchParams\.set\(\s*["']action["']\s*,\s*["']([^"']+)["']\s*\)''', re.I),
+              re.compile(r'''\bpost\(\s*["']([^"']+)["']\s*,''', re.I),
+              re.compile(r'''\brequest\(\s*["']([^"']+)["']\s*,''', re.I),
+          ]
+          interesting_ext = {'.js','.html','.mjs','.cjs','.ts','.json'}
+          rows=[]
+          actions={}
+          for p in Path('.').rglob('*'):
+              if not p.is_file() or '.git' in p.parts or p.suffix.lower() not in interesting_ext:
+                  continue
+              try: text=p.read_text(encoding='utf-8')
+              except Exception: continue
+              if endpoint not in text and 'syncEndpoint' not in text and 'publicSnapshot' not in text and 'contentUpsert' not in text and 'newsUpsert' not in text:
+                  continue
+              for no,line in enumerate(text.splitlines(),1):
+                  found=[]
+                  for pat in action_patterns:
+                      found += pat.findall(line)
+                  if found or endpoint in line or 'syncEndpoint' in line:
+                      compact=' '.join(line.strip().split())[:900]
+                      rows.append(f'{p}:{no}: {compact}')
+                      for a in found:
+                          actions.setdefault(a,set()).add(str(p))
+          out=['PAIBP SMART API ACTION AUDIT V126','', 'ACTIONS:']
+          for a in sorted(actions, key=str.lower):
+              out.append(f'- {a}: ' + ', '.join(sorted(actions[a])))
+          out += ['', 'MATCHED LINES:'] + rows
+          Path('API-ACTIONS-AUDIT-V126.txt').write_text('\n'.join(out)+'\n',encoding='utf-8')
+          print('\n'.join(out[:250]))
+      - name: Commit report
+        shell: bash
+        run: |
+          git config user.name 'PAIBP SMART Audit'
+          git config user.email 'actions@users.noreply.github.com'
+          git add API-ACTIONS-AUDIT-V126.txt
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'V126 catat kontrak API aktif'
+          git push origin HEAD:main
