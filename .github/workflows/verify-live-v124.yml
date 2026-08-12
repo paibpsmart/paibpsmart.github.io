@@ -1,0 +1,80 @@
+name: Verify live Pages and API CORS V124
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-live-v124.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify GitHub Pages root
+        shell: bash
+        run: |
+          set -euo pipefail
+          SITE='https://paibpsmart.github.io/'
+          echo "Testing $SITE"
+          code="$(curl -L -sS -o /tmp/site.html -w '%{http_code}' "$SITE")"
+          final="$(curl -L -sS -o /dev/null -w '%{url_effective}' "$SITE")"
+          echo "HTTP=$code"
+          echo "FINAL_URL=$final"
+          test "$code" = '200'
+          test "$final" = "$SITE"
+          grep -qi '<html\|<!doctype' /tmp/site.html
+          echo 'PAGES_ROOT_OK=true'
+
+      - name: Verify API Worker CORS preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          API='https://paibp-smart-api.sunarso29.workers.dev/'
+          ORIGIN='https://paibpsmart.github.io'
+          echo "Testing preflight $API from $ORIGIN"
+          curl -sS -D /tmp/cors.headers -o /dev/null -X OPTIONS "$API" \
+            -H "Origin: $ORIGIN" \
+            -H 'Access-Control-Request-Method: GET' \
+            -H 'Access-Control-Request-Headers: Content-Type,Accept'
+          cat /tmp/cors.headers
+          status="$(awk 'toupper($1) ~ /^HTTP\// {s=$2} END{print s}' /tmp/cors.headers | tr -d '\r')"
+          allow_origin="$(awk 'BEGIN{IGNORECASE=1} /^access-control-allow-origin:/ {sub(/^[^:]+:[[:space:]]*/,""); gsub(/\r/,""); print; exit}' /tmp/cors.headers)"
+          allow_methods="$(awk 'BEGIN{IGNORECASE=1} /^access-control-allow-methods:/ {sub(/^[^:]+:[[:space:]]*/,""); gsub(/\r/,""); print; exit}' /tmp/cors.headers)"
+          echo "STATUS=$status"
+          echo "ALLOW_ORIGIN=$allow_origin"
+          echo "ALLOW_METHODS=$allow_methods"
+          test "$status" = '204'
+          test "$allow_origin" = "$ORIGIN"
+          echo "$allow_methods" | grep -qi 'GET'
+          echo 'API_CORS_PREFLIGHT_OK=true'
+
+      - name: Verify API Worker GET from new origin
+        shell: bash
+        run: |
+          set -euo pipefail
+          API='https://paibp-smart-api.sunarso29.workers.dev/?action=publicSnapshot'
+          ORIGIN='https://paibpsmart.github.io'
+          curl -sS -D /tmp/get.headers -o /tmp/get.body "$API" \
+            -H "Origin: $ORIGIN" \
+            -H 'Accept: application/json'
+          cat /tmp/get.headers
+          code="$(awk 'toupper($1) ~ /^HTTP\// {s=$2} END{print s}' /tmp/get.headers | tr -d '\r')"
+          allow_origin="$(awk 'BEGIN{IGNORECASE=1} /^access-control-allow-origin:/ {sub(/^[^:]+:[[:space:]]*/,""); gsub(/\r/,""); print; exit}' /tmp/get.headers)"
+          echo "HTTP=$code"
+          echo "ALLOW_ORIGIN=$allow_origin"
+          head -c 500 /tmp/get.body || true
+          echo
+          test "$code" = '200'
+          test "$allow_origin" = "$ORIGIN"
+          python - <<'PY'
+          import json
+          with open('/tmp/get.body', encoding='utf-8') as f:
+              json.load(f)
+          print('API_GET_JSON_OK=true')
+          PY
+          echo 'API_GET_CORS_OK=true'
