@@ -1,0 +1,196 @@
+PAIBP SMART API ACTION AUDIT V126
+
+ACTIONS:
+- activity: final-ui-v51.js, learning-guard-v44.js, realtime-v55.js, realtime-v56.js
+- aiChat: spensus-ai.js
+- cat-expired-v60: cat-session-v60.js
+- cat-page-hidden-v60: cat-session-v60.js
+- cat-page-hidden-v61: cat-session-v61.js
+- cat-page-hidden-v63: cat-session-v63.js
+- cat-released-v60: cat-session-v60.js
+- cat-start-v60: cat-session-v60.js
+- cat-start-v61: cat-session-v61.js
+- cat-start-v63: cat-session-v63.js
+- classListV66: stability-v70.js
+- contentUpsert: final-ui-v52.js, final-ui-v57.js, home-news-v102.js, learning-guard-v44.js, learning-guard-v46-fix.js, learning-guard-v47.js, learning-guard-v48.js, news-editor-chunked-v102.js, news-editor-v101.js
+- delete: news-editor-v100.js
+- duration: realtime-v43.js
+- fasting: final-ui-v51.js
+- gallery: news-editor-v100.js
+- guru-login: realtime-v43.js
+- hajj: final-ui-v51.js
+- health: spensus-ai-v55.js, spensus-ai-v56.js, spensus-ai.js, uji-server-v63.html
+- jamaah: final-ui-v51.js
+- location-consented: realtime-v43.js
+- newsDelete: news-editor-v101.js
+- newsListV96: news-editor-v96.js
+- newsUpsert: news-editor-chunked-v102.js, news-editor-v101.js
+- open: realtime-v43.js
+- prayer-itidal: final-ui-v51.js
+- prayer-qiyam: final-ui-v51.js
+- prayer-ruku: final-ui-v51.js
+- prayer-salam: final-ui-v51.js
+- prayer-sit: final-ui-v51.js
+- prayer-sujud: final-ui-v51.js
+- prayer-takbir: final-ui-v51.js
+- prayer-tasyahud: final-ui-v51.js
+- publicSnapshot: cloudflare/share-worker/src/index.js, home-news-media-v111.js, home-news-v102.js, learning-guard-v44.js, learning-guard-v47.js, learning-guard-v48.js, news-attachments-v112.js, news-attachments-v113.js, news-editor-chunked-v102.js, news-editor-v99.js
+- qurban: final-ui-v51.js
+- save: news-editor-v100.js
+- session-start: final-ui-v51.js, realtime-v43.js
+- setupInfo: spensus-ai-v55.js, spensus-ai-v56.js, spensus-ai.js
+- tayamum: final-ui-v51.js
+- view: realtime-v54.js
+- wudhu-arms: final-ui-v51.js
+- wudhu-doa: final-ui-v51.js
+- wudhu-face: final-ui-v51.js
+- wudhu-feet: final-ui-v51.js
+- wudhu-hands: final-ui-v51.js
+- wudhu-head: final-ui-v51.js
+- wudhu-mouth: final-ui-v51.js
+- wudhu-niat: final-ui-v51.js
+- zakat: final-ui-v51.js
+
+MATCHED LINES:
+realtime-v56.js:6: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+realtime-v56.js:140: const queue = queueRead(); queue.push({action:"activity", data}); queueWrite(queue);
+realtime-v56.js:143: const queue = queueRead(); queue.push({action:"activity", data}); queueWrite(queue);
+app-config.js:2: syncEndpoint: "https://paibp-smart-api.sunarso29.workers.dev",
+realtime-v48-status.js:4: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+learning-guard-v46-fix.js:5: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+learning-guard-v46-fix.js:86: action: "contentUpsert",
+learning-guard-v48.js:5: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+learning-guard-v48.js:248: url.searchParams.set("action", "publicSnapshot");
+learning-guard-v48.js:281: action: "contentUpsert",
+news-attachments-v112.js:4: const WORKER="https://paibp-smart-api.sunarso29.workers.dev";
+news-attachments-v112.js:20: async function snapshot(){const u=new URL(WORKER);u.searchParams.set("action","publicSnapshot");u.searchParams.set("_",Date.now());const r=await fetch(u,{cache:"no-store"});if(!r.ok)throw new Error("Lampiran belum dapat dibaca.");return r.json()}
+cat-session-v65.js:6: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+final-ui-v56.js:6: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+home-news-media-v111.js:4: const API="https://paibp-smart-api.sunarso29.workers.dev";
+home-news-media-v111.js:24: async function snapshot(force=false){const now=Date.now();if(!force&&cache&&now-cacheAt<1800)return cache;if(fetching)return fetching;fetching=(async()=>{const u=new URL(API);u.searchParams.set("action","publicSnapshot");u.searchParams.set("_",String(now));const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),9000);try{const r=await fetch(u,{cache:"no-store",headers:{Accept:"application/json"},signal:ctl.signal});if(!r.ok)throw new Error(`snapshot ${r.status}`);cache=await r.json();cacheAt=Date.now();return cache}finally{clearTimeout(to);fetching=null}})();return fetching}
+final-ui-v52.js:6: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+final-ui-v52.js:250: action: "contentUpsert",
+uji-server-v67.html:1: <!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Uji Server PAIBP SMART V67</title><script src="app-config.js?v=85"></script><style>body{font-family:system-ui;margin:0;min-height:100vh;display:grid;place-items:center;background:#073e34;color:#12382f}.card{width:min(620px,92%);padding:28px;border-radius:24px;background:#fff;text-align:center}.status{font-size:1.55rem;font-weight:900}.ok{color:#08745d}.bad{color:#b52839}button,a{display:inline-block;margin:5px;padding:12px 16px;border:0;border-radius:12px;background:#08745d;color:#fff;font-weight:850;text-decoration:none}pre{text-align:left;white-space:pre-wrap;background:#edf7f3;padding:12px;border-radius:12px}</style><link rel="stylesheet" href="visual-v84.css?v=84"><link rel="stylesheet" href="visual-v85.css?v=85"><link rel="stylesheet" href="icon-depth-
+cat-session-v61.js:6: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+cat-session-v61.js:320: studentNumber:session.identity.attendance, school:session.identity.school, action:"cat-start-v61", section:session.classLabel, appVersion:VERSION, pageUrl:location.href});
+cat-session-v61.js:460: if (document.visibilityState === "hidden") send("activity", {role:"murid", userName:session.identity.name, nisn:session.identity.nisn, studentClass:session.classLabel, action:"cat-page-hidden-v61", appVersion:VERSION, pageUrl:location.href});
+teacher-cat-v72.js:3: const V="80", CFG=window.PAIBP_CONFIG||{}, API=String(CFG.syncEndpoint||"").replace(/\/+$/,"");
+stability-v70.js:5: const WORKER_HOST = "paibp-smart-api.sunarso29.workers.dev";
+stability-v70.js:119: const u=new URL(WORKER);u.searchParams.set("action","classListV66");u.searchParams.set("readKey",String(CONFIG.syncReadKey||""));u.searchParams.set("actorScope",robustScope());u.searchParams.set("actorRole",editorPage()?"editor":"teacher");u.searchParams.set("_v",Date.now());
+final-ui-v51.js:6: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+final-ui-v51.js:57: function activityRecord(action = "session-start") {
+final-ui-v51.js:94: const body = JSON.stringify({ app:"paibp-smart", version:VERSION, action:"activity", origin:location.origin, data:record });
+final-ui-v51.js:347: {title:"Niat dan membaca basmalah", action:"wudhu-niat", note:"Hadapkan hati untuk berwudhu karena Alloh Subhanahu Wata'ala. Niat cukup di dalam hati, kemudian membaca basmalah.", arabic:"بِسْمِ اللَّهِ", latin:"Bismillāh", meaning:"Dengan nama Allah."},
+final-ui-v51.js:348: {title:"Membasuh kedua telapak tangan", action:"wudhu-hands", note:"Basuh kedua telapak tangan sampai pergelangan tiga kali. Mulai dari tangan kanan dan sela-sela jari dibersihkan."},
+final-ui-v51.js:349: {title:"Berkumur dan membersihkan hidung", action:"wudhu-mouth", note:"Ambil air dengan tangan kanan, berkumur, masukkan air perlahan ke hidung, lalu keluarkan menggunakan tangan kiri. Lakukan tiga kali."},
+final-ui-v51.js:350: {title:"Membasuh seluruh wajah", action:"wudhu-face", note:"Basuh dari batas tumbuh rambut sampai dagu dan dari telinga kanan sampai telinga kiri secara merata sebanyak tiga kali."},
+final-ui-v51.js:351: {title:"Membasuh tangan sampai siku", action:"wudhu-arms", note:"Basuh tangan kanan sampai siku tiga kali, kemudian tangan kiri. Pastikan siku dan sela-sela jari terkena air."},
+final-ui-v51.js:352: {title:"Mengusap kepala dan telinga", action:"wudhu-head", note:"Usap kepala satu kali dari depan ke belakang lalu kembali. Lanjutkan mengusap bagian dalam dan luar telinga."},
+final-ui-v51.js:353: {title:"Membasuh kaki sampai mata kaki", action:"wudhu-feet", note:"Basuh kaki kanan sampai mata kaki tiga kali lalu kaki kiri. Bersihkan sela-sela jari dan tumit."},
+final-ui-v51.js:354: {title:"Tertib dan doa setelah wudhu", action:"wudhu-doa", note:"Pastikan semua langkah dilakukan berurutan, tidak terputus terlalu lama, lalu membaca doa setelah wudhu.", arabic:"أَشْهَدُ أَنْ لَا إِلٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ", latin:"Asyhadu allā ilāha illallāhu wahdahu lā syarīka lah, wa asyhadu anna Muhammadan ‘abduhu wa rasūluh.", meaning:"Aku bersaksi bahwa tidak ada Tuhan selain Allah Yang Maha Esa dan aku bersaksi bahwa Nabi Muhammad adalah hamba dan utusan-Nya."},
+final-ui-v51.js:361: {title:"Berdiri, niat, dan takbiratul ihram", action:"prayer-takbir", note:"Berdiri tegak menghadap kiblat. Niat di dalam hati, angkat kedua tangan sejajar bahu atau telinga, lalu bertakbir.", arabic:"اللَّهُ أَكْبَرُ", latin:"Allāhu akbar", meaning:"Allah Mahabesar."},
+final-ui-v51.js:362: {title:"Qiyam: Al Fatihah dan surat", action:"prayer-qiyam", note:"Letakkan tangan kanan di atas tangan kiri. Baca doa iftitah bila dibiasakan, Al Fatihah, kemudian surat atau ayat Al Qur'an.", arabic:"بِسْمِ اللَّهِ الرَّحْمٰنِ الرَّحِيمِ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", latin:"Bismillāhir-raḥmānir-raḥīm. Alḥamdu lillāhi rabbil ‘ālamīn…", meaning:"Bacalah Al Fatihah dengan tartil sampai selesai."},
+final-ui-v51.js:363: {title:"Ruku dengan tuma'ninah", action:"prayer-ruku", note:"Bungkukkan badan, punggung rata, kedua tangan memegang lutut, kepala sejajar punggung, lalu diam sejenak.", arabic:"سُبْحَانَ رَبِّيَ الْعَظِيمِ وَبِحَمْدِهِ", latin:"Subḥāna rabbiyal ‘aẓīmi wa biḥamdih", meaning:"Mahasuci Tuhanku Yang Mahaagung dan dengan memuji-Nya. Dibaca tiga kali."},
+final-ui-v51.js:364: {title:"I'tidal", action:"prayer-itidal", note:"Bangkit dari ruku sampai berdiri tegak dan tuma'ninah.", arabic:"سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ رَبَّنَا لَكَ الْحَمْدُ", latin:"Sami‘allāhu liman ḥamidah. Rabbanā lakal-ḥamd.", meaning:"Allah mendengar orang yang memuji-Nya. Wahai Tuhan kami, bagi-Mu segala puji."},
+final-ui-v51.js:365: {title:"Sujud pertama", action:"prayer-sujud", note:"Letakkan dahi dan hidung, kedua telapak tangan, kedua lutut, serta ujung jari kaki di tempat sujud. Lakukan dengan tuma'ninah.", arabic:"سُبْحَانَ رَبِّيَ الْأَعْلَى وَبِحَمْدِهِ", latin:"Subḥāna rabbiyal a‘lā wa biḥamdih", meaning:"Mahasuci Tuhanku Yang Mahatinggi dan dengan memuji-Nya. Dibaca tiga kali."},
+final-ui-v51.js:366: {title:"Duduk di antara dua sujud", action:"prayer-sit", note:"Bangkit dan duduk iftirasy dengan tuma'ninah, kemudian membaca doa.", arabic:"رَبِّ اغْفِرْ لِي وَارْحَمْنِي وَاجْبُرْنِي وَارْفَعْنِي وَارْزُقْنِي وَاهْدِنِي وَعَافِنِي وَاعْفُ عَنِّي", latin:"Rabbighfir lī warḥamnī wajburnī warfa‘nī warzuqnī wahdinī wa ‘āfinī wa‘fu ‘annī.", meaning:"Ya Allah, ampunilah, rahmatilah, cukupkanlah, angkatlah derajatku, berilah rezeki, petunjuk, kesehatan, dan maaf kepadaku."},
+final-ui-v51.js:367: {title:"Tasyahud dan sholawat", action:"prayer-tasyahud", note:"Duduk tasyahud, letakkan tangan di paha, dan isyaratkan telunjuk sesuai tuntunan yang dipelajari. Baca tahiyat, syahadat, lalu sholawat.", arabic:"التَّحِيَّاتُ لِلَّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ…", latin:"At-taḥiyyātu lillāhi waṣ-ṣalawātu waṭ-ṭayyibāt, as-salāmu ‘alaika ayyuhan-nabiyyu wa raḥmatullāhi wa barakātuh…", meaning:"Lanjutkan bacaan tasyahud dan sholawat Ibrahimiyah sampai selesai."},
+final-ui-v51.js:368: {title:"Salam", action:"prayer-salam", note:"Palingkan wajah ke kanan kemudian ke kiri dengan tertib untuk mengakhiri sholat.", arabic:"السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ", latin:"Assalāmu‘alaikum waraḥmatullāh", meaning:"Semoga keselamatan dan rahmat Allah tercurah kepada kalian."},
+final-ui-v51.js:375: {title:"Luruskan dan rapatkan shaf", action:"jamaah", note:"Imam mengingatkan makmum untuk meluruskan dan merapatkan barisan. Makmum berdiri sejajar tanpa mengganggu orang di samping."},
+final-ui-v51.js:376: {title:"Imam di depan, makmum mengikuti", action:"jamaah", note:"Imam berada di depan. Makmum tidak mendahului takbir, gerakan, maupun salam imam."},
+final-ui-v51.js:377: {title:"Takbir setelah imam", action:"prayer-takbir", note:"Makmum bertakbir sesudah mendengar atau melihat imam bertakbir.", arabic:"اللَّهُ أَكْبَرُ", latin:"Allāhu akbar", meaning:"Allah Mahabesar."},
+final-ui-v51.js:378: {title:"Ikuti seluruh gerakan", action:"prayer-ruku", note:"Ruku, i'tidal, sujud, dan duduk dilakukan setelah imam berpindah gerakan."},
+final-ui-v51.js:379: {title:"Makmum masbuk", action:"jamaah", note:"Makmum yang datang terlambat segera mengikuti posisi imam. Setelah imam salam, berdiri untuk menyempurnakan rakaat yang tertinggal."},
+final-ui-v51.js:380: {title:"Salam bersama imam", action:"prayer-salam", note:"Makmum mengucapkan salam setelah imam mengucapkannya."},
+final-ui-v51.js:387: {title:"Pastikan sebab tayamum", action:"tayamum", note:"Cari air terlebih dahulu. Tayamum dilakukan ketika air tidak ada, sulit dijangkau, atau penggunaan air membahayakan kesehatan."},
+final-ui-v51.js:388: {title:"Niat dan basmalah", action:"wudhu-niat", note:"Berniat tayamum di dalam hati karena Alloh Subhanahu Wata'ala dan membaca basmalah.", arabic:"بِسْمِ اللَّهِ", latin:"Bismillāh", meaning:"Dengan nama Allah."},
+final-ui-v51.js:389: {title:"Tepukkan telapak tangan", action:"tayamum", note:"Tepukkan kedua telapak tangan satu kali pada tanah atau debu yang suci, lalu tipiskan debu berlebih."},
+final-ui-v51.js:390: {title:"Usap wajah", action:"wudhu-face", note:"Usapkan kedua telapak tangan ke seluruh wajah satu kali secara merata."},
+final-ui-v51.js:391: {title:"Usap kedua tangan", action:"wudhu-arms", note:"Usap tangan kanan dan kiri secara tertib sesuai tuntunan yang dipelajari."},
+final-ui-v51.js:398: {title:"Niat", action:"fasting", note:"Niat puasa dilakukan sesuai jenis puasa. Niat berada di dalam hati karena Alloh Subhanahu Wata'ala."},
+final-ui-v51.js:399: {title:"Sahur", action:"fasting", note:"Makan dan minum secukupnya menjelang fajar. Hindari berlebihan dan pilih makanan yang sehat."},
+final-ui-v51.js:400: {title:"Menahan diri", action:"fasting", note:"Sejak terbit fajar sampai terbenam matahari, tahan makan, minum, dan segala hal yang membatalkan puasa."},
+final-ui-v51.js:401: {title:"Menjaga akhlak", action:"fasting", note:"Jaga ucapan, pandangan, emosi, dan perilaku. Perbanyak membaca Al Qur'an, dzikir, sedekah, dan kebaikan."},
+final-ui-v51.js:402: {title:"Segera berbuka", action:"fasting", note:"Ketika waktu maghrib tiba, segera berbuka secukupnya.", arabic:"ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ", latin:"Żahabaẓ-ẓama’u wabtallatil-‘urūqu wa ṡabatal-ajru in syā’allāh.", meaning:"Telah hilang rasa haus, urat-urat telah basah, dan pahala telah tetap, insya Allah."},
+final-ui-v51.js:409: {title:"Kenali jenis zakat", action:"zakat", note:"Bedakan zakat fitrah dan zakat mal. Pelajari syarat, waktu, serta harta yang dikenai zakat."},
+final-ui-v51.js:410: {title:"Hitung kewajiban", action:"zakat", note:"Zakat fitrah mengikuti ukuran yang ditetapkan. Zakat mal dihitung setelah memenuhi nishab dan haul sesuai jenis hartanya."},
+final-ui-v51.js:411: {title:"Niat", action:"zakat", note:"Niatkan zakat karena Alloh Subhanahu Wata'ala, bukan untuk dipuji atau mendapatkan balasan manusia."},
+final-ui-v51.js:412: {title:"Serahkan kepada amil atau mustahik", action:"zakat", note:"Salurkan melalui amil terpercaya atau kepada mustahik yang benar-benar berhak."},
+final-ui-v51.js:413: {title:"Catat dan pastikan sampai", action:"zakat", note:"Pastikan jumlah, waktu, dan penerima tercatat agar penyaluran tertib dan dapat dipertanggungjawabkan."},
+final-ui-v51.js:420: {title:"Ihram dan niat dari miqat", action:"hajj", note:"Bersuci, mengenakan pakaian ihram, kemudian berniat dari miqat yang telah ditentukan."},
+final-ui-v51.js:421: {title:"Wukuf di Arafah", action:"hajj", note:"Berdiam di Arafah pada waktunya sambil berdoa, berdzikir, dan memohon ampun."},
+final-ui-v51.js:422: {title:"Mabit di Muzdalifah dan Mina", action:"hajj", note:"Bermalam sesuai ketentuan manasik dan menjaga ketertiban jamaah."},
+final-ui-v51.js:423: {title:"Melontar jumrah", action:"hajj", note:"Melontar jumrah pada waktu dan urutan yang benar sesuai bimbingan petugas."},
+final-ui-v51.js:424: {title:"Tahallul", action:"hajj", note:"Mencukur atau memotong rambut sebagai tanda keluar dari sebagian atau seluruh larangan ihram."},
+final-ui-v51.js:425: {title:"Tawaf dan sa'i", action:"hajj", note:"Tawaf mengelilingi Ka'bah tujuh putaran, kemudian sa'i antara Shafa dan Marwah tujuh kali."},
+final-ui-v51.js:432: {title:"Niat dan waktu pelaksanaan", action:"qurban", note:"Niatkan ibadah kurban karena Alloh Subhanahu Wata'ala dan laksanakan pada waktu yang telah ditentukan."},
+final-ui-v51.js:433: {title:"Pilih hewan yang memenuhi syarat", action:"qurban", note:"Hewan cukup umur, sehat, tidak cacat, dan diperoleh dengan cara yang halal."},
+final-ui-v51.js:434: {title:"Penyembelihan secara syar'i", action:"qurban", note:"Hadapkan hewan ke kiblat, perlakukan dengan baik, gunakan alat tajam, dan baca basmalah serta takbir.", arabic:"بِسْمِ اللَّهِ، اللَّهُ أَكْبَرُ", latin:"Bismillāh, Allāhu akbar", meaning:"Dengan nama Allah, Allah Mahabesar."},
+final-ui-v51.js:435: {title:"Pengolahan higienis", action:"qurban", note:"Jaga kebersihan tempat, alat, daging, dan petugas agar aman serta tidak mencemari lingkungan."},
+final-ui-v51.js:436: {title:"Pembagian daging", action:"qurban", note:"Bagikan secara tertib kepada yang berhak, tetangga, dan masyarakat dengan menjaga kehormatan penerima."},
+learning-guard-v47.js:5: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+learning-guard-v47.js:239: url.searchParams.set("action", "publicSnapshot");
+learning-guard-v47.js:272: action: "contentUpsert",
+cat-proctor-v59.js:6: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+learning-guard-v44.js:6: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+learning-guard-v44.js:191: action: "activity",
+learning-guard-v44.js:311: url.searchParams.set("action", "publicSnapshot");
+learning-guard-v44.js:337: action: "contentUpsert",
+net-v71.js:3: const HOST = "paibp-smart-api.sunarso29.workers.dev";
+news-attachments-v113.js:4: const WORKER="https://paibp-smart-api.sunarso29.workers.dev";
+news-attachments-v113.js:30: async function snapshot(){const u=new URL(WORKER);u.searchParams.set("action","publicSnapshot");u.searchParams.set("_",Date.now());const r=await fetch(u,{cache:"no-store"});if(!r.ok)throw new Error("Media posting belum dapat dibaca.");return r.json()}
+cat-session-v60.js:6: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+cat-session-v60.js:511: action: "cat-start-v60",
+cat-session-v60.js:604: action: "cat-expired-v60",
+cat-session-v60.js:634: action: "cat-released-v60",
+cat-session-v60.js:868: action: "cat-page-hidden-v60",
+news-editor-v99.js:110: try{const u=new URL(GAS_ENDPOINT);u.searchParams.set("action","publicSnapshot");u.searchParams.set("_",Date.now());const r=await fetch(u,{cache:"no-store"});const j=await r.json();if(j.ok!==true)return{items:[],content:{}};const content=j.content||{};const items=(j.news||[]).map(n=>{const extra=content[`news:${n.id}`]||{};const urls=Array.isArray(extra.media)&&extra.media.length?extra.media:(n.imageUrl?[n.imageUrl]:[]);return{id:n.id,slug:extra.slug||slug(n.title),title:n.title,date:n.date,summary:n.summary,content:extra.content||n.summary||"",category:extra.category||"Berita Sekolah",year:Number(extra.year||String(n.date||"").slice(0,4)),month:Number(extra.month||String(n.date||"").slice(5,7)),thumbnail:extra.coverUrl||n.imageUrl||urls[0]||"",media:urls.map((url,i)=>({src:url,thumbnail:url,name:`Foto ${i+1}`,order:i+1,cover:i===0})),status:"published",publishedAt:n.updatedAt||n.date,upd
+spensus-ai-v54-patch.js:6: const ENDPOINT = String(CONFIG.aiEndpoint || CONFIG.syncEndpoint || "").trim();
+uji-server-v63.html:1: <!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Uji Server V63</title><style>body{font-family:system-ui;margin:0;min-height:100vh;display:grid;place-items:center;background:#063e34;color:#12382f}.card{width:min(620px,90%);padding:30px;border-radius:24px;background:#fff;text-align:center}.ok{color:#08745d}.bad{color:#b42318}a{display:inline-block;margin-top:15px;padding:12px 17px;border-radius:13px;background:#08745d;color:#fff;text-decoration:none;font-weight:800}</style><link rel="stylesheet" href="visual-v84.css?v=84"><link rel="stylesheet" href="visual-v85.css?v=85"><link rel="stylesheet" href="icon-depth-v85.css?v=85"></head><body><main class="card"><h1>Uji Server PAIBP SMART V63</h1><h2 id="status">Menghubungkan…</h2><p id="detail"></p><a href="akses-guru.html">Buka Portal Guru</a></main><script src
+spensus-ai.js:5: const ENDPOINT = String(CONFIG.aiEndpoint || CONFIG.syncEndpoint || "").trim();
+spensus-ai.js:61: const info = READ_KEY ? await jsonp({ action: "setupInfo", readKey: READ_KEY }, 12000) : await jsonp({ action: "health" }, 12000);
+spensus-ai.js:89: action: "aiChat", prompt: truncate(prompt, 2200), context: portalContext(prompt),
+home-news-v102.js:4: const API="https://paibp-smart-api.sunarso29.workers.dev",READ_KEY="b082937b2165453ba7d9f81ecac063b00310b339ec0643da",CACHE_KEY="spensus-news-ig-cache-v102",DB="paibp-smart-news-editor-v96",STORE="posts";
+home-news-v102.js:34: async function fetchServer(){if(syncing)return;syncing=true;try{const u=new URL(API);u.searchParams.set("action","publicSnapshot");const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),22000);let j;try{const r=await fetch(u,{cache:"default",headers:{Accept:"application/json"},signal:ctl.signal});if(!r.ok)throw new Error();j=await r.json()}finally{clearTimeout(tm)}if(j?.ok===true){snapshot=j;items=mergeRows(normalize(j),items);window.PAIBP_SPENSUS_NEWS_V102=items;writeCache(items);render()}}catch{}finally{syncing=false}}
+home-news-v102.js:35: async function postContent(key,value){const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8","Accept":"application/json"},body:JSON.stringify({app:"paibp-smart",version:"102",action:"contentUpsert",readKey:READ_KEY,key:READ_KEY,data:{key,value,readKey:READ_KEY,authorName:"Pengunjung Spensus",authorSchool:"SMP Negeri 1 Susukan"}})});const j=await r.json();if(!r.ok||j?.ok!==true)throw new Error();return j}
+final-ui-v57.js:109: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+final-ui-v57.js:274: action:"contentUpsert",
+news-editor-v96.js:3: const ENDPOINT="https://paibp-smart-api.sunarso29.workers.dev";
+news-editor-v96.js:36: async function apiList(){try{const u=new URL(ENDPOINT);u.searchParams.set("action","newsListV96");u.searchParams.set("limit","50");u.searchParams.set("_t",Date.now());const r=await fetch(u,{cache:"no-store",mode:"cors"});const j=await r.json();if(j.ok===true&&Array.isArray(j.items))return j.items}catch{}return[]}
+cat-session-v66.js:6: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+news-editor-v100.js:3: const SYNC_ENDPOINT="https://paibp-smart-api.sunarso29.workers.dev";
+news-editor-v100.js:73: const body={type:"gallery",action:"save",key:SYNC_KEY,readKey:SYNC_KEY,item:{id:item.id,title:item.title,date:item.date,summary:item.summary,content:item.content,category:item.category,images:item.images.slice(0,10),image:item.images[0],authorName:item.author,authorSchool:"SMP Negeri 1 Susukan",isPublished:true,updatedAt:item.updatedAt},data:{id:item.id,title:item.title,date:item.date,summary:item.summary,content:item.content,category:item.category,images:item.images.slice(0,10),image:item.images[0],imageDataUrl:item.images[0],authorName:item.author,authorSchool:"SMP Negeri 1 Susukan",isPublished:true,updatedAt:item.updatedAt}};
+news-editor-v100.js:81: try{const u=new URL(SYNC_ENDPOINT);u.searchParams.set("action","gallery");u.searchParams.set("key",SYNC_KEY);u.searchParams.set("_",Date.now());const r=await fetch(u,{cache:"no-store"});const j=await r.json();const list=j.gallery||j.items||j.news||j.result?.gallery||[];if(Array.isArray(list)&&list.some(x=>String(x.id)===String(id)))return true}catch{}
+news-editor-v100.js:109: async function deleteItem(x){if(!x||!confirm(`Hapus “${x.title}”?`))return;try{await fetch(SYNC_ENDPOINT,{method:"POST",mode:"no-cors",cache:"no-store",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({type:"gallery",action:"delete",key:SYNC_KEY,readKey:SYNC_KEY,item:{id:x.id},data:{id:x.id}})})}catch{}await delLocal(x.id);refreshLists()}
+realtime-v54.js:6: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+realtime-v54.js:84: function eventRecord(action = "view", extra = {}) {
+realtime-v43.js:6: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeV43Endpoint || "").trim();
+realtime-v43.js:345: function closeActiveSegment(action = "duration") {
+realtime-v43.js:360: function switchSegment(trigger, action = "open") {
+realtime-v43.js:371: action: "session-start",
+realtime-v43.js:410: action: "location-consented",
+realtime-v43.js:671: state.innerHTML = `<strong>Integrasi belum aktif.</strong><p>Deploy <code>google-apps-script/Code.gs</code>, lalu isi <code>syncEndpoint</code> dan <code>syncReadKey</code> pada <code>app-config.js</code>.</p>`;
+realtime-v43.js:939: enqueue("activity", baseRecord({ role: "guru", action: "guru-login", space: "Portal Guru" }));
+realtime-v55.js:4: const ENDPOINT=String(CONFIG.syncEndpoint||CONFIG.realtimeEndpoint||"").trim();
+realtime-v55.js:19: function record(action,extra={}){const data=recordData(action,extra);if(READY&&navigator.onLine){send("activity",data).catch(()=>{const q=queueRead();q.push({action:"activity",data});queueWrite(q);});}else{const q=queueRead();q.push({action:"activity",data});queueWrite(q);}return data;}
+news-editor-chunked-v102.js:3: const GAS="https://paibp-smart-api.sunarso29.workers.dev";
+news-editor-chunked-v102.js:4: const PROXY="https://paibp-smart-api.sunarso29.workers.dev";
+news-editor-chunked-v102.js:23: const u=new URL(GAS);u.searchParams.set("action","publicSnapshot");u.searchParams.set("_",Date.now());
+news-editor-chunked-v102.js:90: await post("contentUpsert",{key,value:{kind:"photo",data,name:photos[i].name||`Foto ${i+1}`},authorName:x.author,authorSchool:"SMP Negeri 1 Susukan",updatedAt:new Date().toISOString()});photoKeys.push(key);
+news-editor-chunked-v102.js:95: const key=`news:${x.id}:body:${i+1}`;await post("contentUpsert",{key,value:{kind:"body",text:parts[i]},authorName:x.author,authorSchool:"SMP Negeri 1 Susukan",updatedAt:new Date().toISOString()});bodyKeys.push(key);
+news-editor-chunked-v102.js:99: await post("newsUpsert",{id:x.id,title:x.title,date:x.date,summary:x.summary,imageDataUrl:cover,imageUrl:"",authorName:x.author,authorSchool:"SMP Negeri 1 Susukan",isPublished:true,sortOrder:-Date.now()});
+news-editor-chunked-v102.js:101: await post("contentUpsert",{key:`news:${x.id}`,value:manifest,authorName:x.author,authorSchool:"SMP Negeri 1 Susukan",updatedAt:new Date().toISOString()});
+cat-session-v63.js:6: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+cat-session-v63.js:449: send("activity", {role:"murid", userName:session.identity.name, studentClass:session.classLabel, studentNumber:session.identity.attendance, school:session.identity.school, action:"cat-start-v63", section:session.classLabel, appVersion:VERSION, pageUrl:location.href});
+cat-session-v63.js:703: send("activity", {role:"murid", userName:session.identity.name, studentClass:session.classLabel, action:"cat-page-hidden-v63", appVersion:VERSION, pageUrl:location.href});
+spensus-ai-v56.js:3: const VERSION="56",CONFIG=window.PAIBP_CONFIG||{},ENDPOINT=String(CONFIG.aiEndpoint||CONFIG.syncEndpoint||"").trim(),TOKEN=String(CONFIG.aiPublicToken||"").trim(),READ=String(CONFIG.syncReadKey||"").trim();
+spensus-ai-v56.js:7: async function status(){try{return READ?await jsonp({action:"setupInfo",readKey:READ},12000):await jsonp({action:"health"},12000)}catch(e){return{ok:false,aiConfigured:false,error:e.message}}}
+news-editor-v101.js:43: async function uploadPhotoUrl(articleId,index,item,photo){const tempId=`media-${articleId}-${index}-${Date.now().toString(36)}`;await post("newsUpsert",{id:tempId,title:"__MEDIA__",date:item.date,summary:"media",imageDataUrl:photo.full,authorName:item.author,authorSchool:"SMP Negeri 1 Susukan",isPublished:true,sortOrder:-999999});const found=await waitFor(s=>{const row=(s.news||[]).find(n=>String(n.id)===tempId);return row?.imageUrl?row:null});const url=found.value.imageUrl;post("newsDelete",{id:tempId}).catch(()=>{});return url}
+news-editor-v101.js:45: async function publishDirect(){let item;try{item=formItem("pending",true)}catch(e){status(e.message,"error");return}const button=$("#ne-publish-direct");button.disabled=true;let old;try{old=(await allLocal()).find(x=>x.id===item.id);if(old)item.createdAt=old.createdAt;await putLocal(item);const urls=[];for(let i=0;i<photos.length;i++){button.textContent=`Foto ${i+1}/${photos.length}`;status(`Mengunggah dan memverifikasi foto ${i+1} dari ${photos.length}…`);urls.push(await uploadPhotoUrl(item.id,i,item,photos[i]))}button.textContent="Menyimpan…";status("Menyimpan naskah lengkap dan galeri…");const contentValue={id:item.id,slug:item.slug,title:item.title,date:item.date,category:item.category,summary:item.summary,content:item.content,media:urls,coverUrl:urls[0],year:item.year,month:item.month,author:item.author};const encoded=JSON.stringify(contentValue);if(encoded.length>43000)throw new Er
+news-editor-v101.js:62: async function deleteItem(x){if(!x||!confirm(`Hapus “${x.title}”?`))return;if(x.status==="published"){await post("newsDelete",{id:x.id});try{await waitFor(s=>!(s.news||[]).some(n=>String(n.id)===String(x.id)),5)}catch{alert("Server belum mengonfirmasi penghapusan. Coba lagi beberapa saat.");return}}await delLocal(x.id);remote=remote.filter(r=>r.id!==x.id);refreshLists()}
+uji-server-v68.html:1: <!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Uji Server PAIBP SMART</title><script src="app-config.js?v=85"></script><style>body{font-family:system-ui;margin:0;min-height:100vh;display:grid;place-items:center;background:#073e34;color:#12382f}.card{width:min(620px,92%);padding:28px;border-radius:24px;background:#fff;text-align:center}.status{font-size:1.55rem;font-weight:900}.ok{color:#08745d}.bad{color:#b52839}button,a{display:inline-block;margin:5px;padding:12px 16px;border:0;border-radius:12px;background:#08745d;color:#fff;font-weight:850;text-decoration:none}pre{text-align:left;white-space:pre-wrap;background:#edf7f3;padding:12px;border-radius:12px}</style><link rel="stylesheet" href="visual-v84.css?v=84"><link rel="stylesheet" href="visual-v85.css?v=85"><link rel="stylesheet" href="icon-depth-v85.
+spensus-ai-v55.js:3: const VERSION="55",CONFIG=window.PAIBP_CONFIG||{},ENDPOINT=String(CONFIG.aiEndpoint||CONFIG.syncEndpoint||"").trim(),TOKEN=String(CONFIG.aiPublicToken||"").trim(),READ=String(CONFIG.syncReadKey||"").trim();
+spensus-ai-v55.js:7: async function status(){try{return READ?await jsonp({action:"setupInfo",readKey:READ},12000):await jsonp({action:"health"},12000)}catch(e){return{ok:false,aiConfigured:false,error:e.message}}}
+cat-session-v67.js:6: const ENDPOINT = String(CONFIG.syncEndpoint || CONFIG.realtimeEndpoint || "").trim();
+cloudflare/share-worker/src/index.js:1: const API = "https://paibp-smart-api.sunarso29.workers.dev";
+cloudflare/share-worker/src/index.js:43: async function snapshot(){const u=new URL(API);u.searchParams.set("action","publicSnapshot");u.searchParams.set("_",Date.now().toString());const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),3500);try{const r=await fetch(u.toString(),{signal:ctl.signal,cf:{cacheTtl:0},headers:{Accept:"application/json",Origin:ALLOWED_ORIGIN,Referer:`${SITE}`,"User-Agent":"PAIBP-SMART-Share/124"}});if(!r.ok)throw new Error(`snapshot ${r.status}`);return r.json()}finally{clearTimeout(tm)}}
