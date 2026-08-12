@@ -1,7 +1,7 @@
 const SITE = "https://paibpsmart.github.io";
 const LEGACY_SITE = "https://sunarso29.github.io";
 const ALLOWED_ORIGINS = new Set([SITE, LEGACY_SITE]);
-const VERSION = "126-d1";
+const VERSION = "139-social-preview";
 const READ_KEY = "b082937b2165453ba7d9f81ecac063b00310b339ec0643da";
 
 function cors(origin = "") {
@@ -48,6 +48,7 @@ function normalizeAction(value) {
   const map = {
     health:"health", ping:"health",
     public:"publicSnapshot", publicsnapshot:"publicSnapshot", stats:"publicSnapshot",
+    publicnews:"publicNews", newspublic:"publicNews", newsbyid:"publicNews",
     activity:"activity", access:"activity", log:"activity", track:"activity", heartbeat:"activity", visit:"activity",
     activitybatch:"activityBatch", batchactivity:"activityBatch",
     activities:"activities", readactivities:"activities", recap:"activities",
@@ -165,6 +166,23 @@ async function publicSnapshot(env) {
     feedback:feedbackQ.results || [],
     content
   };
+}
+
+async function publicNews(env, id) {
+  const db = await ensureDb(env);
+  const newsId = clean(id, 100);
+  if (!newsId) return { ok:true, found:false, id:"" };
+  const row = await db.prepare("SELECT * FROM news WHERE id=? AND is_published=1 LIMIT 1").bind(newsId).first();
+  if (!row) return { ok:true, found:false, id:newsId };
+  const manifestRow = await db.prepare("SELECT value_json FROM content WHERE key=? LIMIT 1").bind(`news:${newsId}`).first();
+  const manifest = manifestRow ? decodeStoredValue(manifestRow.value_json) : null;
+  const coverKey = clean(manifest?.coverKey || (Array.isArray(manifest?.photoKeys) ? manifest.photoKeys[0] : ""), 180);
+  let cover = null;
+  if (coverKey) {
+    const coverRow = await db.prepare("SELECT value_json FROM content WHERE key=? LIMIT 1").bind(coverKey).first();
+    if (coverRow) cover = decodeStoredValue(coverRow.value_json);
+  }
+  return { ok:true, found:true, news:newsObject(row), manifest, coverKey, cover };
 }
 
 async function upsertContent(env, data) {
@@ -308,6 +326,7 @@ export default {
         let result;
         if(action==="health") result={ok:true,service:"paibp-smart-api",version:VERSION,database:"Cloudflare D1",site:SITE,time:nowIso()};
         else if(action==="publicSnapshot") result=await publicSnapshot(env);
+        else if(action==="publicNews") result=await publicNews(env,params.id||params.newsId);
         else if(action==="contentGet") { requireReadKey(params.readKey||params.key||params.token); result=await getContent(env,params.contentKey||params.keyName||params.id||params.key); }
         else if(action==="activities") { requireReadKey(params.readKey||params.key||params.token); result=await getActivities(env,params); }
         else if(action==="submissions") { requireReadKey(params.readKey||params.key||params.token); result=await getSubmissions(env,params); }
