@@ -36,7 +36,7 @@
       addScript("home-clean-v92.js","102");
       addStyle("home-ticker-v94.css","102");
       addScript("home-ticker-v93.js","102");
-      addScript("home-news-v102.js","138");
+      addScript("home-news-v102.js","145");
       addScript("home-news-media-v111.js","118");
       addScript("home-share-v133.js","144");
       addStyle("spensus-ai-v90.css","102");
