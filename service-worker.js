@@ -1,9 +1,9 @@
-const CACHE_NAME="paibp-smart-v141-github-pages-share-r1";
+const CACHE_NAME="paibp-smart-v143-share-navigation-fix-r1";
 const CORE=[
   "./","./index.html","./logo-spensus.png","./styles.css?v=37","./v37-final.css?v=37",
   "./app-config.js?v=85","./stable-v72.css?v=86","./mobile-fix-v70.css?v=86",
   "./visual-v86.css?v=86","./icon-v86.css?v=86","./ui-final-v105.css?v=109",
-  "./ui-final-v105.js?v=109","./icon-art-v85.js?v=141"
+  "./ui-final-v105.js?v=109","./icon-art-v85.js?v=143"
 ];
 
 self.addEventListener("install",event=>{
@@ -33,6 +33,14 @@ async function networkFirst(request,ms=900){
     return response;
   }catch{
     return await cache.match(request)||await cache.match(request,{ignoreSearch:true})||fetch(request);
+  }
+}
+
+async function shareNavigation(request){
+  try{
+    return await fetch(request,{cache:"no-store",redirect:"follow"});
+  }catch{
+    return Response.redirect("https://paibpsmart.github.io/",302);
   }
 }
 
@@ -80,6 +88,11 @@ self.addEventListener("fetch",event=>{
   if(request.destination==="video"||request.destination==="audio"||request.headers.has("range"))return;
 
   if(request.mode==="navigate"||request.destination==="document"){
+    const isSharePath=/^\/share(?:\/|$)|^\/share-v\d+(?:\/|$)/i.test(url.pathname);
+    if(isSharePath){
+      event.respondWith(shareNavigation(request));
+      return;
+    }
     if(url.pathname.endsWith("/editor-berita.html")||url.pathname.endsWith("/kendali-editor.html")){
       event.respondWith(networkFirst(request,900));
       return;
