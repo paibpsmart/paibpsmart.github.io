@@ -64,7 +64,7 @@
     else setTimeout(work,80);
 
     if("serviceWorker" in navigator&&location.protocol!=="file:"){
-      navigator.serviceWorker.register("service-worker.js?v=141").catch(()=>null);
+      navigator.serviceWorker.register("service-worker.js?v=143").catch(()=>null);
     }
   };
 
