@@ -1,9 +1,9 @@
-const CACHE_NAME="paibp-smart-v143-share-navigation-fix-r1";
+const CACHE_NAME="paibp-smart-v144-live-preview-r1";
 const CORE=[
   "./","./index.html","./logo-spensus.png","./styles.css?v=37","./v37-final.css?v=37",
   "./app-config.js?v=85","./stable-v72.css?v=86","./mobile-fix-v70.css?v=86",
   "./visual-v86.css?v=86","./icon-v86.css?v=86","./ui-final-v105.css?v=109",
-  "./ui-final-v105.js?v=109","./icon-art-v85.js?v=143"
+  "./ui-final-v105.js?v=109","./icon-art-v85.js?v=144"
 ];
 
 self.addEventListener("install",event=>{
@@ -37,11 +37,8 @@ async function networkFirst(request,ms=900){
 }
 
 async function shareNavigation(request){
-  try{
-    return await fetch(request,{cache:"no-store",redirect:"follow"});
-  }catch{
-    return Response.redirect("https://paibpsmart.github.io/",302);
-  }
+  try{return await fetch(request,{cache:"no-store",redirect:"follow"})}
+  catch{return Response.redirect("https://paibpsmart.github.io/",302)}
 }
 
 async function staleWhileRevalidate(event,request){
@@ -89,16 +86,11 @@ self.addEventListener("fetch",event=>{
 
   if(request.mode==="navigate"||request.destination==="document"){
     const isSharePath=/^\/share(?:\/|$)|^\/share-v\d+(?:\/|$)/i.test(url.pathname);
-    if(isSharePath){
-      event.respondWith(shareNavigation(request));
-      return;
-    }
+    if(isSharePath){event.respondWith(shareNavigation(request));return}
     if(url.pathname.endsWith("/editor-berita.html")||url.pathname.endsWith("/kendali-editor.html")){
-      event.respondWith(networkFirst(request,900));
-      return;
+      event.respondWith(networkFirst(request,900));return;
     }
-    event.respondWith(navigationInstant(event,request));
-    return;
+    event.respondWith(navigationInstant(event,request));return;
   }
 
   const critical=[
@@ -107,17 +99,8 @@ self.addEventListener("fetch",event=>{
     "/news-attachments-v113.css","/news-publish-direct-v114.js","/cloudinary-media-config-v113.js",
     "/news-editor-chunked-v102.js","/editor-berita.html"
   ];
-  if(critical.some(p=>url.pathname.endsWith(p))){
-    event.respondWith(networkFirst(request,700));
-    return;
-  }
-  if(request.destination==="style"||request.destination==="script"){
-    event.respondWith(staleWhileRevalidate(event,request));
-    return;
-  }
-  if(request.destination==="image"||request.destination==="font"){
-    event.respondWith(cacheFirst(request));
-    return;
-  }
+  if(critical.some(p=>url.pathname.endsWith(p))){event.respondWith(networkFirst(request,700));return}
+  if(request.destination==="style"||request.destination==="script"){event.respondWith(staleWhileRevalidate(event,request));return}
+  if(request.destination==="image"||request.destination==="font"){event.respondWith(cacheFirst(request));return}
   event.respondWith(staleWhileRevalidate(event,request));
 });
