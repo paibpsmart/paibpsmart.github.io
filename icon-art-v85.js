@@ -33,12 +33,13 @@
 
   const loadPageDeferred=()=>{
     if(page==="index.html"){
+      addScript("news-performance-v148.js","148");
       addScript("home-clean-v92.js","102");
       addStyle("home-ticker-v94.css","102");
       addScript("home-ticker-v93.js","102");
-      addScript("home-news-v102.js","145");
-      addScript("home-news-media-v111.js","145");
-      addScript("home-share-v133.js","144");
+      addScript("home-news-v102.js","148");
+      addScript("home-news-media-v111.js","148");
+      addScript("home-share-v133.js","146");
       addStyle("spensus-ai-v90.css","102");
       addScript("spensus-ai-shell-v90.js","102");
     }
@@ -56,15 +57,17 @@
   };
 
   const afterLoad=()=>{
+    // V148: modul berita dimuat segera, tidak menunggu idle 450 ms.
+    if(page==="index.html")loadPageDeferred();
     const work=()=>{
       loadCommonDeferred();
-      loadPageDeferred();
+      if(page!=="index.html")loadPageDeferred();
     };
-    if("requestIdleCallback" in window)requestIdleCallback(work,{timeout:450});
-    else setTimeout(work,80);
+    if("requestIdleCallback" in window)requestIdleCallback(work,{timeout:120});
+    else setTimeout(work,20);
 
     if("serviceWorker" in navigator&&location.protocol!=="file:"){
-      navigator.serviceWorker.register("service-worker.js?v=144").catch(()=>null);
+      navigator.serviceWorker.register("service-worker.js?v=148").catch(()=>null);
     }
   };
 
