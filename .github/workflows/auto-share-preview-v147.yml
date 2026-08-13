@@ -1,0 +1,71 @@
+name: Auto Share Preview V147
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0-59/5 * * * *'
+    - cron: '1-59/5 * * * *'
+    - cron: '2-59/5 * * * *'
+    - cron: '3-59/5 * * * *'
+    - cron: '4-59/5 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auto-share-preview-v147
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Ambil berita publik dan buat preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL 'https://paibp-smart-api.sunarso29.workers.dev/?action=publicSnapshot' \
+            -H 'Origin: https://paibpsmart.github.io' \
+            -H 'Accept: application/json' -o /tmp/snapshot.json
+          node <<'NODE'
+          const fs=require('fs'), path=require('path');
+          const s=JSON.parse(fs.readFileSync('/tmp/snapshot.json','utf8'));
+          const news=(Array.isArray(s.news)?s.news:[]).filter(n=>n&&n.isPublished!==false&&n.id&&n.title);
+          const content=s.content&&typeof s.content==='object'?s.content:{};
+          const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+          const clean=v=>String(v??'').replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim();
+          function unwrap(v){let x=v;for(let i=0;i<8;i++){if(x&&typeof x==='object'&&Object.prototype.hasOwnProperty.call(x,'value')){x=x.value;continue}if(typeof x==='string'){const t=x.trim();if((t.startsWith('{')&&t.endsWith('}'))||(t.startsWith('[')&&t.endsWith(']'))){try{x=JSON.parse(t);continue}catch{}}}break}return x}
+          fs.mkdirSync('share',{recursive:true});
+          const keep=new Set();
+          for(const n of news){
+            const rawId=clean(n.id), id=rawId.replace(/[^A-Za-z0-9._-]/g,'_').slice(0,180); if(!id)continue;
+            keep.add(id);
+            const m=unwrap(content[`news:${rawId}`])||{};
+            const title=clean(m.title||n.title).slice(0,300);
+            const desc=clean(m.summary||n.summary||n.description||'Kabar terbaru SMP Negeri 1 Susukan.').slice(0,340);
+            const share=`https://paibpsmart.github.io/share/${encodeURIComponent(id)}/`;
+            const target=`https://paibpsmart.github.io/index.html?news=${encodeURIComponent(rawId)}&from=share#kabar-spensus`;
+            const image=`https://paibp-smart-share.sunarso29.workers.dev/image?id=${encodeURIComponent(rawId)}`;
+            const dir=path.join('share',id); fs.mkdirSync(dir,{recursive:true});
+            fs.writeFileSync(path.join(dir,'index.html'),`<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} | SMP Negeri 1 Susukan</title><meta name="description" content="${esc(desc)}"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="article"><meta property="og:locale" content="id_ID"><meta property="og:site_name" content="SMP Negeri 1 Susukan"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(share)}"><meta property="og:image" content="${esc(image)}"><meta property="og:image:secure_url" content="${esc(image)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(desc)}"><meta name="twitter:image" content="${esc(image)}"><link rel="canonical" href="${esc(share)}"><meta http-equiv="refresh" content="0;url=${esc(target)}"></head><body><script>location.replace(${JSON.stringify(target)})<\/script></body></html>\n`);
+          }
+          fs.writeFileSync('share/.generated-v147',new Date().toISOString()+`\nposts=${news.length}\n`);
+          console.log(`V147 generated ${news.length} previews`);
+          NODE
+
+      - name: Simpan preview baru
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -A share
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'V147 auto preview berita terbaru'
+          git pull --rebase origin main
+          git push origin HEAD:main
