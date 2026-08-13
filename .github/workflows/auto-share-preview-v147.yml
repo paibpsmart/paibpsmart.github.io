@@ -2,6 +2,10 @@ name: Auto Share Preview V147
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/auto-share-preview-v147.yml'
   schedule:
     - cron: '0-59/5 * * * *'
     - cron: '1-59/5 * * * *'
@@ -41,10 +45,8 @@ jobs:
           const clean=v=>String(v??'').replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim();
           function unwrap(v){let x=v;for(let i=0;i<8;i++){if(x&&typeof x==='object'&&Object.prototype.hasOwnProperty.call(x,'value')){x=x.value;continue}if(typeof x==='string'){const t=x.trim();if((t.startsWith('{')&&t.endsWith('}'))||(t.startsWith('[')&&t.endsWith(']'))){try{x=JSON.parse(t);continue}catch{}}}break}return x}
           fs.mkdirSync('share',{recursive:true});
-          const keep=new Set();
           for(const n of news){
             const rawId=clean(n.id), id=rawId.replace(/[^A-Za-z0-9._-]/g,'_').slice(0,180); if(!id)continue;
-            keep.add(id);
             const m=unwrap(content[`news:${rawId}`])||{};
             const title=clean(m.title||n.title).slice(0,300);
             const desc=clean(m.summary||n.summary||n.description||'Kabar terbaru SMP Negeri 1 Susukan.').slice(0,340);
