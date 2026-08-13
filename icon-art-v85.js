@@ -36,8 +36,8 @@
       addScript("home-clean-v92.js","102");
       addStyle("home-ticker-v94.css","102");
       addScript("home-ticker-v93.js","102");
-      addScript("home-news-v102.js","149");
-      addScript("news-ui-fast-v149.js","149");
+      addScript("home-news-v102.js","150");
+      addScript("news-ui-fast-v149.js","150");
       addScript("home-share-v133.js","146");
       addStyle("spensus-ai-v90.css","102");
       addScript("spensus-ai-shell-v90.js","102");
@@ -65,7 +65,7 @@
     else setTimeout(work,30);
 
     if("serviceWorker" in navigator&&location.protocol!=="file:"){
-      navigator.serviceWorker.register("service-worker.js?v=149").catch(()=>null);
+      navigator.serviceWorker.register("service-worker.js?v=150").catch(()=>null);
     }
   };
 
