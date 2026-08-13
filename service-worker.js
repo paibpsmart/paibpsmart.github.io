@@ -1,9 +1,9 @@
-const CACHE_NAME="paibp-smart-v148-news-performance-r1";
+const CACHE_NAME="paibp-smart-v149-news-stable-r1";
 const CORE=[
   "./","./index.html","./logo-spensus.png","./styles.css?v=37","./v37-final.css?v=37",
   "./app-config.js?v=85","./stable-v72.css?v=86","./mobile-fix-v70.css?v=86",
   "./visual-v86.css?v=86","./icon-v86.css?v=86","./ui-final-v105.css?v=109",
-  "./ui-final-v105.js?v=109","./icon-art-v85.js?v=148","./news-performance-v148.js?v=148"
+  "./ui-final-v105.js?v=109","./icon-art-v85.js?v=149","./news-ui-fast-v149.js?v=149"
 ];
 
 self.addEventListener("install",event=>{
@@ -95,12 +95,11 @@ self.addEventListener("fetch",event=>{
 
   const critical=[
     "/app-config.js","/ui-final-v105.js","/icon-art-v85.js","/service-worker.js",
-    "/news-performance-v148.js","/home-news-v102.js","/home-news-media-v111.js",
     "/home-share-v102.js","/home-share-v133.js","/news-attachments-v113.js",
     "/news-attachments-v113.css","/news-publish-direct-v114.js","/cloudinary-media-config-v113.js",
     "/news-editor-chunked-v102.js","/editor-berita.html"
   ];
-  if(critical.some(p=>url.pathname.endsWith(p))){event.respondWith(networkFirst(request,500));return}
+  if(critical.some(p=>url.pathname.endsWith(p))){event.respondWith(networkFirst(request,700));return}
   if(request.destination==="style"||request.destination==="script"){event.respondWith(staleWhileRevalidate(event,request));return}
   if(request.destination==="image"||request.destination==="font"){event.respondWith(cacheFirst(request));return}
   event.respondWith(staleWhileRevalidate(event,request));
