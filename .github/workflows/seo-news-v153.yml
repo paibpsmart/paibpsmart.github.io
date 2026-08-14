@@ -1,0 +1,96 @@
+name: SEO News V153
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/seo-news-v153.yml'
+  schedule:
+    - cron: '*/5 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: seo-news-v153
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Ambil snapshot berita publik
+        run: |
+          set -euo pipefail
+          curl -fsSL 'https://paibp-smart-api.sunarso29.workers.dev/?action=publicSnapshot' \
+            -H 'Origin: https://paibpsmart.github.io' \
+            -H 'Accept: application/json' -o /tmp/snapshot.json
+
+      - name: Bangun halaman SEO NewsArticle dan sitemap
+        run: |
+          node <<'NODE'
+          const fs=require('fs'),path=require('path');
+          const s=JSON.parse(fs.readFileSync('/tmp/snapshot.json','utf8'));
+          const content=s.content&&typeof s.content==='object'?s.content:{};
+          const news=(Array.isArray(s.news)?s.news:[]).filter(n=>n&&n.isPublished!==false&&n.id&&n.title);
+          const clean=v=>String(v??'').replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim();
+          const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+          const xml=v=>String(v??'').replace(/[<>&'\"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));
+          function unwrap(v){let x=v;for(let i=0;i<8;i++){if(x&&typeof x==='object'&&Object.prototype.hasOwnProperty.call(x,'value')){x=x.value;continue}if(typeof x==='string'){const t=x.trim();if((t.startsWith('{')&&t.endsWith('}'))||(t.startsWith('[')&&t.endsWith(']'))){try{x=JSON.parse(t);continue}catch{}}}break}return x}
+          function bodyFor(n){const m=unwrap(content[`news:${n.id}`])||{};if(m?.schema==='chunks-v102'){return (m.bodyKeys||[]).map(k=>unwrap(content[k])?.text||unwrap(content[k])||'').join('\n\n')}return String(m.content||n.content||n.summary||'')}
+          function dateISO(v){const x=clean(v);if(!x)return '';if(/^\d{4}-\d{2}-\d{2}$/.test(x))return `${x}T08:00:00+07:00`;const d=new Date(x);return Number.isNaN(d.getTime())?'':d.toISOString()}
+          function safeId(v){return clean(v).replace(/[^A-Za-z0-9._-]/g,'_').slice(0,180)}
+          fs.mkdirSync('berita',{recursive:true});
+          const sitemap=[];
+          for(const n of news){
+            const rawId=clean(n.id),id=safeId(rawId);if(!id)continue;
+            const m=unwrap(content[`news:${rawId}`])||{};
+            const title=clean(m.title||n.title||'Berita SMP Negeri 1 Susukan');
+            const summary=clean(m.summary||n.summary||'Kabar terbaru SMP Negeri 1 Susukan Banjarnegara.').slice(0,320);
+            const body=bodyFor(n)||summary;
+            const published=dateISO(m.date||n.date||n.publishedAt||n.createdAt)||new Date().toISOString();
+            const modified=dateISO(n.updatedAt||m.updatedAt||n.publishedAt||m.date||n.date)||published;
+            const author=clean(n.authorName||m.author||'SMP Negeri 1 Susukan');
+            const canonical=`https://paibpsmart.github.io/berita/${encodeURIComponent(id)}/`;
+            const portal=`https://paibpsmart.github.io/index.html?news=${encodeURIComponent(rawId)}#kabar-spensus`;
+            const image=`https://paibp-smart-share.sunarso29.workers.dev/image?id=${encodeURIComponent(rawId)}`;
+            const paragraphs=String(body).split(/\n\s*\n|\n/).map(x=>x.trim()).filter(Boolean).map(x=>`<p>${esc(x)}</p>`).join('\n');
+            const schema={
+              '@context':'https://schema.org','@type':'NewsArticle',
+              headline:title,description:summary,image:[image],datePublished:published,dateModified:modified,
+              mainEntityOfPage:{'@type':'WebPage','@id':canonical},
+              author:[{'@type':'Person','name':author}],
+              publisher:{'@type':'Organization','name':'SMP Negeri 1 Susukan','logo':{'@type':'ImageObject','url':'https://paibpsmart.github.io/logo-spensus.png'}},
+              about:{'@type':'School','name':'SMP Negeri 1 Susukan','identifier':'NPSN 20304047','address':{'@type':'PostalAddress','streetAddress':'Jl. Raya Susukan-Banjarnegara','addressLocality':'Susukan','addressRegion':'Jawa Tengah','addressCountry':'ID'}}
+            };
+            const breadcrumb={'@context':'https://schema.org','@type':'BreadcrumbList','itemListElement':[
+              {'@type':'ListItem','position':1,'name':'Beranda','item':'https://paibpsmart.github.io/'},
+              {'@type':'ListItem','position':2,'name':'Berita SMP Negeri 1 Susukan','item':'https://paibpsmart.github.io/#kabar-spensus'},
+              {'@type':'ListItem','position':3,'name':title,'item':canonical}
+            ]};
+            const html=`<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} | SMP Negeri 1 Susukan Banjarnegara</title><meta name="description" content="${esc(summary)}"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><link rel="canonical" href="${esc(canonical)}"><meta property="og:type" content="article"><meta property="og:locale" content="id_ID"><meta property="og:site_name" content="SMP Negeri 1 Susukan Banjarnegara"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(summary)}"><meta property="og:url" content="${esc(canonical)}"><meta property="og:image" content="${esc(image)}"><meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">${JSON.stringify(schema).replace(/</g,'\\u003c')}</script><script type="application/ld+json">${JSON.stringify(breadcrumb).replace(/</g,'\\u003c')}</script><style>body{margin:0;font:16px/1.75 system-ui,-apple-system,Segoe UI,sans-serif;color:#173247;background:#f5f8fa}main{max-width:860px;margin:auto;padding:28px 18px 60px}article{background:#fff;border:1px solid #dbe6eb;border-radius:18px;overflow:hidden}header,.body{padding:20px 24px}h1{font-size:clamp(28px,5vw,46px);line-height:1.08;margin:.2em 0}.meta{color:#6b7f8d;font-size:13px}.cover{display:block;width:100%;max-height:620px;object-fit:contain;background:#09141c}.body p{margin:0 0 1em}.cta{display:inline-block;margin-top:12px;padding:10px 16px;border-radius:999px;background:#087f68;color:#fff;text-decoration:none;font-weight:800}</style></head><body><main><article><header><div class="meta">SMP Negeri 1 Susukan • Banjarnegara • NPSN 20304047</div><h1>${esc(title)}</h1><div class="meta">${esc(String(m.date||n.date||''))} • ${esc(author)}</div></header><img class="cover" src="${esc(image)}" alt="${esc(title)}"><div class="body">${paragraphs}<a class="cta" href="${esc(portal)}">Buka berita di PAIBP SMART</a></div></article></main></body></html>\n`;
+            const dir=path.join('berita',id);fs.mkdirSync(dir,{recursive:true});fs.writeFileSync(path.join(dir,'index.html'),html);
+            sitemap.push({loc:canonical,lastmod:modified.slice(0,10),image,title});
+          }
+          sitemap.sort((a,b)=>String(b.lastmod).localeCompare(String(a.lastmod)));
+          const sm='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n'+sitemap.map(x=>`  <url><loc>${xml(x.loc)}</loc><lastmod>${xml(x.lastmod)}</lastmod><image:image><image:loc>${xml(x.image)}</image:loc><image:title>${xml(x.title)}</image:title></image:image></url>`).join('\n')+'\n</urlset>\n';
+          fs.writeFileSync('sitemap-news.xml',sm);
+          console.log(`SEO V153 generated ${sitemap.length} NewsArticle pages`);
+          NODE
+
+      - name: Simpan hasil SEO berita
+        run: |
+          set -euo pipefail
+          git add -A berita sitemap-news.xml
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'SEO V153 generate NewsArticle pages and news sitemap'
+          git pull --rebase origin main
+          git push origin HEAD:main
