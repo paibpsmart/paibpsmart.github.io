@@ -36,10 +36,11 @@
       addScript("home-clean-v92.js","102");
       addStyle("home-ticker-v94.css","102");
       addScript("home-ticker-v93.js","102");
-      addScript("home-news-v102.js","151");
-      addScript("news-ui-fast-v149.js","151");
-      addScript("home-news-media-v151.js","151");
-      addScript("home-share-v133.js","146");
+      addScript("home-news-v102.js","152");
+      addScript("news-ui-fast-v149.js","152");
+      addScript("home-news-media-v151.js","152");
+      addScript("home-share-v133.js","152");
+      addScript("share-ready-v152.js","152");
       addStyle("spensus-ai-v90.css","102");
       addScript("spensus-ai-shell-v90.js","102");
     }
@@ -66,7 +67,7 @@
     else setTimeout(work,30);
 
     if("serviceWorker" in navigator&&location.protocol!=="file:"){
-      navigator.serviceWorker.register("service-worker.js?v=151").catch(()=>null);
+      navigator.serviceWorker.register("service-worker.js?v=152").catch(()=>null);
     }
   };
 
