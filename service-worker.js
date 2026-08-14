@@ -1,9 +1,9 @@
-const CACHE_NAME="paibp-smart-v150-no-render-loop-r1";
+const CACHE_NAME="paibp-smart-v152-share-ready-r1";
 const CORE=[
   "./","./index.html","./logo-spensus.png","./styles.css?v=37","./v37-final.css?v=37",
   "./app-config.js?v=85","./stable-v72.css?v=86","./mobile-fix-v70.css?v=86",
   "./visual-v86.css?v=86","./icon-v86.css?v=86","./ui-final-v105.css?v=109",
-  "./ui-final-v105.js?v=109","./icon-art-v85.js?v=150","./news-ui-fast-v149.js?v=150"
+  "./ui-final-v105.js?v=109","./icon-art-v85.js?v=152","./news-ui-fast-v149.js?v=152","./share-ready-v152.js?v=152"
 ];
 self.addEventListener("install",event=>{self.skipWaiting();event.waitUntil(caches.open(CACHE_NAME).then(cache=>Promise.allSettled(CORE.map(url=>cache.add(url)))))});
 self.addEventListener("activate",event=>{event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(key=>key!==CACHE_NAME&&!key.startsWith("paibp-quran-kemenag-")).map(key=>caches.delete(key)));await self.clients.claim()})())});
@@ -14,5 +14,5 @@ async function cacheFirst(request){const cache=await caches.open(CACHE_NAME);con
 async function navigationInstant(event,request){const cache=await caches.open(CACHE_NAME);const hit=await cache.match(request)||await cache.match(request,{ignoreSearch:true})||await cache.match("./index.html");if(hit){event.waitUntil(fetch(request,{cache:"no-store"}).then(response=>{if(response&&response.ok)return cache.put(request,response.clone())}).catch(()=>null));return hit}const fresh=await fetch(request,{cache:"no-store"});if(fresh&&fresh.ok)cache.put(request,fresh.clone());return fresh}
 self.addEventListener("fetch",event=>{const request=event.request;if(request.method!=="GET")return;const url=new URL(request.url);if(url.origin!==self.location.origin)return;if(request.destination==="video"||request.destination==="audio"||request.headers.has("range"))return;
 if(request.mode==="navigate"||request.destination==="document"){if(/^\/share(?:\/|$)|^\/share-v\d+(?:\/|$)/i.test(url.pathname)){event.respondWith(fetch(request,{cache:"no-store",redirect:"follow"}).catch(()=>Response.redirect("https://paibpsmart.github.io/",302)));return}if(url.pathname.endsWith("/editor-berita.html")||url.pathname.endsWith("/kendali-editor.html")){event.respondWith(networkFirst(request,700));return}event.respondWith(navigationInstant(event,request));return}
-if(url.pathname.endsWith("/news-ui-fast-v149.js")||url.pathname.endsWith("/icon-art-v85.js")||url.pathname.endsWith("/service-worker.js")){event.respondWith(networkFirst(request,300));return}
+if(url.pathname.endsWith("/news-ui-fast-v149.js")||url.pathname.endsWith("/share-ready-v152.js")||url.pathname.endsWith("/home-share-v133.js")||url.pathname.endsWith("/icon-art-v85.js")||url.pathname.endsWith("/service-worker.js")){event.respondWith(networkFirst(request,300));return}
 if(request.destination==="style"||request.destination==="script"){event.respondWith(staleWhileRevalidate(event,request));return}if(request.destination==="image"||request.destination==="font"){event.respondWith(cacheFirst(request));return}event.respondWith(staleWhileRevalidate(event,request))});
