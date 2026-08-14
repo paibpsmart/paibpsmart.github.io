@@ -1,36 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  <url><loc>https://paibpsmart.github.io/</loc><lastmod>2026-08-03</lastmod><changefreq>daily</changefreq><priority>1.0</priority>
-    <image:image><image:loc>https://paibpsmart.github.io/gerbang.jpg</image:loc></image:image></url>
-  <url><loc>https://paibpsmart.github.io/fitur.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://paibpsmart.github.io/mapel-lain.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://paibpsmart.github.io/literasi-digital.html</loc><lastmod>2026-08-03</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://paibpsmart.github.io/about-spensus.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/contact.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/privacy.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/terms.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/support.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/mapel-pendidikan-pancasila.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/mapel-bahasa-indonesia.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/mapel-matematika.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/mapel-ipa.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/mapel-ips.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/mapel-bahasa-inggris.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/mapel-pjok.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/mapel-informatika.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/mapel-bimbingan-konseling.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/mapel-prakarya.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/mapel-seni-musik.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/mapel-seni-tari.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/mapel-koding-ai.html</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://paibpsmart.github.io/artikel-islam.html</loc><lastmod>2026-08-03</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://paibpsmart.github.io/pusat-pendidikan-smp.html</loc><lastmod>2026-08-03</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://paibpsmart.github.io/pendidikan-smp-banjarnegara.html</loc><lastmod>2026-08-03</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://paibpsmart.github.io/perangkat-pembelajaran-smp.html</loc><lastmod>2026-08-03</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://paibpsmart.github.io/asesmen-smp.html</loc><lastmod>2026-08-03</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://paibpsmart.github.io/paibp-smp.html</loc><lastmod>2026-08-03</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://paibpsmart.github.io/kurikulum-merdeka-smp.html</loc><lastmod>2026-08-03</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://paibpsmart.github.io/literasi-pendidikan-smp.html</loc><lastmod>2026-08-03</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://paibpsmart.github.io/mapel-kelas-7-8-9.html</loc><lastmod>2026-08-03</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://paibpsmart.github.io/spmb-rapor-praktik-baik.html</loc><lastmod>2026-08-03</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-</urlset>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://paibpsmart.github.io/sitemap-pages.xml</loc>
+    <lastmod>2026-08-14</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://paibpsmart.github.io/sitemap-news.xml</loc>
+    <lastmod>2026-08-14</lastmod>
+  </sitemap>
+</sitemapindex>
