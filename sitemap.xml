@@ -1,11 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap>
-    <loc>https://paibpsmart.github.io/sitemap-pages.xml</loc>
-    <lastmod>2026-08-14</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://paibpsmart.github.io/sitemap-news.xml</loc>
-    <lastmod>2026-08-14</lastmod>
-  </sitemap>
-</sitemapindex>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url><loc>https://paibpsmart.github.io/</loc><lastmod>2026-08-14</lastmod><image:image><image:loc>https://paibpsmart.github.io/gerbang.jpg</image:loc></image:image></url>
+  <url><loc>https://paibpsmart.github.io/about-spensus.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/fitur.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/mapel-lain.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/literasi-digital.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/artikel-islam.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/contact.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/paibp-smp.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/pendidikan-smp-banjarnegara.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/pusat-pendidikan-smp.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/perangkat-pembelajaran-smp.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/asesmen-smp.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/kurikulum-merdeka-smp.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/literasi-pendidikan-smp.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/mapel-kelas-7-8-9.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/mapel-pendidikan-pancasila.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/mapel-bahasa-indonesia.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/mapel-matematika.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/mapel-ipa.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/mapel-ips.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/mapel-bahasa-inggris.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/mapel-pjok.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/mapel-informatika.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/mapel-bimbingan-konseling.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/mapel-prakarya.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/mapel-seni-musik.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/mapel-seni-tari.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/mapel-koding-ai.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/privacy.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/terms.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/support.html</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/berita/24f8702a-4d9b-4dc0-bee0-b20869a51602/</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/berita/news-1786659390229-f8u8f7d/</loc><lastmod>2026-08-13</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/berita/e3752920-bdb0-4a0e-8a38-f2e9792de35b/</loc><lastmod>2026-08-13</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/berita/280aca97-5f15-4b44-9c07-713aa729c5e7/</loc><lastmod>2026-08-13</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/berita/a92311f1-9784-4b38-bd6b-f14b3cba3252/</loc><lastmod>2026-08-12</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/berita/news-1786463411888-925mqh8/</loc><lastmod>2026-08-12</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/berita/1e8f435d-e6d2-4546-829b-55bc747e91a4/</loc><lastmod>2026-08-12</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/berita/ca9f9c3d-676a-4423-a114-81a1a64b7b40/</loc><lastmod>2026-08-12</lastmod></url>
+  <url><loc>https://paibpsmart.github.io/berita/c3c165f0-f772-4071-ac54-2fccee466e1e/</loc><lastmod>2026-08-12</lastmod></url>
+</urlset>
