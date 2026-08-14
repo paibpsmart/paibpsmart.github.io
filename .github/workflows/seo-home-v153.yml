@@ -1,0 +1,46 @@
+name: SEO Home V153
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/seo-home-v153.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Perkuat metadata homepage dan schema School
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('<title>PAIBP SMART SMP | Portal Pendidikan SMP Negeri 1 Susukan</title>','<title>SMP Negeri 1 Susukan Banjarnegara | PAIBP SMART SMP</title>')
+          s=s.replace('Portal pendidikan SMP Negeri 1 Susukan Banjarnegara: materi PAIBP kelas VII–IX, mapel SMP, LKPD, asesmen, game edukasi, Al Qur\'an, Bahasa Arab, Spensus AI, dan informasi sekolah.','SMP Negeri 1 Susukan Banjarnegara (NPSN 20304047): portal sekolah dan pembelajaran digital PAIBP SMART SMP berisi berita sekolah, profil, materi kelas VII–IX, LKPD, asesmen, game edukasi, dan layanan Islami.')
+          s=s.replace('PAIBP SMART SMP — Portal Murid dan Guru','SMP Negeri 1 Susukan Banjarnegara — PAIBP SMART SMP')
+          s=s.replace('Materi utuh, ringkasan, LKPD, perangkat pembelajaran, fitur Islami, dan game PAIBP kelas VII–IX.','Portal SMP Negeri 1 Susukan Banjarnegara: berita sekolah, profil, materi PAIBP kelas VII–IX, LKPD, asesmen, game edukasi, dan layanan Islami.')
+          s=s.replace('PAIBP SMART SMP | Portal Pendidikan SMP Negeri 1 Susukan','SMP Negeri 1 Susukan Banjarnegara | PAIBP SMART SMP')
+          needle='"description": "Portal resmi dan ekosistem pembelajaran digital SMP Negeri 1 Susukan, Banjarnegara.",'
+          repl='"description": "Portal sekolah dan ekosistem pembelajaran digital SMP Negeri 1 Susukan, Banjarnegara, NPSN 20304047.",\n      "identifier": "NPSN 20304047",\n      "email": "smpn1ssk@gmail.com",\n      "geo": {"@type":"GeoCoordinates","latitude":-7.499,"longitude":109.3848},'
+          s=s.replace(needle,repl)
+          s=s.replace('"addressLocality": "Susukan",','"addressLocality": "Susukan",\n        "addressSubregion": "Banjarnegara",')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit homepage SEO
+        run: |
+          set -euo pipefail
+          git add index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'SEO V153 optimize homepage for SMP Negeri 1 Susukan Banjarnegara'
+          git pull --rebase origin main
+          git push origin HEAD:main
