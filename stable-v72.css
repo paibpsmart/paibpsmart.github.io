@@ -7,3 +7,31 @@ html{scroll-behavior:auto!important}
 #v72-time{margin:12px 0 0;color:#315e54;font-weight:750}.v72-active{margin-top:16px;padding-top:14px;border-top:1px solid #d8e8e2}.v72-active h3{margin:0 0 10px;font-size:1.05rem}.v72-empty{margin:0;color:#607a73}#v72-active-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#v72-active-list article{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border:1px solid #d8e7e2;border-radius:13px;background:#fff}#v72-active-list article div{display:grid;gap:2px}#v72-active-list strong{color:#0a4f40}#v72-active-list small{color:#607a73;font-size:.72rem}#v72-active-list button{background:#c5414e;flex:0 0 auto}
 @media(max-width:760px){*{scroll-behavior:auto!important}.topbar,.hero-access-panel,.workspace-shell,.workspace-panel,.access-tile{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}.hero:after,.hero-v25:after{display:none!important}#v72-cat{width:calc(100% - 14px);margin:10px auto 18px;padding:14px;border-radius:18px;box-shadow:none}#v72-cat header{display:grid;gap:10px}.v72-grid{grid-template-columns:1fr!important}.v72-actions{display:grid;grid-template-columns:1fr 1fr}.v72-actions button{min-width:0;padding:8px}.v72-active #v72-active-list{grid-template-columns:1fr}.smart-ticker *{animation:none!important}.access-tile:hover,.card:hover,.feature-button:hover,.stat-button:hover{transform:none!important}}
 @media(max-width:420px){.v72-actions{grid-template-columns:1fr}#v72-active-list article{align-items:flex-start;flex-direction:column}#v72-active-list button{width:100%}}
+
+/* Arsip berita tahunan: tampilkan jumlah artikel langsung pada tab tahun. */
+#spensus-news-v102 .ig-year>button{position:relative;gap:10px;padding-right:13px}
+#spensus-news-v102 .ig-year>button::after{content:"0 artikel";margin-left:auto;color:#718697;font-size:10px;font-weight:800;white-space:nowrap;line-height:1}
+#spensus-news-v102 .ig-year>button b{flex:0 0 auto}
+#spensus-news-v102 .ig-year>button span{flex:0 0 auto}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(1))>button::after{content:"1 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(2))>button::after{content:"2 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(3))>button::after{content:"3 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(4))>button::after{content:"4 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(5))>button::after{content:"5 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(6))>button::after{content:"6 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(7))>button::after{content:"7 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(8))>button::after{content:"8 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(9))>button::after{content:"9 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(10))>button::after{content:"10 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(11))>button::after{content:"11 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(12))>button::after{content:"12 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(13))>button::after{content:"13 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(14))>button::after{content:"14 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(15))>button::after{content:"15 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(16))>button::after{content:"16 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(17))>button::after{content:"17 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(18))>button::after{content:"18 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(19))>button::after{content:"19 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(20))>button::after{content:"20 artikel"}
+#spensus-news-v102 .ig-year:has(.ig-year-list>.ig-archive-item:nth-child(21))>button::after{content:"21 artikel"}
+@media(max-width:780px){#spensus-news-v102 .ig-year>button::after{font-size:9px}}
