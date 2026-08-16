@@ -41,6 +41,7 @@
       addScript("home-news-media-v151.js","152");
       addScript("home-share-v133.js","152");
       addScript("share-ready-v152.js","152");
+      addScript("news-sidebar-toggle-v1.js","1");
       addStyle("spensus-ai-v90.css","102");
       addScript("spensus-ai-shell-v90.js","102");
     }
@@ -67,7 +68,7 @@
     else setTimeout(work,30);
 
     if("serviceWorker" in navigator&&location.protocol!=="file:"){
-      navigator.serviceWorker.register("service-worker.js?v=153").catch(()=>null);
+      navigator.serviceWorker.register("service-worker.js?v=154").catch(()=>null);
     }
   };
 
